@@ -5,18 +5,21 @@ const { MongoClient } = pkg;
 import cors from 'cors';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken'
 dotenv.config();
 
-
-
 const app = express();
+// server.js
 const corsOptions = {
     origin: 'http://localhost:8082',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
-    optionsSuccessStatus: 204,
+    optionsSuccessStatus: 200,  // some legacy browsers choke on 204
 };
-app.use(cors(corsOptions));
+
+app.use(cors());
+
+
 let db;
 
 
@@ -38,11 +41,39 @@ MongoClient.connect(connectionString, { useNewUrlParser: true, useUnifiedTopolog
     });
 
 app.use(bodyParser.json());
+
 app.use((req, res, next) => {
     console.log(`Request received: ${req.method} ${req.url}`);
     next();
 });
+app.post('/api/userData', async (req, res) => {
+    // Get JWT from the Authorization header
+    const token = req.headers.authorization?.split(" ")[1];
 
+    if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
+
+    try {
+        // Decode and verify JWT
+        const decoded = jwt.verify(token, YOUR_SECRET_KEY);
+
+        // Fetch user using the decoded email or user ID
+        const user = await db.collection('users').findOne({ email: decoded.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({
+            name: user.name,
+            email: user.email,
+            id: user.id,
+        });
+    } catch (error) {
+        return res.status(401).json({ message: 'Token invalid' });
+    }
+});
 app.post('/api/register', async (req, res) => {
     try {
         const { id, name, email, password, passwordConfirm } = req.body;
@@ -65,7 +96,6 @@ app.post('/api/register', async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            cartItems: []
         };
 
         await db.collection('users').insertOne(newUser);
@@ -81,8 +111,13 @@ app.post('/api/register', async (req, res) => {
     }
 
 });
+app.get('/test', (req, res) => {
+    res.send('Test route is working');
+});
 
 app.post('/api/login', async (req, res) => {
+    console.log('Received request at /api/userData');
+
     const { email, password } = req.body;
     console.log('Received login request with email:', email);
 
@@ -106,9 +141,10 @@ app.post('/api/login', async (req, res) => {
             email: user.email,
             id: user.id
         },
-
     });
 });
+
+
 
 
 
