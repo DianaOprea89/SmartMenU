@@ -13,7 +13,14 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 console.log("Connecting to MongoDB at:", process.env.MONGODB_URI);
@@ -157,43 +164,47 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ message: 'Error logging in user' });
     }
 });
+
+
 app.post('/api/restaurants', async (req, res) => {
     try {
-        // Extract restaurant data from request body
-        const { userId, name, address, phoneNumber, aboutUs, logoImage } = req.body;
+        // Extract user ID, restaurant name, and new menu option data from request body
+        const { userId, name, newItem } = req.body;
 
-        // Verify the user's token and extract their ID
-        const token = req.headers.authorization?.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // Verify the user's token and extract their ID (you can add token verification here if needed)
 
-        // Check if the ID from token matches the userId sent with the request
-        if (!decoded || decoded.userId !== userId) {
-            return res.status(403).json({ message: 'Not authorized' });
-        }
+        // Find the user by their ID
+        const user = await User.findById(userId);
 
-        // Find the user by ID and update their document
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            {
-                $push: { restaurants: { name, address, phoneNumber, aboutUs, logoImage } }
-            },
-            { new: true } // Return the updated user document
-        );
-
-        if (!updatedUser) {
+        if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        // Find the restaurant by name within the user's restaurants
+        const restaurant = user.restaurants.find(r => r.name === name);
+
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        // Add the new menu option to the restaurant's menuOptions array
+        restaurant.menuOptions.push(newItem);
+
+        // Save the updated user data
+        await user.save();
+
         // Send back the updated user data
         res.status(200).json({
-            message: 'Restaurant added successfully',
-            user: updatedUser
+            message: 'Menu option added successfully',
+            user: user // Return the updated user data
         });
     } catch (error) {
-        console.error('Error adding restaurant:', error);
-        res.status(500).json({ message: 'Error adding restaurant' });
+        console.error('Error adding menu option:', error);
+        res.status(500).json({ message: 'Error adding menu option' });
     }
 });
+
+
 
 
 

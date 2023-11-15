@@ -6,9 +6,9 @@ const restaurantSchema = new mongoose.Schema({
     address: String,
     phoneNumber: String,
     aboutUs: String,
-    logoImage: String // This should be a URL to the image
+    logoImage: String,
+    menuOptions: [{ photoLink: String, optionName: String }], // Add menuOptions field
 });
 
+export default mongoose.model('Restaurant', restaurantSchema);
 
-
-export default restaurantSchema;
