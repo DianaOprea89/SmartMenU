@@ -10,7 +10,7 @@
               <input type="email" class="form-control" id="email" placeholder="E-mail" required>
             </div>
             <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-primary">Trimite e-mail</button>
+              <button type="submit" class="btn btn-outline-dark">Trimite e-mail</button>
             </div>
           </div>
         </div>
@@ -39,7 +39,5 @@ export default {
   border: 1px solid #ccc;
   padding: 20px;
 }
-.small {
-  font-size: 50%; /* You can adjust the percentage to control the text size */
-}
+
 </style>

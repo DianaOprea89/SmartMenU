@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import MenuPage from "@/views/Menu";
+import Profile from "@/views/Profile";
 import StartersMenu from "@/components/StartersMenu";
 import MainCoursesMenu from "@/components/MainCoursesMenu";
 import DessertsMenu from "@/components/DessertsMenu";
@@ -15,6 +15,9 @@ import CallComponent from "@/views/Call";
 import AboutUs from "@/views/AboutUs";
 import Checkout from "@/views/Checkout";
 import RecoverPassword from "@/components/RecoverPassword";
+import store from "@/store/store";
+import AddRestaurants from "@/components/AddRestaurants";
+import OptionMenu from "@/views/OptionMenu";
 
 const routes = [
     {
@@ -28,8 +31,10 @@ const routes = [
     },
     {
         path: '/menu',
-        name: 'MenuPage',
-        component: MenuPage
+        name: 'Profile',
+        component: Profile,
+        props: true,
+        meta: { requiresAuth: true }
     },
     {
         path: '/starter',
@@ -88,6 +93,14 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/restaurant/:restaurantName',
+        name: 'OptionMenu',
+        component: OptionMenu, // Lazy load the MainMenu component
+        props: true,
+        meta: { requiresAuth: true }
+    }
+    ,
+    {
         path: '/cowsmeat',
         name: 'CowsMeat',
         component: CowsMeat,
@@ -121,12 +134,31 @@ const routes = [
         path: '/aboutus',
         name: "AboutUs",
         component: AboutUs
-    }
+    },
+    {
+        path: '/addrestaurant',
+        name: "AddRestaurants",
+        component: AddRestaurants,
+        meta: { requiresAuth: true } // only if authentication is required for this route
+    },
 ];
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
     routes
 });
+router.beforeEach((to, from, next) => {
+
+    if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
+
+        next('/login');
+    } else if ((to.path === '/login' || to.path === '/register') && store.getters.isAuthenticated) {
+
+        next('/menu');
+    } else {
+        next();
+    }
+});
+
 
 export default router;

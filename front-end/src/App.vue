@@ -9,17 +9,13 @@ export default {
   name: 'App',
   components: {
     NavBar,
-  }
+  },
+  created() {
+    console.log('State on app load:', this.$store.state.user);
+    this.$store.dispatch('loadUserData');
+  },
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
 </style>

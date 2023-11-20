@@ -34,12 +34,6 @@ export default {
 
 <style scoped>
 
-.container {
-  display: flex;
-  flex-direction: row;
-  height: 100vh;
-}
-
 
 .nav-link {
   display: block;

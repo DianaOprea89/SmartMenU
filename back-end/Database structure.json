@@ -1,0 +1,65 @@
+{
+  "_id": {
+    "$oid": "654b85063e39c4d58c6c6702"
+  },
+  "username": "radu",
+  "email": "radu@mail.com",
+  "passwordHash": "$2b$10$OtgvFwkXqTqyMImDMuk9Du44BhiK/9No8mq0XK2FhgdSFbzCxc/wO",
+  "createdAt": {
+    "$date": "2023-11-08T12:54:30.460Z"
+  },
+  "__v": 0,
+
+  "restaurants": [
+    {
+      "name": "Allegria",
+      "address": "strada Aromei,nr 4",
+      "phoneNumber": "0752347808",
+      "aboutUs": "un restaurant istoric",
+      "logoImage": "https://www.pub13.ro/images/galerie-foto/impact-design-86.jpg",
+      "_id": {
+        "$oid": "654e2351b111323ad1561dea"
+      }
+      "menus":[
+        {
+          "name": "Meniu bucatarie"
+          "categories": [
+            {
+              "name":"pizza"
+              "products": [
+                {
+                  "name": "Coca cola",
+                  "descriere": "xcasdadsa"
+                  "edtc"
+                }
+              ]
+              "_id": '77'
+            }
+          ]
+        }
+      ]
+
+    },
+    {
+      "name": "Caolina Caffe",
+      "address": "strada Motilor nr 37",
+      "phoneNumber": "0754502405",
+      "aboutUs": "a caffe exprience you will allways love",
+      "logoImage": "https://www.pub13.ro/images/galerie-foto/IMG_5087.jpg",
+      "_id": {
+        "$oid": "654e2901b111323ad1561e35"
+      }
+    },
+    {
+      "name": "Bufu",
+      "address": "str nsnnsn",
+      "phoneNumber": "123123123",
+      "aboutUs": "sdsdsds",
+      "logoImage": "https://media-cdn.tripadvisor.com/media/photo-s/12/68/b1/b3/the-view-restaurant-terrrace.jpg",
+      "_id": {
+        "$oid": "654f6e618b2dd4f74b7b260b"
+      }
+    }
+  ]
+}
+
