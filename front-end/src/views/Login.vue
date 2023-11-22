@@ -90,7 +90,7 @@ export default {
           });
 
           this.$router.push('/menu');
-          this.$router.push('/menu');
+
         } else {
           console.error("Failed to login");
         }

@@ -14,7 +14,6 @@ import DrinksAndBar from "@/components/DrinksAndBar";
 import CallComponent from "@/views/Call";
 import AboutUs from "@/views/AboutUs";
 import Checkout from "@/views/Checkout";
-import RecoverPassword from "@/components/RecoverPassword";
 import store from "@/store/store";
 import AddRestaurants from "@/components/AddRestaurants";
 import OptionMenu from "@/views/OptionMenu";
@@ -25,10 +24,13 @@ const routes = [
         redirect: '/menu',
     },
     {
-        path:'/recover',
-        name:'RecoverPassword',
-        component: RecoverPassword
-    },
+        path: '/menu/:restaurantName',
+        name: 'Profile',
+        component: Profile,
+        props: true,
+        meta: { requiresAuth: true }
+    }
+    ,
     {
         path: '/menu',
         name: 'Profile',

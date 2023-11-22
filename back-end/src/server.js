@@ -1,4 +1,4 @@
-// Import required modules and models
+
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
-import User from './schemas/CombinedSchema.js'; // Import the CombinedData model
+import User from './schemas/CombinedSchema.js';
 import 'express-async-errors';
 
 dotenv.config();
@@ -48,21 +48,20 @@ app.get('/api/userData', async (req, res) => {
     }
 
     try {
-        // Verify the token
+
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        console.log('Decoded token:', decoded); // Log the decoded token
+        console.log('Decoded token:', decoded);
 
-        // Use the user ID in the decoded token to look up the user in the database
+
         const user = await User.findById(decoded.userId).populate('restaurants');
 
-        console.log('User data from database:', user); // Log the user data
+        console.log('User data from database:', user);
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Send back the user data with populated restaurants
         res.status(200).json({
             name: user.username,
             email: user.email,
@@ -80,6 +79,37 @@ app.get('/api/userData', async (req, res) => {
         }
     }
 });
+
+app.delete('/api/removeRestaurant/:userId/:restaurantId', async (req, res) => {
+    console.log('DELETE request to /api/removeRestaurant');
+    const { userId, restaurantId } = req.params;
+    console.log('Received userId:', userId);
+    console.log('Received restaurantId:', restaurantId);
+
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+
+        const updatedRestaurants = user.restaurants.filter(restaurant => restaurant._id.toString() !== restaurantId);
+
+
+        user.restaurants = updatedRestaurants;
+
+        await user.save();
+
+        console.log(`Removed restaurant with id ${restaurantId} from the user's restaurants`);
+
+        res.status(200).json({ message: 'Restaurant removed successfully' });
+    } catch (error) {
+        console.error('Error deleting restaurant:', error);
+        res.status(500).json({ message: 'Error deleting restaurant' });
+    }
+});
+
 
 
 
@@ -117,7 +147,7 @@ app.post('/api/register', async (req, res) => {
 
         await user.save();
 
-        // Send minimal user information back
+
         res.status(201).json({
             message: 'User registered successfully',
             user: { username: user.username, email } // Don't send back the password or hashed password
@@ -215,28 +245,28 @@ app.post('/api/addRestaurants', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Check if a restaurant with the same name already exists
+
         const existingRestaurant = user.restaurants.find((restaurant) => restaurant.name === name);
 
         if (existingRestaurant) {
             return res.status(400).json({ message: 'Restaurant with this name already exists' });
         }
 
-        // Create a new restaurant object
+
         const newRestaurant = {
             name,
             address,
             phoneNumber,
             logoImage,
             aboutUs,
-            // Add other restaurant properties here (address, phoneNumber, aboutUs, logoImage, etc.)
+
             menuOptions: [newItem],
         };
 
-        // Push the new restaurant into the user's restaurants array
+
         user.restaurants.push(newRestaurant);
 
-        // Save the updated user document
+
         await user.save();
 
         res.status(201).json({
@@ -248,29 +278,79 @@ app.post('/api/addRestaurants', async (req, res) => {
         res.status(500).json({ message: 'Error creating restaurant' });
     }
 });
-
-
-app.delete('/api/removeRestaurant/:id', async (req, res) => {
-    const restaurantId = req.params.id;
-    console.log('Received request to delete restaurant with ID:', restaurantId)
+app.post('/api/addOptionMenuRestaurants', async (req, res) => {
     try {
-        // Delete the restaurant using the provided ID
-        const result = await Restaurant.findByIdAndRemove(restaurantId);
+        const { userId, name, newItem } = req.body;
 
-        if (!result) {
-            // If the restaurant with the provided ID is not found, respond with an error
-            res.status(404).json({ message: 'Restaurant not found' });
-            return;
+        // Find the user by userId
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        // If the deletion is successful, respond with a success message
-        res.status(200).json({ message: 'Restaurant deleted successfully' });
-    } catch (error) {
-        // Handle errors and respond with an error message
-        console.error('Error deleting restaurant:', error);
-        res.status(500).json({ message: 'Error deleting restaurant' });
-    }
+        const existingRestaurant = user.restaurants.find((restaurant) => restaurant.name === name);
 
+        if (!existingRestaurant) {
+            return res.status(400).json({ message: 'Restaurant not found' });
+        }
+
+        // Add the new menu option to the restaurant's menuOptions array
+        existingRestaurant.menuOptions.push(newItem);
+
+        await user.save();
+
+        res.status(201).json({
+            message: 'Menu option added to the restaurant',
+            newItem: newItem,
+        });
+    } catch (error) {
+        console.error('Error adding menu option:', error);
+        res.status(500).json({ message: 'Error adding menu option' });
+    }
+});
+app.put('/api/editOptionMenuRestaurants/:userId/:restaurantName', async (req, res) => {
+    try {
+        const { userId, restaurantName } = req.params;
+        const { newPhotoLink, newOptionName } = req.body;
+
+        // Find the user by userId
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const restaurant = user.restaurants.find(
+            (restaurant) => restaurant.name === restaurantName
+        );
+
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        // Find the menu option in the restaurant's menuOptions array
+        const menuOption = restaurant.menuOptions.find(
+            (option) => option.photoLink === newPhotoLink
+        );
+
+        if (!menuOption) {
+            return res.status(404).json({ message: 'Menu option not found' });
+        }
+
+        // Update the menu option's name
+        menuOption.optionName = newOptionName;
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'Menu option updated successfully',
+            updatedOption: menuOption,
+        });
+    } catch (error) {
+        console.error('Error editing menu option:', error);
+        res.status(500).json({ message: 'Error editing menu option' });
+    }
 });
 
 
