@@ -49,23 +49,18 @@
       <div v-for="(menuOption, index) in restaurantData.menuOptions" :key="index" class="menu-option">
         <div class="menu-option-content" v-if="menuOption">
           <div class="menu-option-row">
-            <!-- Flex container for image and name -->
             <div class="menu-option-info">
-              <!-- Image container -->
+
               <div class="addedRestaurants">
                 <img :src="menuOption.photoLink" alt="added item" class="menu-option-image">
               </div>
-              <!-- Edit icon for image -->
-              <div class="image-edit-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16" @click="editOption">
-                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-                </svg>
-              </div>
-              <!-- Name container -->
+
               <div class="form-group">
                 <p class="menu-option-name">{{ menuOption.optionName }}</p>
-                <!-- Edit icon for name -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+              </div>
+
+              <div class="image-edit-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16" @click="editOption">
                   <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                 </svg>
               </div>
@@ -149,6 +144,7 @@ export default {
               this.optionMenu.photoLink = "";
               this.optionMenu.optionName = "";
               this.showDialog = false;
+              this.$router.push(`/restaurant/${this.restaurantName}`);
             } else {
               console.error("Error adding menu option:", response.data.message);
             }
@@ -231,7 +227,30 @@ export default {
 
 .menu-option-row {
   display: flex;
-  align-items: center; /* Vertically centers the items */
+  justify-content: space-between; /* Distributes space evenly between elements */
+  align-items: center; /* Vertically centers the items in the row */
+
+}
+
+.menu-option-info {
+
+  margin-right: 6px; /* Adds margin to the right */
+}
+.menu-option-info,
+.addedRestaurants,
+.image-edit-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.addedRestaurants {
+
+  margin-right: 5px; /* Adds margin to the right */
+}
+
+.image-edit-icon {
+  flex-grow: 1; /* Allows the element to grow if necessary */
+  padding: 10px;
 }
 
 .menu-option-info {

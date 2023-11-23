@@ -80,6 +80,41 @@ app.get('/api/userData', async (req, res) => {
     }
 });
 
+
+app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
+    try {
+        const { userId, restaurantId } = req.params;
+        const updatedData = req.body; // Updated restaurant data from the request body
+
+        // Find the user by userId
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the restaurant in the user's restaurants array by restaurantId
+        const restaurant = user.restaurants.find((r) => r._id.toString() === restaurantId);
+
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        // Update the restaurant's data with the new details
+        Object.assign(restaurant, updatedData);
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'Restaurant updated successfully',
+            updatedRestaurant: restaurant,
+        });
+    } catch (error) {
+        console.error('Error updating restaurant:', error);
+        res.status(500).json({ message: 'Error updating restaurant' });
+    }
+});
+
 app.delete('/api/removeRestaurant/:userId/:restaurantId', async (req, res) => {
     console.log('DELETE request to /api/removeRestaurant');
     const { userId, restaurantId } = req.params;
@@ -159,6 +194,8 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
+
+
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -193,6 +230,8 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ message: 'Error logging in user' });
     }
 });
+
+
 
 app.get('/api/getRestaurants', async (req, res) => {
     const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null; // Authorization: 'Bearer TOKEN'
@@ -233,6 +272,8 @@ app.get('/api/getRestaurants', async (req, res) => {
         }
     }
 });
+
+
 
 app.post('/api/addRestaurants', async (req, res) => {
     try {
@@ -278,6 +319,8 @@ app.post('/api/addRestaurants', async (req, res) => {
         res.status(500).json({ message: 'Error creating restaurant' });
     }
 });
+
+
 app.post('/api/addOptionMenuRestaurants', async (req, res) => {
     try {
         const { userId, name, newItem } = req.body;
@@ -309,6 +352,8 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
         res.status(500).json({ message: 'Error adding menu option' });
     }
 });
+
+
 app.put('/api/editOptionMenuRestaurants/:userId/:restaurantName', async (req, res) => {
     try {
         const { userId, restaurantName } = req.params;
