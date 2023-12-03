@@ -40,6 +40,25 @@ app.use((req, res, next) => {
     next();
 });
 
+
+app.get('/api/restaurant/:name', async (req, res) => {
+    try {
+        const { name } = req.params;
+        // Assuming the restaurant name is unique. Adjust the query as needed.
+        const restaurant = await User.findOne({ "restaurants.name": name }, { "restaurants.$": 1 });
+
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        // Send the first restaurant in the array, as the query returns an array
+        res.status(200).json(restaurant.restaurants[0]);
+    } catch (error) {
+        console.error('Error fetching restaurant:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 app.get('/api/userData', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1]; // Authorization: 'Bearer TOKEN'
 
@@ -354,6 +373,7 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
 });
 
 
+
 app.put('/api/editOptionMenuRestaurants/:userId/:restaurantName', async (req, res) => {
     try {
         const { userId, restaurantName } = req.params;
@@ -395,6 +415,37 @@ app.put('/api/editOptionMenuRestaurants/:userId/:restaurantName', async (req, re
     } catch (error) {
         console.error('Error editing menu option:', error);
         res.status(500).json({ message: 'Error editing menu option' });
+    }
+});
+
+
+app.delete('/api/removeOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId', async (req, res) => {
+    const { userId, restaurantId, menuOptionId } = req.params;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const restaurant = user.restaurants.id(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        const menuOption = restaurant.menuOptions.id(menuOptionId);
+        if (!menuOption) {
+            return res.status(404).json({ message: 'Menu option not found' });
+        }
+
+        // Filter out the menu option to be removed
+        restaurant.menuOptions = restaurant.menuOptions.filter(option => option._id.toString() !== menuOptionId);
+        await user.save();
+
+        res.status(200).json({ message: 'Menu option removed successfully' });
+    } catch (error) {
+        console.error('Error removing menu option:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 

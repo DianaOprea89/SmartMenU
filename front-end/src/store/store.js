@@ -39,6 +39,13 @@ export default createStore({
             // Remove the restaurant with the specified ID from the user's restaurants array
             state.user.restaurants = state.user.restaurants.filter(restaurant => restaurant._id !== restaurantId);
         },
+        removeMenuItem(state, { restaurantId, menuOptionId }) {
+            const restaurant = state.user.restaurants.find(r => r._id === restaurantId);
+            if (restaurant) {
+                restaurant.menuOptions = restaurant.menuOptions.filter(option => option._id !== menuOptionId);
+                // Vue.set(restaurant, 'menuOptions', newMenuOptions); // Use Vue.set if you need to ensure reactivity
+            }
+        },
     },
     getters: {
         isAuthenticated: (state) => {
@@ -55,6 +62,7 @@ export default createStore({
         },
         getUserId: (state) => state.user.id,
         userEmail: (state) => state.user.email,
+        restaurants: (state) => state.user.restaurants,
     },
     actions: {
         async loadUserData({commit}) {

@@ -64,6 +64,9 @@
                   <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                 </svg>
               </div>
+                <div>
+                  <button class="btn btn-danger btn-sm remove-button" @click="removeMenuItem(menuOption._id)">Remove</button>
+                </div>
             </div>
           </div>
         </div>
@@ -89,6 +92,7 @@
 
 <script>
 import api from "../api/api.js";
+import {getAuthToken} from "@/utility/utility";
 
 export default {
   name: "MainMenu",
@@ -108,7 +112,10 @@ export default {
     };
   },
   props: {
-    restaurantName: String,
+    restaurantName: {
+      type: String,
+      required: true
+    }
   },
   computed: {
     restaurantData() {
@@ -125,6 +132,34 @@ export default {
     },
     editOption() {
       this.showDialogOption = true;
+    },
+    async removeMenuItem(menuOptionId) {
+      const restaurantId = this.restaurantData._id;
+      console.log('Removing menu option with ID:', menuOptionId);
+      try {
+        const userId = this.$store.getters.getUserId;
+        console.log('Removing menu option with ID:', menuOptionId);
+        const apiUrl = `/api/removeOptionMenuRestaurants/${userId}/${restaurantId}/${menuOptionId}`;
+        console.log('Deleting menu option with URL:', apiUrl);
+
+        const authToken = getAuthToken();
+
+        console.log('Authorization Token:', authToken);
+        const response = await api.delete(apiUrl, {
+          headers: {Authorization: `Bearer ${authToken}`},
+        });
+
+        if (response && response.status === 200) {
+          this.$store.commit('removeMenuItem', {restaurantId, menuOptionId});
+          console.log('Menu option removed successfully');
+          // Update local items array or fetch new data
+        } else {
+          console.error('Error removing menu option. Status:', response ? response.status : 'Unknown');
+        }
+      } catch (error) {
+        console.error('An error occurred while removing menu option:', error);
+        // Handle error response if needed
+      }
     },
     addItem() {
       const newItem = {
@@ -154,7 +189,7 @@ export default {
           });
     },
     editMenu() {
-      const { newPhotoLink, newOptionName } = this.newOptionMenu;
+      const {newPhotoLink, newOptionName} = this.newOptionMenu;
 
       // Send a PUT request to edit the menu option
       api
@@ -185,11 +220,16 @@ export default {
           });
     },
   },
-  created() {
-    if (this.$store.state.user.isAuthenticated) {
-      this.$store.dispatch("loadUserData");
+  async created() {
+    const restaurantName = this.$route.params.restaurantName;
+    try {
+      const response = await api.get(`http://localhost:8008/restaurant/${encodeURIComponent(restaurantName)}`);
+      this.restaurantData = response.data; // Assuming the response contains the restaurant data
+    } catch (error) {
+      console.error('Error fetching restaurant details:', error);
+      // Handle the error appropriately
     }
-  },
+  }
 };
 </script>
 
