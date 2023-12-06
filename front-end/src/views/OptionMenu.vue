@@ -15,14 +15,18 @@
       <div class="col-12">
         <!-- Button to open the custom dialog -->
         <button class="btn btn-primary auto-width-button" @click="openDialog">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg icon" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg icon"
+               viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+                  d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
           </svg>
           Meniu Nou
         </button>
         <span class="lighter-text smaller-text">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left"
+               viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+                  d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
           </svg> creeaza un nou meniu
         </span>
       </div>
@@ -33,11 +37,11 @@
         <h2>Add New Menu Option</h2>
         <div class="form-group">
           <label for="photoLink">Photo Link:</label>
-          <input type="text" id="photoLink" v-model="optionMenu.photoLink" />
+          <input type="text" id="photoLink" v-model="optionMenu.photoLink"/>
         </div>
         <div class="form-group">
           <label for="itemName">Option Name:</label>
-          <input type="text" id="itemName" v-model="optionMenu.optionName" />
+          <input type="text" id="itemName" v-model="optionMenu.optionName"/>
         </div>
         <div class="dialog-buttons">
           <button class="btn btn-primary add-button" @click="addItem">Add</button>
@@ -60,13 +64,16 @@
               </div>
 
               <div class="image-edit-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16" @click="editOption">
-                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil"
+                     viewBox="0 0 16 16" @click="editOption(menuOption)">
+                  <path
+                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                 </svg>
               </div>
-                <div>
-                  <button class="btn btn-danger btn-sm remove-button" @click="removeMenuItem(menuOption._id)">Remove</button>
-                </div>
+              <div>
+                <button class="btn btn-danger btn-sm remove-button" @click="removeMenuItem(menuOption._id)">Remove
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -76,10 +83,13 @@
     <div class="custom-dialog" v-if="showDialogOption">
       <div class="custom-dialog-content">
         <h2>Edit Menu Option</h2>
-        <div class="form-group">
-          <label for="newPhotoLink">New Photo Link:</label>
-          <p>Old option: {{ menuOption.photoLink }}</p>
-          <input type="text" id="newPhotoLink" v-model="newOptionMenu.newPhotoLink" />
+        <div class="mb-3">
+          <label for="newName" class="m-2">Name: </label>
+          <input v-if="newOptionMenu" id="newName" v-model="editingMenuOption.optionName"/>
+        </div>
+        <div class="mb-3">
+          <label for="newPhotoLink" class="m-2">PhotoLink: </label>
+          <input v-if="newOptionMenu" id="newPhotoLink" v-model="editingMenuOption.photoLink"/>
         </div>
         <div class="dialog-buttons">
           <button class="btn btn-primary add-button" @click="editMenu">Edit</button>
@@ -93,6 +103,7 @@
 <script>
 import api from "../api/api.js";
 import {getAuthToken} from "@/utility/utility";
+import {mapGetters, mapState} from "vuex";
 
 export default {
   name: "MainMenu",
@@ -104,11 +115,10 @@ export default {
         photoLink: "",
         optionName: "",
       },
-      newOptionMenu: {
-        newPhotoLink: "",
-        newOptionName: "",
-      },
+      newOptionMenu: { optionName: '', photoLink: '' }, // Initialize with default values
+      editingMenuOption: null,
       items: [],
+      localRestaurantData: null, // Local data to store restaurant info
     };
   },
   props: {
@@ -119,19 +129,25 @@ export default {
   },
   computed: {
     restaurantData() {
-      const data = this.$store.state.user.restaurants.find(
-          (restaurant) => restaurant.name === this.restaurantName
-      ) || {};
-
-      return data;
+      return this.localRestaurantData || {};
     },
+    ...mapState({
+      restaurants: state => state.user.restaurants
+    }),
+    ...mapGetters({
+      getUserId: "getUserId"
+    }),
   },
   methods: {
     openDialog() {
+      this.optionMenu = { photoLink: "", optionName: "" }; // Reset the form
       this.showDialog = true;
     },
-    editOption() {
-      this.showDialogOption = true;
+    editOption(menuOption) {
+      if (menuOption) {
+        this.editingMenuOption = JSON.parse(JSON.stringify(menuOption));
+        this.showDialogOption = true;
+      }
     },
     async removeMenuItem(menuOptionId) {
       const restaurantId = this.restaurantData._id;
@@ -140,15 +156,10 @@ export default {
         const userId = this.$store.getters.getUserId;
         console.log('Removing menu option with ID:', menuOptionId);
         const apiUrl = `/api/removeOptionMenuRestaurants/${userId}/${restaurantId}/${menuOptionId}`;
-        console.log('Deleting menu option with URL:', apiUrl);
-
         const authToken = getAuthToken();
-
-        console.log('Authorization Token:', authToken);
         const response = await api.delete(apiUrl, {
-          headers: { Authorization: `Bearer ${authToken}` },
+          headers: {Authorization: `Bearer ${authToken}`}
         });
-
         if (response && response.status === 200) {
           // The server has successfully removed the menu item, now update the local state
           const updatedMenuOptions = this.restaurantData.menuOptions.filter(option => option._id !== menuOptionId);
@@ -162,7 +173,6 @@ export default {
         // Handle error response if needed
       }
     },
-
     addItem() {
       const newItem = {
         photoLink: this.optionMenu.photoLink,
@@ -190,56 +200,54 @@ export default {
             console.error("Error adding menu option:", error);
           });
     },
-    editMenu() {
-      const {newPhotoLink, newOptionName} = this.newOptionMenu;
+    async editMenu() {
+      const userId = this.getUserId;
+      const restaurantId = this.localRestaurantData._id;
+      const menuOptionId = this.editingMenuOption._id;
 
-      // Send a PUT request to edit the menu option
-      api.put(`/api/editOptionMenuRestaurants/${this.$store.state.user.id}/${this.restaurantName}`, {
-            newPhotoLink,
-            newOptionName,
-          })
-          .then((response) => {
-            if (response.status === 200) {
-              // Find and update the menu option in your local items array
-              const updatedOption = this.items.find(
-                  (item) => item.photoLink === newPhotoLink
-              );
-              if (updatedOption) {
-                updatedOption.optionName = newOptionName;
-              }
-
-              // Clear the input fields and hide the dialog
-              this.newOptionMenu.newPhotoLink = "";
-              this.newOptionMenu.newOptionName = "";
-              this.showDialogOption = false;
-            } else {
-              console.error("Error editing menu option:", response.data.message);
+      try {
+        const response = await api.put(`/api/editOptionMenuRestaurants/${userId}/${restaurantId}/${menuOptionId}`,
+            {
+              photoLink: this.editingMenuOption.photoLink,
+              optionName: this.editingMenuOption.optionName
+            },
+            {
+              headers: { Authorization: `Bearer ${getAuthToken()}` }
             }
-          })
-          .catch((error) => {
-            console.error("Error editing menu option:", error);
-          });
+        );
+
+        if (response && response.status === 200) {
+          // Update localRestaurantData directly
+          const index = this.localRestaurantData.menuOptions.findIndex(option => option._id === menuOptionId);
+          if (index !== -1) {
+            this.localRestaurantData.menuOptions[index] = { ...this.editingMenuOption };
+          }
+          console.log('Menu option updated successfully');
+          this.showDialogOption = false;
+        } else {
+          console.error('Error updating menu option. Status:', response ? response.status : 'Unknown');
+        }
+      } catch (error) {
+        console.error('An error occurred while updating menu option:', error);
+      }
     },
   },
   async created() {
-    const restaurantName = this.restaurantName; // If this is a prop passed to the component, otherwise get it from route params
     try {
-      const response = await api.get(`/api/restaurant/${encodeURIComponent(restaurantName)}`, {
+      const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
         headers: { Authorization: `Bearer ${getAuthToken()}` }
       });
 
       if (response && response.status === 200) {
-        this.restaurantData = response.data; // Assuming the response contains the restaurant data
+        this.localRestaurantData = response.data;
       } else {
         console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
       }
     } catch (error) {
       console.error('Error fetching restaurant details:', error);
-      // Handle the error appropriately
     }
   }
-
-};
+}
 </script>
 
 
@@ -270,6 +278,7 @@ export default {
   padding: 10px;
   margin-bottom: 10px;
 }
+
 .menu-option {
   margin-bottom: 10px; /* Space between each menu option */
 }
@@ -285,6 +294,7 @@ export default {
 
   margin-right: 6px; /* Adds margin to the right */
 }
+
 .menu-option-info,
 .addedRestaurants,
 .image-edit-icon {
@@ -292,6 +302,7 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 .addedRestaurants {
 
   margin-right: 5px; /* Adds margin to the right */
@@ -351,6 +362,7 @@ export default {
   height: 12px;
   margin-left: 5px; /* Space between the name and the edit icon */
 }
+
 .image-edit-icon {
   position: relative; /* Relative positioning for absolute children */
   margin-right: 10px; /* Space between the image container and the edit icon */

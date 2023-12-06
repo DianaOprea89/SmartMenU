@@ -54,15 +54,15 @@
                         <input id="newName" v-model="editingRestaurant.name"/>
                       </div>
                       <div class="mb-3">
-                        <label for="newAboutUs"  class="m-2">About Us:</label>
-                        <input id="newAboutUs" v-model="editingRestaurant.aboutUs" />
+                        <label for="newAboutUs" class="m-2">About Us:</label>
+                        <input id="newAboutUs" v-model="editingRestaurant.aboutUs"/>
                       </div>
                       <div class="mb-3">
-                        <label for="newAddress"  class="m-2">Address:</label>
+                        <label for="newAddress" class="m-2">Address:</label>
                         <input id="newAddress" v-model="editingRestaurant.address"/>
                       </div>
                       <div class="mb-3">
-                        <label for="newPhoneNumber"  class="m-2">Phone Number:</label>
+                        <label for="newPhoneNumber" class="m-2">Phone Number:</label>
                         <input id="newPhoneNumber" v-model="editingRestaurant.phoneNumber"/>
                       </div>
 
@@ -130,7 +130,7 @@ export default {
     async fetchRestaurants() {
       try {
         const response = await api.get('/api/userData', {
-          headers: { Authorization: `Bearer ${getAuthToken()}` }
+          headers: {Authorization: `Bearer ${getAuthToken()}`}
         });
 
         if (response && response.status === 200) {
@@ -157,7 +157,7 @@ export default {
             `/api/editRestaurant/${userId}/${this.editingRestaurant._id}`,
             restaurantData,
             {
-              headers: { Authorization: `Bearer ${getAuthToken()}` }
+              headers: {Authorization: `Bearer ${getAuthToken()}`}
             }
         );
 
@@ -166,7 +166,7 @@ export default {
           const index = this.restaurants.findIndex(r => r._id === this.editingRestaurant._id);
           if (index !== -1) {
 
-            this.restaurants[index] = { ...this.restaurants[index], ...restaurantData };
+            this.restaurants[index] = {...this.restaurants[index], ...restaurantData};
           }
           console.log('Restaurant edited successfully');
 
