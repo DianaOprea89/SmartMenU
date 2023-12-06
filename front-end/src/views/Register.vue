@@ -47,6 +47,8 @@
 
 <script>
 import { v4 as uuidv4 } from 'uuid';
+// import api2 from './../api/api2.js';
+
 export default {
   name: "RegisterPage",
   data() {
@@ -80,6 +82,9 @@ export default {
           email: this.email,
           password: this.password
         }));
+
+        // let api2RegisterObj = new api2();
+        // const api2RegisterReponse = api2RegisterObj.run();
 
 
         const response = await fetch("http://localhost:8008/api/register", {

@@ -40,46 +40,54 @@
                   fill="currentColor"
                   viewBox="0 0 16 16"
               >
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                <path
+                    d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
               </svg>
               <div v-if="isModalOpen" class="backdrop" @click.self="closeDialog">
                 <!-- Modal Dialog -->
-                <div class="custom-dialog">
-                  <div class="custom-dialog-content">
+                <div class="custom-dialog row">
+                  <div class="custom-dialog-content ">
                     <h2>Edit Restaurant</h2>
                     <div class="form-group">
-                    <p>Old name: {{ restaurant.name }}</p>
-                    <label for="newName">New Name:  </label>
-                    <input id="newName" v-model="newName"/>
-                    <p>Old About Us: {{ restaurant.aboutUs }}</p>
-                      <label for="newAboutUs">New About Us:</label>
-                      <input id="newAboutUs" v-model="newAboutUs" />
-                    <p>Old Address: {{ restaurant.address }}</p>
-                      <label for="newAddress">New Address:</label>
-                      <input id="newAddress" v-model="newAddress" />
-                    <p>Old phone number: {{ restaurant.phoneNumber }}</p>
-                      <label for="newPhoneNumber">New Phone Number:</label>
-                      <input id="newPhoneNumber" v-model="newPhoneNumber" />
+                      <div class="mb-3">
+                        <label for="newName" class="m-2">Name: </label>
+                        <input id="newName" v-model="editingRestaurant.name"/>
+                      </div>
+                      <div class="mb-3">
+                        <label for="newAboutUs"  class="m-2">About Us:</label>
+                        <input id="newAboutUs" v-model="editingRestaurant.aboutUs" />
+                      </div>
+                      <div class="mb-3">
+                        <label for="newAddress"  class="m-2">Address:</label>
+                        <input id="newAddress" v-model="editingRestaurant.address"/>
+                      </div>
+                      <div class="mb-3">
+                        <label for="newPhoneNumber"  class="m-2">Phone Number:</label>
+                        <input id="newPhoneNumber" v-model="editingRestaurant.phoneNumber"/>
+                      </div>
+
+                    </div>
+                    <div class="dialog-buttons">
+                      <button
+                          class="btn btn-secondary cancel-button"
+                          @click="closeDialog(index)"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                          class="btn btn-primary add-button"
+                          @click="editRestaurant"
+                      >
+                        Save
+                      </button>
+
+                    </div>
                   </div>
-                  <div class="dialog-buttons">
-                    <button
-                        class="btn btn-primary add-button"
-                        @click="editRestaurant(restaurant._id, index)"
-                    >
-                      Edit
-                    </button>
-                    <button
-                        class="btn btn-secondary cancel-button"
-                        @click="closeDialog(index)"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
                 </div>
               </div>
               <div>
-                <button class="btn btn-danger btn-sm remove-button" @click="removeRestaurant(restaurant._id)">Remove</button>
+                <button class="btn btn-danger btn-sm remove-button" @click="removeRestaurant(restaurant._id)">Remove
+                </button>
               </div>
             </div>
           </div>
@@ -91,19 +99,16 @@
 
 <script>
 import api from "@/api/api";
-import { mapGetters, mapState} from 'vuex';
-import { getAuthToken } from "../utility/utility.js";
+import {mapGetters, mapState} from 'vuex';
+import {getAuthToken} from "../utility/utility.js";
 
 export default {
   name: "ProfilePage",
   data() {
     return {
       isModalOpen: false,
-      editingRestaurant: {}, // Initialize as an empty object
-      newName: '',
-      newAboutUs: '',
-      newAddress: '',
-      newPhoneNumber: '',
+      editingRestaurant: null,
+
     };
   },
   computed: {
@@ -116,38 +121,59 @@ export default {
   },
   methods: {
     openDialog(restaurant) {
-      this.editingRestaurant = { ...restaurant }; // Clone the restaurant object
-
+      this.editingRestaurant = JSON.parse(JSON.stringify(restaurant));
       this.isModalOpen = true;
     },
     closeDialog() {
       this.isModalOpen = false;
     },
-    async editRestaurant(restaurant) {
-      this.newName = restaurant.name;
-      this.newAboutUs = restaurant.aboutUs;
-      this.newAddress = restaurant.address;
-      this.newPhoneNumber = restaurant.phoneNumber;
-      const updatedRestaurantDetails = {
-        name: this.newName,
-        aboutUs: this.newAboutUs,
-        address: this.newAddress,
-        phoneNumber: this.newPhoneNumber,
+    async fetchRestaurants() {
+      try {
+        const response = await api.get('/api/userData', {
+          headers: { Authorization: `Bearer ${getAuthToken()}` }
+        });
+
+        if (response && response.status === 200) {
+          this.restaurants = response.data.restaurants;
+        } else {
+          console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');
+        }
+      } catch (error) {
+        console.error('An error occurred while fetching restaurants:', error);
+      }
+    },
+    async editRestaurant() {
+      const restaurantData = {
+        name: this.editingRestaurant.name,
+        aboutUs: this.editingRestaurant.aboutUs,
+        address: this.editingRestaurant.address,
+        phoneNumber: this.editingRestaurant.phoneNumber
       };
+
+      const userId = this.getUserId;
 
       try {
         const response = await api.put(
-            `/api/editRestaurant/${this.editingRestaurant._id}`,
-            updatedRestaurantDetails,
+            `/api/editRestaurant/${userId}/${this.editingRestaurant._id}`,
+            restaurantData,
             {
-              headers: { Authorization: `Bearer ${getAuthToken()}` },
+              headers: { Authorization: `Bearer ${getAuthToken()}` }
             }
         );
 
         if (response && response.status === 200) {
+
+          const index = this.restaurants.findIndex(r => r._id === this.editingRestaurant._id);
+          if (index !== -1) {
+
+            this.restaurants[index] = { ...this.restaurants[index], ...restaurantData };
+          }
           console.log('Restaurant edited successfully');
+
+          await this.fetchRestaurants();
           this.closeDialog();
-          // Here you would also update your store or local data to reflect the changes
+
+          this.$router.push('/menu');
         } else {
           console.error('Error editing restaurant. Status:', response ? response.status : 'Unknown');
         }
@@ -192,9 +218,10 @@ export default {
     },
   },
   created() {
+    this.fetchRestaurants();
     const loadUserDataPromise = this.$store.dispatch('loadUserData');
     const fetchRestaurantsPromise = this.$store.dispatch('fetchRestaurants');
-    //this.initDialogOptions();
+
     Promise.all([loadUserDataPromise, fetchRestaurantsPromise])
         .then(() => {
           console.log('User data and restaurants loaded successfully');
@@ -218,8 +245,34 @@ export default {
 .card {
   display: flex;
   flex-direction: column;
-  width: 300px;
   margin-bottom: 20px;
+  min-width: 300px; /* Minimum card width */
+  max-width: 100%; /* Maximum card width */
+  flex: 1; /* Allows the card to grow and shrink */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Adds a shadow for depth */
+}
+
+/* Media query for screens smaller than 768px */
+@media (max-width: 767px) {
+  .card {
+    width: 100%; /* Cards take full width on small screens */
+    margin-bottom: 15px; /* Smaller margin on small screens */
+  }
+}
+
+/* Media query for screens larger than 767px and smaller than 1200px */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .card {
+    width: calc(50% - 10px); /* Two cards per row with a little space between */
+    margin-bottom: 15px; /* Smaller margin */
+  }
+}
+
+/* Media query for screens larger than 1200px */
+@media (min-width: 1200px) {
+  .card {
+    width: calc(33.333% - 20px); /* Three cards per row with space between */
+  }
 }
 
 .card-img-top {
@@ -235,7 +288,7 @@ export default {
 
 .card-body {
   display: flex;
-  flex:1;
+  flex: 1;
   flex-direction: column;
   justify-content: space-between;
   padding: 15px;
@@ -254,6 +307,7 @@ export default {
 .card-contact {
   margin-top: auto; /* Ensure contact info is at the bottom */
 }
+
 .backdrop {
   position: fixed;
   top: 0;
@@ -319,6 +373,7 @@ export default {
 .custom-dialog .btn:last-child {
   margin-right: 0; /* No margin for the last button */
 }
+
 .card-actions-container {
   display: flex;
   justify-content: space-between;
@@ -327,7 +382,7 @@ export default {
   border: 1px solid #ddd;
   border-radius: 4px;
   margin-top: auto;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .card-action-button,

@@ -146,13 +146,14 @@ export default {
 
         console.log('Authorization Token:', authToken);
         const response = await api.delete(apiUrl, {
-          headers: {Authorization: `Bearer ${authToken}`},
+          headers: { Authorization: `Bearer ${authToken}` },
         });
 
         if (response && response.status === 200) {
-          this.$store.commit('removeMenuItem', {restaurantId, menuOptionId});
+          // The server has successfully removed the menu item, now update the local state
+          const updatedMenuOptions = this.restaurantData.menuOptions.filter(option => option._id !== menuOptionId);
+          this.restaurantData.menuOptions = updatedMenuOptions;
           console.log('Menu option removed successfully');
-          // Update local items array or fetch new data
         } else {
           console.error('Error removing menu option. Status:', response ? response.status : 'Unknown');
         }
@@ -161,6 +162,7 @@ export default {
         // Handle error response if needed
       }
     },
+
     addItem() {
       const newItem = {
         photoLink: this.optionMenu.photoLink,
@@ -192,8 +194,7 @@ export default {
       const {newPhotoLink, newOptionName} = this.newOptionMenu;
 
       // Send a PUT request to edit the menu option
-      api
-          .put(`/api/editOptionMenuRestaurants/${this.$store.state.user.id}/${this.restaurantName}`, {
+      api.put(`/api/editOptionMenuRestaurants/${this.$store.state.user.id}/${this.restaurantName}`, {
             newPhotoLink,
             newOptionName,
           })
@@ -221,15 +222,23 @@ export default {
     },
   },
   async created() {
-    const restaurantName = this.$route.params.restaurantName;
+    const restaurantName = this.restaurantName; // If this is a prop passed to the component, otherwise get it from route params
     try {
-      const response = await api.get(`http://localhost:8008/restaurant/${encodeURIComponent(restaurantName)}`);
-      this.restaurantData = response.data; // Assuming the response contains the restaurant data
+      const response = await api.get(`/api/restaurant/${encodeURIComponent(restaurantName)}`, {
+        headers: { Authorization: `Bearer ${getAuthToken()}` }
+      });
+
+      if (response && response.status === 200) {
+        this.restaurantData = response.data; // Assuming the response contains the restaurant data
+      } else {
+        console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
+      }
     } catch (error) {
       console.error('Error fetching restaurant details:', error);
       // Handle the error appropriately
     }
   }
+
 };
 </script>
 

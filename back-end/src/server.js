@@ -9,6 +9,10 @@ import mongoose from 'mongoose';
 import User from './schemas/CombinedSchema.js';
 import 'express-async-errors';
 
+
+
+import apiOut from './apiOut.js';
+
 dotenv.config();
 
 const app = express();
@@ -169,48 +173,74 @@ app.delete('/api/removeRestaurant/:userId/:restaurantId', async (req, res) => {
 
 
 app.post('/api/register', async (req, res) => {
+
+    let apiOutObj = new apiOut(res);
+
+
+    // -----------------------------
+    // 1. input checks
+    const { name, email, password, passwordConfirm } = req.body;
+
+    if (!name || !email || !password || !passwordConfirm) {
+        apiOutObj.addError('name', 'Name is required');
+    }
+
+    if (password !== passwordConfirm) {
+        apiOutObj.addError('password', 'Passwords do not match');
+    }
+
+    // Simple regex for basic email validation
+    const emailRegex = /^(([^<>()\]\\.,;:\s@"]+(\.[^<>()\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    if (!emailRegex.test(email)) {
+        apiOutObj.addError('email', 'Invalid email format');
+        //return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // guard for input checks
+    if (apiOutObj.hasErrors()) {
+        apiOutObj.sendReply();
+        return;
+    }
+
+    // -----------------------------
+    // 2. db checks
     try {
-        const { name, email, password, passwordConfirm } = req.body;
-
-        if (!name || !email || !password || !passwordConfirm) {
-            return res.status(400).json({ message: 'Please fill all fields' });
-        }
-
-        if (password !== passwordConfirm) {
-            return res.status(400).json({ message: 'Passwords do not match' });
-        }
-
-        // Simple regex for basic email validation
-        const emailRegex = /^(([^<>()\]\\.,;:\s@"]+(\.[^<>()\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: 'Invalid email format' });
-        }
-
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'Email already in use' });
+            apiOutObj.addError('email', 'Email already in use');
         }
+    } catch (error) {
+        apiOutObj.addError('db', error.message);
+        return;
+    }
 
+    // guard for db checks
+    if (apiOutObj.hasErrors()) {
+        apiOutObj.sendReply();
+        return;
+    }
+
+
+    // -----------------------------
+    // 3. logic
+
+    try {
         const hashedPassword = await bcrypt.hash(password, 10);
-
         const user = new User({
             username: name, // Ensure this matches your schema
             email,
             passwordHash: hashedPassword
         });
-
         await user.save();
-
-
-        res.status(201).json({
-            message: 'User registered successfully',
-            user: { username: user.username, email } // Don't send back the password or hashed password
-        });
     } catch (error) {
-        console.error('Registration error:', error);
-        // Send a generic error message to the client
-        res.status(500).json({ message: 'Error registering user' });
+        apiOutObj.addError('db', error.message);
+        return;
     }
+
+
+
+    apiOutObj.sendReply();
+
 });
 
 
@@ -374,10 +404,10 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
 
 
 
-app.put('/api/editOptionMenuRestaurants/:userId/:restaurantName', async (req, res) => {
+app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
-        const { userId, restaurantName } = req.params;
-        const { newPhotoLink, newOptionName } = req.body;
+        const { userId, restaurantId } = req.params;
+        const { name, aboutUs, address, phoneNumber } = req.body;
 
         // Find the user by userId
         const user = await User.findById(userId);
@@ -386,37 +416,34 @@ app.put('/api/editOptionMenuRestaurants/:userId/:restaurantName', async (req, re
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const restaurant = user.restaurants.find(
-            (restaurant) => restaurant.name === restaurantName
+        // Find the restaurant by restaurantId within the user's restaurants array
+        const restaurantIndex = user.restaurants.findIndex(
+            (restaurant) => restaurant._id.toString() === restaurantId
         );
 
-        if (!restaurant) {
+        if (restaurantIndex === -1) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
 
-        // Find the menu option in the restaurant's menuOptions array
-        const menuOption = restaurant.menuOptions.find(
-            (option) => option.photoLink === newPhotoLink
-        );
-
-        if (!menuOption) {
-            return res.status(404).json({ message: 'Menu option not found' });
-        }
-
-        // Update the menu option's name
-        menuOption.optionName = newOptionName;
+        // Update the restaurant details
+        const restaurant = user.restaurants[restaurantIndex];
+        restaurant.name = name || restaurant.name;
+        restaurant.aboutUs = aboutUs || restaurant.aboutUs;
+        restaurant.address = address || restaurant.address;
+        restaurant.phoneNumber = phoneNumber || restaurant.phoneNumber;
 
         await user.save();
 
         res.status(200).json({
-            message: 'Menu option updated successfully',
-            updatedOption: menuOption,
+            message: 'Restaurant updated successfully',
+            updatedRestaurant: restaurant,
         });
     } catch (error) {
-        console.error('Error editing menu option:', error);
-        res.status(500).json({ message: 'Error editing menu option' });
+        console.error('Error updating restaurant:', error);
+        res.status(500).json({ message: 'Error updating restaurant' });
     }
 });
+
 
 
 app.delete('/api/removeOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId', async (req, res) => {
@@ -433,14 +460,14 @@ app.delete('/api/removeOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId
             return res.status(404).json({ message: 'Restaurant not found' });
         }
 
-        const menuOption = restaurant.menuOptions.id(menuOptionId);
-        if (!menuOption) {
-            return res.status(404).json({ message: 'Menu option not found' });
-        }
+        console.log("Current Menu Options:", restaurant.menuOptions);
 
-        // Filter out the menu option to be removed
-        restaurant.menuOptions = restaurant.menuOptions.filter(option => option._id.toString() !== menuOptionId);
+        // Ensuring all menu options are valid objects and filtering out the one to remove
+        restaurant.menuOptions = restaurant.menuOptions.filter(option => option && option._id.toString() !== menuOptionId);
+
         await user.save();
+
+        console.log("Updated Menu Options:", restaurant.menuOptions);
 
         res.status(200).json({ message: 'Menu option removed successfully' });
     } catch (error) {
@@ -452,8 +479,9 @@ app.delete('/api/removeOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId
 
 
 
+
 app.use(function (err, req, res, next) {
-    console.error(err.stack);
+    console.error(err);
     res.status(500).send('Something broke!');
 });
 
