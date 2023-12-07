@@ -16,9 +16,16 @@ const userSchema = new mongoose.Schema({
             menuOptions: [
                 {
                     photoLink: String,
-                    optionName: String
-                }
+                    optionName: String,
+                    subMenuOptions: [
+                        {
+                            photoLink: String,
+                            subMenuOptionName: String,
+                        },
+                    ],
+                },
             ],
+
         },
     ],
 });

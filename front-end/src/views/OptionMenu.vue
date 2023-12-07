@@ -59,15 +59,11 @@
               <div class="addedRestaurants">
                 <img :src="menuOption.photoLink" alt="added item" class="menu-option-image">
               </div>
-              <div >
-<!--                <router-link :to="`/restaurant/${encodeURIComponent(restaurantName)}/${encodeURIComponent(menuOption.optionName)}`">-->
-                  <div class="form-group">
-                    <p class="menu-option-name">{{ menuOption.optionName }}</p>
-                  </div>
-<!--                </router-link>-->
+              <div class="open-menu-option">
+                <div class="form-group" @click="openMenuOption(menuOption)">
+                  <p class="menu-option-name">{{ menuOption.optionName }}</p>
+                </div>
               </div>
-
-
               <div class="image-edit-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil"
                      viewBox="0 0 16 16" @click="editOption(menuOption)">
@@ -239,6 +235,16 @@ export default {
         console.error('An error occurred while updating menu option:', error);
       }
     },
+    openMenuOption(menuOption) {
+      // Navigate to the BaseMenuItem route with parameters
+      this.$router.push({
+        name: 'BaseManuItem', // Use the correct route name
+        params: {
+          restaurantName: this.restaurantName, // Assuming you have restaurantName in your data or props
+          menuOption: menuOption.optionName // Pass the menu option name
+        }
+      });
+    },
     async fetchRestaurants() {
       try {
         const response = await api.get('/api/userData', {
@@ -258,7 +264,7 @@ export default {
   async created() {
 
     try {
-      this.fetchRestaurants();
+      await this.fetchRestaurants();
       const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
         headers: { Authorization: `Bearer ${getAuthToken()}` }
       });
@@ -373,6 +379,9 @@ export default {
   border-radius: 5px;
   position: relative; /* Needed for absolute positioning of children */
   margin-right: 10px; /* Space between the name and the edit icon */
+}
+.open-menu-option{
+  cursor: pointer;
 }
 
 .form-group {

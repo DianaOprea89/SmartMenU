@@ -403,6 +403,35 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
 });
 
 
+app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
+    try {
+        const { userId, name, menuOptionName, newSubMenuItem } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const restaurant = user.restaurants.find(r => r.name === name);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        const menuOption = restaurant.menuOptions.find(option => option.optionName === menuOptionName);
+        if (!menuOption) {
+            return res.status(404).json({ message: 'Menu option not found' });
+        }
+
+        menuOption.subMenuOptions.push(newSubMenuItem);
+        await user.save();
+
+        res.status(201).json({ message: 'Sub-menu item added successfully', newSubMenuItem });
+    } catch (error) {
+        console.error('Error adding sub-menu item:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
