@@ -24,11 +24,13 @@
                 <p class="card-text">{{ restaurant.phoneNumber }}</p>
               </div>
             </div>
+<!--         <option-menu  :restaurantName="restaurant.name"/>-->
             <div class="card-actions-container">
 
-              <router-link :to="`/restaurant/${encodeURIComponent(restaurant.name)}`" class="nolink card-action-button">
+              <router-link :to="`/restaurant/${encodeURIComponent(restaurant.name)}`" class="nolink card-action-button" :restaurantName="restaurant.name">
                 <button class="btn btn-secondary btn-sm more-info-button">Info</button>
               </router-link>
+
 
 
               <svg
@@ -99,8 +101,9 @@
 
 <script>
 import api from "@/api/api";
-import {mapGetters, mapState} from 'vuex';
+import {mapGetters} from 'vuex';
 import {getAuthToken} from "../utility/utility.js";
+// import OptionMenu from "@/views/OptionMenu";
 
 export default {
   name: "ProfilePage",
@@ -108,13 +111,12 @@ export default {
     return {
       isModalOpen: false,
       editingRestaurant: null,
+      restaurants: [],
 
     };
   },
+  props: ['restaurantName'],
   computed: {
-    ...mapState({
-      restaurants: state => state.user.restaurants
-    }),
     ...mapGetters({
       getUserId: "getUserId"
     }),
@@ -134,7 +136,7 @@ export default {
         });
 
         if (response && response.status === 200) {
-          this.restaurants = response.data.restaurants;
+          this.restaurants = response.data.restaurants; // Update local state
         } else {
           console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');
         }
@@ -218,17 +220,7 @@ export default {
     },
   },
   created() {
-    this.fetchRestaurants();
-    const loadUserDataPromise = this.$store.dispatch('loadUserData');
-    const fetchRestaurantsPromise = this.$store.dispatch('fetchRestaurants');
-
-    Promise.all([loadUserDataPromise, fetchRestaurantsPromise])
-        .then(() => {
-          console.log('User data and restaurants loaded successfully');
-        })
-        .catch((error) => {
-          console.error('Error loading user data or restaurants:', error);
-        });
+    this.fetchRestaurants(); // Fetch restaurants when the component is created
   },
 };
 </script>

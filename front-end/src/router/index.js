@@ -1,22 +1,23 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Profile from "@/views/Profile";
-import StartersMenu from "@/components/StartersMenu";
-import MainCoursesMenu from "@/components/MainCoursesMenu";
-import DessertsMenu from "@/components/DessertsMenu";
+import StartersMenu from "@/Menu Components/StartersMenu";
+import MainCoursesMenu from "@/Menu Components/MainCoursesMenu";
+import DessertsMenu from "@/Menu Components/DessertsMenu";
 import NotFoundPage from "@/views/NotFound";
 import LoginPage from "@/views/Login";
 import RegisterPage from "@/views/Register";
-import ChickenMeat from "@/components/ChickenMeat";
-import FishMeat from "@/components/FishMeat";
-import PorkMeat from "@/components/PorkMeat";
-import CowsMeat from "@/components/CowsMeat";
-import DrinksAndBar from "@/components/DrinksAndBar";
+import ChickenMeat from "@/Menu Components/ChickenMeat";
+import FishMeat from "@/Menu Components/FishMeat";
+import PorkMeat from "@/Menu Components/PorkMeat";
+import CowsMeat from "@/Menu Components/CowsMeat";
+import DrinksAndBar from "@/Menu Components/DrinksAndBar";
 import CallComponent from "@/views/Call";
 import AboutUs from "@/views/AboutUs";
 import Checkout from "@/views/Checkout";
 import store from "@/store/store";
 import AddRestaurants from "@/components/AddRestaurants";
 import OptionMenu from "@/views/OptionMenu";
+import BaseMenuItem from "@/components/BaseMenuItem";
 
 const routes = [
     {
@@ -141,7 +142,15 @@ const routes = [
         path: '/addrestaurant',
         name: "AddRestaurants",
         component: AddRestaurants,
-        meta: { requiresAuth: true } // only if authentication is required for this route
+        meta: { requiresAuth: true }
+    },
+
+    {
+        path: '/restaurant/:restaurantName/:menuOption',
+        name: "BaseManuItem",
+        component: BaseMenuItem,
+        props: true,
+        meta: { requiresAuth: true }
     },
 ];
 

@@ -14,7 +14,7 @@
     <div class="row">
       <div class="col-12">
         <!-- Button to open the custom dialog -->
-        <button class="btn btn-primary auto-width-button" @click="openDialog">
+        <button class="btn btn-primary auto-width-button m-5" @click="openDialog">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg icon"
                viewBox="0 0 16 16">
             <path fill-rule="evenodd"
@@ -34,18 +34,19 @@
     <!-- Custom Dialog -->
     <div class="custom-dialog" v-if="showDialog">
       <div class="custom-dialog-content">
-        <h2>Add New Menu Option</h2>
+        <h2>Adauga Meniu Nou </h2>
         <div class="form-group">
-          <label for="photoLink">Photo Link:</label>
+          <label for="photoLink"> Link poza:</label>
           <input type="text" id="photoLink" v-model="optionMenu.photoLink"/>
         </div>
         <div class="form-group">
-          <label for="itemName">Option Name:</label>
+          <label for="itemName">Nume optiune Meniu:</label>
           <input type="text" id="itemName" v-model="optionMenu.optionName"/>
         </div>
         <div class="dialog-buttons">
-          <button class="btn btn-primary add-button" @click="addItem">Add</button>
-          <button class="btn btn-secondary cancel-button" @click="showDialog = false">Cancel</button>
+          <button class="btn btn-secondary cancel-button m-3" @click="showDialog = false">Renunta</button>
+          <button class="btn btn-primary add-button m-3" @click="addItem">Adauga</button>
+
         </div>
       </div>
     </div>
@@ -58,10 +59,14 @@
               <div class="addedRestaurants">
                 <img :src="menuOption.photoLink" alt="added item" class="menu-option-image">
               </div>
-
-              <div class="form-group">
-                <p class="menu-option-name">{{ menuOption.optionName }}</p>
+              <div >
+<!--                <router-link :to="`/restaurant/${encodeURIComponent(restaurantName)}/${encodeURIComponent(menuOption.optionName)}`">-->
+                  <div class="form-group">
+                    <p class="menu-option-name">{{ menuOption.optionName }}</p>
+                  </div>
+<!--                </router-link>-->
               </div>
+
 
               <div class="image-edit-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil"
@@ -71,7 +76,7 @@
                 </svg>
               </div>
               <div>
-                <button class="btn btn-danger btn-sm remove-button" @click="removeMenuItem(menuOption._id)">Remove
+                <button class="btn btn-danger btn-sm remove-button" @click="removeMenuItem(menuOption._id)">Sterge
                 </button>
               </div>
             </div>
@@ -82,18 +87,21 @@
     <!-- Custom Dialog for Editing Menu Option -->
     <div class="custom-dialog" v-if="showDialogOption">
       <div class="custom-dialog-content">
-        <h2>Edit Menu Option</h2>
+        <h2>Editeaza optiunea de meniu</h2>
         <div class="mb-3">
-          <label for="newName" class="m-2">Name: </label>
+          <label for="newName" class="m-2">Nume: </label>
           <input v-if="newOptionMenu" id="newName" v-model="editingMenuOption.optionName"/>
         </div>
-        <div class="mb-3">
-          <label for="newPhotoLink" class="m-2">PhotoLink: </label>
+        <div class="mb-3" >
+          <label for="newPhotoLink" class="m-2">Link poza: </label>
           <input v-if="newOptionMenu" id="newPhotoLink" v-model="editingMenuOption.photoLink"/>
+
+
         </div>
         <div class="dialog-buttons">
-          <button class="btn btn-primary add-button" @click="editMenu">Edit</button>
-          <button class="btn btn-secondary cancel-button" @click="showDialogOption = false">Cancel</button>
+
+          <button class="btn btn-secondary cancel-button m-3" @click="showDialogOption = false">Renunta</button>
+          <button class="btn btn-primary add-button m-3" @click="editMenu">Editeaza</button>
         </div>
       </div>
     </div>
@@ -103,10 +111,10 @@
 <script>
 import api from "../api/api.js";
 import {getAuthToken} from "@/utility/utility";
-import {mapGetters, mapState} from "vuex";
+import {mapGetters} from "vuex";
 
 export default {
-  name: "MainMenu",
+  name: "OptionMenu",
   data() {
     return {
       showDialog: false,
@@ -115,10 +123,11 @@ export default {
         photoLink: "",
         optionName: "",
       },
+      restaurants: [],
       newOptionMenu: { optionName: '', photoLink: '' }, // Initialize with default values
       editingMenuOption: null,
       items: [],
-      localRestaurantData: null, // Local data to store restaurant info
+      localRestaurantData: {}, // Local data to store restaurant info
     };
   },
   props: {
@@ -129,11 +138,9 @@ export default {
   },
   computed: {
     restaurantData() {
+      console.log("localRestaurantData",this.localRestaurantData);
       return this.localRestaurantData || {};
     },
-    ...mapState({
-      restaurants: state => state.user.restaurants
-    }),
     ...mapGetters({
       getUserId: "getUserId"
     }),
@@ -191,7 +198,8 @@ export default {
               this.optionMenu.photoLink = "";
               this.optionMenu.optionName = "";
               this.showDialog = false;
-              this.$router.push(`/restaurant/${this.restaurantName}`);
+              this.$router.push(`/restaurant/${encodeURIComponent(this.restaurantName.trim())}`);
+
             } else {
               console.error("Error adding menu option:", response.data.message);
             }
@@ -231,9 +239,26 @@ export default {
         console.error('An error occurred while updating menu option:', error);
       }
     },
+    async fetchRestaurants() {
+      try {
+        const response = await api.get('/api/userData', {
+          headers: {Authorization: `Bearer ${getAuthToken()}`}
+        });
+
+        if (response && response.status === 200) {
+          this.restaurants = response.data.restaurants; // Update local state
+        } else {
+          console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');
+        }
+      } catch (error) {
+        console.error('An error occurred while fetching restaurants:', error);
+      }
+    },
   },
   async created() {
+
     try {
+      this.fetchRestaurants();
       const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
         headers: { Authorization: `Bearer ${getAuthToken()}` }
       });
