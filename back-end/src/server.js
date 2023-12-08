@@ -433,6 +433,84 @@ app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
 });
 
 
+// PUT endpoint to update a sub-menu option
+app.put('/api/editSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId', async (req, res) => {
+    try {
+        const { userId, restaurantId, menuOptionId, subMenuOptionId } = req.params;
+        const { photoLink, subMenuOptionName } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const restaurant = user.restaurants.id(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        const menuOption = restaurant.menuOptions.id(menuOptionId);
+        if (!menuOption) {
+            return res.status(404).json({ message: 'Menu option not found' });
+        }
+
+        const subMenuOption = menuOption.subMenuOptions.id(subMenuOptionId);
+        if (!subMenuOption) {
+            return res.status(404).json({ message: 'Sub-menu option not found' });
+        }
+
+        // Update the sub-menu option
+        subMenuOption.photoLink = photoLink || subMenuOption.photoLink;
+        subMenuOption.subMenuOptionName = subMenuOptionName || subMenuOption.subMenuOptionName;
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'Sub-menu option updated successfully',
+            updatedSubMenuOption: subMenuOption
+        });
+    } catch (error) {
+        console.error('Error updating sub-menu option:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+// DELETE endpoint to remove a sub-menu option
+app.delete('/api/removeSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId', async (req, res) => {
+    try {
+        const { userId, restaurantId, menuOptionId, subMenuOptionId } = req.params;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const restaurant = user.restaurants.id(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        const menuOption = restaurant.menuOptions.id(menuOptionId);
+        if (!menuOption) {
+            return res.status(404).json({ message: 'Menu option not found' });
+        }
+
+        // Remove the sub-menu option
+        menuOption.subMenuOptions.pull(subMenuOptionId);
+
+        await user.save();
+
+        res.status(200).json({ message: 'Sub-menu option removed successfully' });
+    } catch (error) {
+        console.error('Error removing sub-menu option:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+
+
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
         const { userId, restaurantId } = req.params;

@@ -1,55 +1,64 @@
 <template>
   <div class="container">
-    <div>Restaurant : <strong>{{ restaurantName }}</strong></div>
-    <div>Optiune de meniu selectata: <strong>{{ menuOption }}</strong> </div>
+    <div>Restaurant: <strong>{{ restaurantName }}</strong></div>
+    <div>Optiune de meniu selectata: <strong>{{ menuOption }}</strong></div>
     <div class="m-5">
-      <button class="btn btn-secondary m-3" @click="openDialog">Adauga un submeniu</button>
+      <button class="btn btn-secondary m-3" @click="openDialog">Adauga o categorie de meniu</button>
       <button class="btn btn-secondary m-3">Adauga o optiune de masa</button>
     </div>
     <div v-if="restaurantData && restaurantData.subMenuOptions">
       <div v-for="(subMenuOption, index) in restaurantData.subMenuOptions" :key="index" class="menu-option">
-        <div class="menu-option-content" v-if="subMenuOption">
+        <div class="menu-option-content m-5" v-if="subMenuOption">
           <div class="menu-option-row">
-            <div class="menu-option-info">
-
-              <div class="addedRestaurants">
-                <img :src="subMenuOption.photoLink" alt="added item" class="menu-option-image">
-              </div>
-              <div class="open-menu-option">
-                  <p class="menu-option-name">{{ subMenuOption.optionName }}</p>
-
-              </div>
-              <div class="image-edit-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil"
-                     viewBox="0 0 16 16" >
+            <img :src="subMenuOption.photoLink" alt="Menu item" class="menu-option-image">
+            <p class="menu-option-name">{{ subMenuOption.subMenuOptionName }}</p>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon"
+                 viewBox="0 0 16 16" @click="editOption(subMenuOption)">
                   <path
                       d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-                </svg>
-              </div>
-              <div>
-                <button class="btn btn-danger btn-sm remove-button" >Sterge
-                </button>
-              </div>
-            </div>
+            </svg>
+            <button class="btn btn-danger btn-sm remove-button" @click="removeSubMenuItem(subMenuOption._id)">Sterge</button>
           </div>
         </div>
       </div>
     </div>
+<!--    Creating a custom dialog to add  a new SubMenuOption-->
     <div class="custom-dialog" v-if="showDialog">
       <div class="custom-dialog-content">
-        <h2>Adauga Submeniu Nou </h2>
+        <h2>Adauga Submeniu Nou</h2>
         <div class="form-group">
-          <label for="photoLink"> Link poza:</label>
-          <input type="text" id="photoLink" v-model="subMenu.photoLink"/>
+          <label for="photoLink">Link poza:</label>
+          <input type="text" id="photoLink" v-model="subMenu.photoLink" class="image-option"/>
         </div>
         <div class="form-group">
-          <label for="itemName">Nume optiune submeniu:</label>
+          <label for="itemName">Nume categorie meniu:</label>
           <input type="text" id="itemName" v-model="subMenu.optionName"/>
         </div>
         <div class="dialog-buttons">
           <button class="btn btn-secondary cancel-button m-3" @click="showDialog = false">Renunta</button>
           <button class="btn btn-primary add-button m-3" @click="addSubMenuItem">Adauga</button>
+        </div>
+      </div>
+    </div>
 
+<!--    Adding another custom dialog for editing the subMenOptions that are already dispalyed and saved on the server -->
+    <div class="custom-dialog" v-if="showDialogOption">
+      <div class="custom-dialog-content">
+        <h2>Editeaza categoria meniu</h2>
+        <div class="mb-3">
+          <label for="newName" class="m-2">Nume: </label>
+          <input v-if="newOptionSubMenu" id="newName" v-model="editingSubMenuOption.optionName"/>
+        </div>
+        <div class="mb-3" >
+          <label for="newPhotoLink" class="m-2">Link poza: </label>
+          <input v-if="newOptionSubMenu" id="newPhotoLink" v-model="editingSubMenuOption.photoLink"/>
+
+
+        </div>
+        <div class="dialog-buttons">
+
+          <button class="btn btn-secondary cancel-button m-3" @click="showDialogOption = false">Renunta</button>
+          <button class="btn btn-primary add-button m-3" @click="editMenu">Editeaza</button>
         </div>
       </div>
     </div>
@@ -57,7 +66,7 @@
 </template>
 <script>
 import api from "@/api/api";
-import {getAuthToken} from "@/utility/utility";
+import { getAuthToken } from "@/utility/utility";
 
 export default {
   props: ['restaurantName', 'menuOption'],
@@ -67,31 +76,23 @@ export default {
         photoLink: "",
         optionName: "",
       },
-      restaurants: [],
-      localRestaurantData: {}, // Local data to store restaurant info
+      restaurantData: null, // Local data to store restaurant info
       showDialog: false,
+      showDialogOption: false,
+      newOptionSubMenu: { optionName: '', photoLink: '' }, // Initialize with default values
+      editingSubMenuOption: null,
+      items: [],
     };
-  },
-  computed: {
-    restaurantData() {
-      // Check if localRestaurantData and its restaurants array are defined
-      if (this.localRestaurantData && this.localRestaurantData.restaurants) {
-        const restaurant = this.localRestaurantData.restaurants.find(
-            (r) => r.name === this.restaurantName
-        );
-        if (restaurant && restaurant.menuOptions) {
-          const menuOption = restaurant.menuOptions.find(
-              (m) => m.optionName === this.menuOption
-          );
-          return menuOption || {};
-        }
-      }
-      return {};
-    },
   },
   methods: {
     openDialog() {
       this.showDialog = true;
+    },
+    editOption(subMenuOption) {
+      if (subMenuOption) {
+        this.editingSubMenuOption = JSON.parse(JSON.stringify(subMenuOption));
+        this.showDialogOption = true;
+      }
     },
     addSubMenuItem() {
       const newSubMenuItem = {
@@ -107,10 +108,10 @@ export default {
       })
           .then(response => {
             if (response.status === 201) {
-              if (!this.localRestaurantData.subMenuOption) {
-                this.localRestaurantData.subMenuOption = [];
+              if (!this.restaurantData.subMenuOptions) {
+                this.restaurantData.subMenuOptions = [];
               }
-              this.localRestaurantData.subMenuOption.push(newSubMenuItem);
+              this.restaurantData.subMenuOptions.push(newSubMenuItem);
               this.subMenu.photoLink = "";
               this.subMenu.optionName = "";
               this.showDialog = false;
@@ -122,6 +123,42 @@ export default {
             console.error("Error adding sub-menu item:", error);
           });
     },
+    async removeSubMenuItem(subMenuOptionId) {
+      // Call the API to delete the sub-menu item
+      try {
+        const response = await api.delete(`/api/subMenuOptions/${subMenuOptionId}`, {
+          headers: { Authorization: `Bearer ${getAuthToken()}` }
+        });
+        if (response.status === 200) {
+          // Remove the item from the local state
+          this.restaurantData.subMenuOptions = this.restaurantData.subMenuOptions.filter(item => item._id !== subMenuOptionId);
+        } else {
+          console.error("Error removing sub-menu item:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error removing sub-menu item:", error);
+      }
+    },
+    async updateSubMenuItem() {
+      // Call the API to update the sub-menu item
+      try {
+        const response = await api.put(`/api/subMenuOptions/${this.editingSubMenuOption._id}`, this.editingSubMenuOption, {
+          headers: { Authorization: `Bearer ${getAuthToken()}` }
+        });
+        if (response.status === 200) {
+          // Update the item in the local state
+          const index = this.restaurantData.subMenuOptions.findIndex(item => item._id === this.editingSubMenuOption._id);
+          if (index !== -1) {
+            this.restaurantData.subMenuOptions[index] = JSON.parse(JSON.stringify(this.editingSubMenuOption));
+          }
+          this.showDialogOption = false;
+        } else {
+          console.error("Error updating sub-menu item:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error updating sub-menu item:", error);
+      }
+    },
     async fetchRestaurantData() {
       try {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
@@ -129,7 +166,6 @@ export default {
         });
 
         if (response && response.status === 200 && response.data) {
-          // Find the specific menu option within the restaurant data
           const menuOptionData = response.data.menuOptions.find(
               (m) => m.optionName === this.menuOption
           );
@@ -145,13 +181,12 @@ export default {
   },
   created() {
     this.fetchRestaurantData();
-}
+  }
 };
 </script>
 
 
 <style scoped>
-
 .custom-dialog {
   position: fixed;
   top: 50%;
@@ -166,6 +201,32 @@ export default {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
 
+.menu-option-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu-option-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.menu-option-name {
+  font-size: 1em;
+  font-weight: bold;
+  margin: 0;
+}
+
+.edit-icon {
+  cursor: pointer;
+}
+
+.remove-button {
+  padding: 5px 10px;
+}
 
 .custom-dialog-content input[type="text"] {
   width: 100%;
