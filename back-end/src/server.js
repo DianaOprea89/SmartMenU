@@ -322,7 +322,7 @@ app.get('/api/getRestaurants', async (req, res) => {
     }
 });
 
-
+//Post endpoint to add a restaurant//
 
 app.post('/api/addRestaurants', async (req, res) => {
     try {
@@ -369,7 +369,7 @@ app.post('/api/addRestaurants', async (req, res) => {
     }
 });
 
-
+//Post endpoint to add an Option Menu//
 app.post('/api/addOptionMenuRestaurants', async (req, res) => {
     try {
         const { userId, name, newItem } = req.body;
@@ -402,7 +402,7 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
     }
 });
 
-
+//Post endpoint to add a subOption //
 app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
     try {
         const { userId, name, menuOptionName, newSubMenuItem } = req.body;
@@ -433,7 +433,7 @@ app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
 });
 
 
-// PUT endpoint to update a sub-menu option
+// PUT endpoint to edit a sub-menu option//
 app.put('/api/editSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId', async (req, res) => {
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId } = req.params;
@@ -476,7 +476,7 @@ app.put('/api/editSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOpti
 });
 
 
-// DELETE endpoint to remove a sub-menu option
+// Delete endpoint to remove a sub-menu option//
 app.delete('/api/removeSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId', async (req, res) => {
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId } = req.params;
@@ -509,7 +509,7 @@ app.delete('/api/removeSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMen
 });
 
 
-
+//Put Endpoint to the edit a  restaurant//
 
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
@@ -551,7 +551,7 @@ app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     }
 });
 
-
+//Delete endpoint to the OptionMenu //
 
 app.delete('/api/removeOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId', async (req, res) => {
     const { userId, restaurantId, menuOptionId } = req.params;
@@ -583,7 +583,7 @@ app.delete('/api/removeOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId
     }
 });
 
-
+//Put endpoint to edit an option added to a restaurant //
 
 app.put('/api/editOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId', async (req, res) => {
     try {

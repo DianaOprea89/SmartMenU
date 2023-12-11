@@ -47,7 +47,7 @@
         <h2>Editeaza categoria meniu</h2>
         <div class="mb-3">
           <label for="newName" class="m-2">Nume: </label>
-          <input v-if="newOptionSubMenu" id="newName" v-model="editingSubMenuOption.optionName"/>
+          <input v-if="newOptionSubMenu" id="newName" v-model="editingSubMenuOption.subMenuOptionName"/>
         </div>
         <div class="mb-3" >
           <label for="newPhotoLink" class="m-2">Link poza: </label>
@@ -57,8 +57,8 @@
         </div>
         <div class="dialog-buttons">
 
-          <button class="btn btn-secondary cancel-button m-3" @click="showDialogOption = false">Renunta</button>
-          <button class="btn btn-primary add-button m-3" @click="editMenu">Editeaza</button>
+          <button @click="removeSubMenuItem(subMenuOption._id)">Renunta</button>
+          <button class="btn btn-primary add-button m-3" @click="updateSubMenuItem(editingSubMenuOption._id)">Editeaza</button>
         </div>
       </div>
     </div>
@@ -67,6 +67,7 @@
 <script>
 import api from "@/api/api";
 import { getAuthToken } from "@/utility/utility";
+import {mapGetters} from "vuex";
 
 export default {
   props: ['restaurantName', 'menuOption'],
@@ -76,24 +77,37 @@ export default {
         photoLink: "",
         optionName: "",
       },
-      restaurantData: null, // Local data to store restaurant info
+      restaurantData: '',
+      userId: '', // Initialize userId
+      restaurantId: '', // Initialize restaurantId
+      menuOptionId: '', // Initialize menuOptionId
       showDialog: false,
       showDialogOption: false,
       newOptionSubMenu: { optionName: '', photoLink: '' }, // Initialize with default values
-      editingSubMenuOption: null,
+      editingSubMenuOption: {
+        optionName: '',
+        photoLink: '',
+        _id: ''
+      },
       items: [],
     };
+  },
+  computed:{
+    ...mapGetters({
+      getUserId: "getUserId"
+    }),
   },
   methods: {
     openDialog() {
       this.showDialog = true;
     },
     editOption(subMenuOption) {
-      if (subMenuOption) {
-        this.editingSubMenuOption = JSON.parse(JSON.stringify(subMenuOption));
-        this.showDialogOption = true;
-      }
+      this.editingSubMenuOption.subMenuOptionName = subMenuOption.subMenuOptionName;
+      this.editingSubMenuOption.photoLink = subMenuOption.photoLink;
+      this.editingSubMenuOption._id = subMenuOption._id;
+      this.showDialogOption = true;
     },
+
     addSubMenuItem() {
       const newSubMenuItem = {
         photoLink: this.subMenu.photoLink,
@@ -125,8 +139,12 @@ export default {
     },
     async removeSubMenuItem(subMenuOptionId) {
       // Call the API to delete the sub-menu item
+      if (!this.userId || !this.restaurantId || !this.menuOptionId) {
+        console.error("Missing IDs for deletion request");
+        return;
+      }
       try {
-        const response = await api.delete(`/api/subMenuOptions/${subMenuOptionId}`, {
+        const response = await api.delete(`/api/removeSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`, {
           headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
         if (response.status === 200) {
@@ -139,26 +157,34 @@ export default {
         console.error("Error removing sub-menu item:", error);
       }
     },
-    async updateSubMenuItem() {
-      // Call the API to update the sub-menu item
+    async updateSubMenuItem(subMenuOptionId) {
+      if (!this.userId || !this.restaurantId || !this.menuOptionId || !subMenuOptionId) {
+        console.error("Missing IDs for update request");
+        return;
+      }
+
       try {
-        const response = await api.put(`/api/subMenuOptions/${this.editingSubMenuOption._id}`, this.editingSubMenuOption, {
-          headers: { Authorization: `Bearer ${getAuthToken()}` }
-        });
+        const response = await api.put(
+            `/api/editSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`,
+            this.editingSubMenuOption, {
+              headers: { Authorization: `Bearer ${getAuthToken()}` }
+            }
+        );
         if (response.status === 200) {
-          // Update the item in the local state
-          const index = this.restaurantData.subMenuOptions.findIndex(item => item._id === this.editingSubMenuOption._id);
+          // Update the local state to reflect the changes
+          const index = this.restaurantData.subMenuOptions.findIndex(item => item._id === subMenuOptionId);
           if (index !== -1) {
             this.restaurantData.subMenuOptions[index] = JSON.parse(JSON.stringify(this.editingSubMenuOption));
           }
-          this.showDialogOption = false;
+          this.showDialogOption = false; // Close the dialog
         } else {
           console.error("Error updating sub-menu item:", response.data.message);
         }
       } catch (error) {
         console.error("Error updating sub-menu item:", error);
       }
-    },
+    }
+    ,
     async fetchRestaurantData() {
       try {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
@@ -166,11 +192,13 @@ export default {
         });
 
         if (response && response.status === 200 && response.data) {
-          const menuOptionData = response.data.menuOptions.find(
-              (m) => m.optionName === this.menuOption
-          );
+          const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
 
           this.restaurantData = menuOptionData || null;
+          this.restaurantId = response.data._id; // Set restaurantId from the response
+          if (menuOptionData) {
+            this.menuOptionId = menuOptionData._id; // Set menuOptionId
+          }
         } else {
           console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
         }
@@ -181,6 +209,7 @@ export default {
   },
   created() {
     this.fetchRestaurantData();
+    this.userId = this.getUserId;
   }
 };
 </script>
