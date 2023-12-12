@@ -4,7 +4,8 @@
     <div>Optiune de meniu selectata: <strong>{{ menuOption }}</strong></div>
     <div class="m-5">
       <button class="btn btn-secondary m-3" @click="openDialog">Adauga o categorie de meniu</button>
-      <button class="btn btn-secondary m-3">Adauga o optiune de masa</button>
+      <button class="btn btn-secondary m-3" @click="openNewDialog">Adauga o optiune de masa</button>
+      <meal-option v-if="newShowDialog "></meal-option>
     </div>
     <div v-if="restaurantData && restaurantData.subMenuOptions">
       <div v-for="(subMenuOption, index) in restaurantData.subMenuOptions" :key="index" class="menu-option">
@@ -71,8 +72,10 @@
 import api from "@/api/api";
 import { getAuthToken } from "@/utility/utility";
 import {mapGetters} from "vuex";
+import MealOption from "@/components/MealOption";
 
 export default {
+  components: {MealOption},
   props: ['restaurantName', 'menuOption'],
   data() {
     return {
@@ -86,6 +89,7 @@ export default {
       menuOptionId: '', // Initialize menuOptionId
       showDialog: false,
       showDialogOption: false,
+      newShowDialog:false,
       newOptionSubMenu: { optionName: '', photoLink: '' }, // Initialize with default values
       editingSubMenuOption: {
         optionName: '',
@@ -103,6 +107,9 @@ export default {
   methods: {
     openDialog() {
       this.showDialog = true;
+    },
+    openNewDialog(){
+      this.newShowDialog =true;
     },
     editOption(subMenuOption) {
       this.editingSubMenuOption.subMenuOptionName = subMenuOption.subMenuOptionName;
