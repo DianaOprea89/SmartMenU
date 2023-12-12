@@ -1,23 +1,16 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Profile from "@/views/Profile";
-import StartersMenu from "@/Menu Components/StartersMenu";
-import MainCoursesMenu from "@/Menu Components/MainCoursesMenu";
-import DessertsMenu from "@/Menu Components/DessertsMenu";
 import NotFoundPage from "@/views/NotFound";
 import LoginPage from "@/views/Login";
 import RegisterPage from "@/views/Register";
-import ChickenMeat from "@/Menu Components/ChickenMeat";
-import FishMeat from "@/Menu Components/FishMeat";
-import PorkMeat from "@/Menu Components/PorkMeat";
-import CowsMeat from "@/Menu Components/CowsMeat";
-import DrinksAndBar from "@/Menu Components/DrinksAndBar";
 import CallComponent from "@/views/Call";
 import AboutUs from "@/views/AboutUs";
 import Checkout from "@/views/Checkout";
 import store from "@/store/store";
 import AddRestaurants from "@/components/AddRestaurants";
 import OptionMenu from "@/views/OptionMenu";
-import BaseMenuItem from "@/components/BaseMenuItem";
+import MealOption from "@/components/MealOption";
+import SubMenuOption from "@/components/SubMenuOption";
 
 const routes = [
     {
@@ -39,13 +32,7 @@ const routes = [
         props: true,
         meta: { requiresAuth: true }
     },
-    {
-        path: '/starter',
-        name: 'StartersMenu',
-        component: StartersMenu,
-        props: true,
-        meta: { requiresAuth: true }
-    },
+
     {
         path: '/checkout',
         name: 'CheckOut',
@@ -61,63 +48,12 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
-        path: '/main-course',
-        name: 'MainCourse',
-        component: MainCoursesMenu,
-        props: true,
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/desserts',
-        name: 'DessertsMenu',
-        component: DessertsMenu,
-        props: true,
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/chickenmeat',
-        name: 'ChickenMeat',
-        component: ChickenMeat,
-        props: true,
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/fishmeat',
-        name: 'FishMeat',
-        component: FishMeat,
-        props: true,
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/porkmeat',
-        name: 'PorkMeat',
-        component: PorkMeat,
-        props: true,
-        meta: { requiresAuth: true }
-    },
-    {
         path: '/restaurant/:restaurantName',
         name: 'OptionMenu',
         component: OptionMenu, // Lazy load the MainMenu component
         props: true,
         meta: { requiresAuth: true }
-    }
-    ,
-    {
-        path: '/cowsmeat',
-        name: 'CowsMeat',
-        component: CowsMeat,
-        props: true,
-        meta: { requiresAuth: true }
     },
-    {
-        path: '/drinks',
-        name: 'DrinksAndBar',
-        component: DrinksAndBar,
-        props: true,
-        meta: { requiresAuth: true }
-    },
-
     {
         path: '/:catchAll(.*)',
         name: 'NotFoundPage',
@@ -147,8 +83,15 @@ const routes = [
 
     {
         path: '/restaurant/:restaurantName/:menuOption',
-        name: "BaseManuItem",
-        component: BaseMenuItem,
+        name: "SubMenuOption",
+        component: SubMenuOption,
+        props: true,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/restaurant/:restaurantName/:menuOption/:subMenuOption/:mealOption',
+        name: "MealOption",
+        component: MealOption,
         props: true,
         meta: { requiresAuth: true }
     },
