@@ -509,6 +509,52 @@ app.delete('/api/removeSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMen
 });
 
 
+
+// POST endpoint to add a new meal option under a specific subMenuOption
+app.post('/api/addMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId', async (req, res) => {
+    try {
+        const { userId, restaurantId, menuOptionId, subMenuOptionId } = req.params;
+        const newMealOption = req.body; // The new meal option data
+
+        // Validate the meal option data as necessary
+        // ...
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const restaurant = user.restaurants.id(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        const menuOption = restaurant.menuOptions.id(menuOptionId);
+        if (!menuOption) {
+            return res.status(404).json({ message: 'Menu option not found' });
+        }
+
+        const subMenuOption = menuOption.subMenuOptions.id(subMenuOptionId);
+        if (!subMenuOption) {
+            return res.status(404).json({ message: 'Sub-menu option not found' });
+        }
+
+        // Add the new meal option to the subMenuOption's mealOptions array
+        subMenuOption.mealOptions.push(newMealOption);
+
+        await user.save();
+
+        res.status(201).json({
+            message: 'New meal option added successfully',
+            newMealOption
+        });
+    } catch (error) {
+        console.error('Error adding new meal option:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
 //Put Endpoint to the edit a  restaurant//
 
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {

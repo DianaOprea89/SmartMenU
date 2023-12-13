@@ -21,6 +21,18 @@ const userSchema = new mongoose.Schema({
                         {
                             photoLink: String,
                             subMenuOptionName: String,
+                            mealOptions:[
+                                {
+                                    photoLink: String,
+                                    optionName: String,
+                                    quantity: String,
+                                    ingredients: String,
+                                    price: String,
+                                    description: String,
+                                    unit: String,
+                                    categoryMenuOption: String
+                                }
+                            ]
                         },
                     ],
                 },
