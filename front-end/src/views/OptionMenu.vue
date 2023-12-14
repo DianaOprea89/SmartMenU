@@ -1,5 +1,10 @@
 <template>
   <div class="container">
+    <div class="m-2 icon-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
+      </svg>
+    </div>
     <div class="row">
       <div class="col-7">
         <h1>{{ restaurantData.name }}</h1>
@@ -31,29 +36,11 @@
         </span>
       </div>
     </div>
-    <!-- Custom Dialog -->
-    <div class="custom-dialog" v-if="showDialog">
-      <div class="custom-dialog-content">
-        <h2>Adauga Meniu Nou </h2>
-        <div class="form-group">
-          <label for="photoLink"> Link poza:</label>
-          <input type="text" id="photoLink" v-model="optionMenu.photoLink"/>
-        </div>
-        <div class="form-group">
-          <label for="itemName">Nume optiune Meniu:</label>
-          <input type="text" id="itemName" v-model="optionMenu.optionName"/>
-        </div>
-        <div class="dialog-buttons">
-          <button class="btn btn-secondary cancel-button m-3" @click="showDialog = false">Renunta</button>
-          <button class="btn btn-primary add-button m-3" @click="addItem">Adauga</button>
 
-        </div>
-      </div>
-    </div>
     <div v-if="restaurantData && restaurantData.menuOptions">
-      <div v-for="(menuOption, index) in restaurantData.menuOptions" :key="index" class="menu-option">
+      <div v-for="(menuOption, index) in restaurantData.menuOptions" :key="index" class="menu-option menu-layout">
         <div class="menu-option-content" v-if="menuOption">
-          <div class="menu-option-row">
+          <div class="submenu-list">
             <div class="menu-option-info">
 
               <div class="addedRestaurants">
@@ -78,6 +65,25 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+    <!-- Custom Dialog -->
+    <div class="custom-dialog" v-if="showDialog">
+      <div class="custom-dialog-content">
+        <h2>Adauga Meniu Nou </h2>
+        <div class="form-group">
+          <label for="photoLink"> Link poza:</label>
+          <input type="text" id="photoLink" v-model="optionMenu.photoLink"/>
+        </div>
+        <div class="form-group">
+          <label for="itemName">Nume optiune Meniu:</label>
+          <input type="text" id="itemName" v-model="optionMenu.optionName"/>
+        </div>
+        <div class="dialog-buttons">
+          <button class="btn btn-secondary cancel-button m-3" @click="showDialog = false">Renunta</button>
+          <button class="btn btn-primary add-button m-3" @click="addItem">Adauga</button>
+
         </div>
       </div>
     </div>
@@ -222,7 +228,7 @@ export default {
         );
 
         if (response && response.status === 200) {
-          // Update localRestaurantData directly
+
           const index = this.localRestaurantData.menuOptions.findIndex(option => option._id === menuOptionId);
           if (index !== -1) {
             this.localRestaurantData.menuOptions[index] = { ...this.editingMenuOption };
@@ -237,12 +243,12 @@ export default {
       }
     },
     openMenuOption(menuOption) {
-      // Navigate to the BaseMenuItem route with parameters
+
       this.$router.push({
-        name: 'SubMenuOption', // Use the correct route name
+        name: 'SubMenuOption',
         params: {
-          restaurantName: this.restaurantName, // Assuming you have restaurantName in your data or props
-          menuOption: menuOption.optionName // Pass the menu option name
+          restaurantName: this.restaurantName,
+          menuOption: menuOption.optionName
         }
       });
     },
@@ -286,8 +292,10 @@ export default {
 <style scoped>
 
 .fixed-size-img {
-  width: 150px;
-  height: 150px;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
 }
 
 .custom-dialog {
@@ -303,7 +311,19 @@ export default {
   border-radius: 10px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
-
+.submenu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+}
+.menu-layout {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 2rem;
+}
 
 .custom-dialog-content input[type="text"] {
   width: 100%;
@@ -315,12 +335,7 @@ export default {
   margin-bottom: 10px; /* Space between each menu option */
 }
 
-.menu-option-row {
-  display: flex;
-  justify-content: space-between; /* Distributes space evenly between elements */
-  align-items: center; /* Vertically centers the items in the row */
 
-}
 
 .menu-option-info {
 
@@ -337,49 +352,50 @@ export default {
 
 .addedRestaurants {
 
-  margin-right: 5px; /* Adds margin to the right */
+  margin-right: 5px;
 }
 
 .image-edit-icon {
-  flex-grow: 1; /* Allows the element to grow if necessary */
+  flex-grow: 1;
   padding: 10px;
 }
 
 .menu-option-info {
   display: flex;
-  position: relative; /* Needed for absolute positioning of children */
+  position: relative;
 }
 
 .addedRestaurants {
-  position: relative; /* Relative positioning */
-  margin-right: 10px; /* Space between the image container and the name */
+  position: relative;
+  margin-right: 10px;
 }
 
 .menu-option-image {
-  height: 100px; /* Set a fixed height for your images */
-  width: auto; /* Adjust width automatically to maintain aspect ratio */
-  margin-right: 10px;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
 }
 
 .menu-option-content svg,
 .form-group svg {
   position: absolute;
-  top: 0; /* Align to the top of the parent container */
-  right: 0; /* Align to the right of the parent container */
-  width: 16px; /* Size of the SVG */
+  top: 0;
+  right: 0;
+  width: 16px;
   height: 16px;
-  cursor: pointer; /* Indicate it's clickable */
+  cursor: pointer;
 }
 
 .menu-option-name {
   display: flex;
   align-items: center;
   font-size: 1em;
-  background-color: #f0f0f0;
+  background-color: #ffffff;
   padding: 5px 10px;
   border-radius: 5px;
-  position: relative; /* Needed for absolute positioning of children */
-  margin-right: 10px; /* Space between the name and the edit icon */
+  position: relative;
+  margin-right: 10px;
 }
 .open-menu-option{
   cursor: pointer;
@@ -388,26 +404,42 @@ export default {
 .form-group {
   display: flex;
   align-items: center;
-  position: relative; /* Relative positioning */
+  position: relative;
 }
 
-/* Additional styling for the edit icon specifically for the name */
 .form-group svg {
-  width: 12px; /* Smaller size for the edit icon next to the name */
+  width: 12px;
   height: 12px;
-  margin-left: 5px; /* Space between the name and the edit icon */
+  margin-left: 5px;
 }
 
 .image-edit-icon {
-  position: relative; /* Relative positioning for absolute children */
-  margin-right: 10px; /* Space between the image container and the edit icon */
+  position: relative;
+  margin-right: 10px;
 }
 
-/* Additional styling for the edit icon specifically for the image */
+
 .image-edit-icon svg {
-  width: 16px; /* Size of the SVG */
+  width: 16px;
   height: 16px;
-  cursor: pointer; /* Indicate it's clickable */
+  cursor: pointer;
+}
+.icon-container svg {
+  height: 24px;
+  width: 24px;
+  fill: currentColor;
+}
+
+
+.icon-container svg {
+  stroke-width: 2;
+}
+
+
+.icon-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 </style>

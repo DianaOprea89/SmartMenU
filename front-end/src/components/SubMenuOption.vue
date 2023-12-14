@@ -1,5 +1,11 @@
 <template>
+
   <div class="container">
+    <div class="m-2 icon-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
+      </svg>
+    </div>
     <div>Restaurant: <strong>{{ restaurantName }}</strong></div>
     <div>Optiune de meniu selectata: <strong>{{ menuOption }}</strong></div>
     <div class="m-5">
@@ -16,7 +22,10 @@
     <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
       <aside class="menu-sidebar">
         <ul class="submenu-list">
-          <li v-for="(subMenuOption, index) in restaurantData.subMenuOptions" :key="index">
+          <li v-for="(subMenuOption, index) in restaurantData.subMenuOptions"
+              :key="index"
+              :class="{ active: activeSubMenu === subMenuOption._id }"
+              @click="setActiveSubMenu(subMenuOption._id)">
             <img :src="subMenuOption.photoLink" alt="Menu item" class="menu-option-image">
             <p class="sub-menu-title">{{ subMenuOption.subMenuOptionName }}</p>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4"
@@ -32,9 +41,10 @@
 
       </aside>
       <main class="menu-main-content">
-        <div v-for="(subMenuOption, index) in restaurantData.subMenuOptions" :key="index">
-          <ul class="meal-list">
-            <li v-for="mealOption in subMenuOption.mealOptions" :key="mealOption._id" class="meal-item">
+        <template v-for="(mealOptions, subMenuId) in groupedMealOptions">
+          <div v-if="subMenuId === activeSubMenu" :key="subMenuId">
+            <ul class="meal-list">
+            <li v-for="mealOption in mealOptions" :key="mealOption._id" class="meal-item">
               <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
               <div class="meal-content">
                 <h3>{{ mealOption.optionName }}</h3>
@@ -48,9 +58,10 @@
             </li>
           </ul>
         </div>
+        </template>
       </main>
     </div>
-<!--    Creating a custom dialog to add  a new SubMenuOption-->
+
     <div class="custom-dialog" v-if="showDialog">
       <div class="custom-dialog-content">
         <h2>Adauga Submeniu Nou</h2>
@@ -69,7 +80,7 @@
       </div>
     </div>
 
-<!--    Adding another custom dialog for editing the subMenOptions that are already dispalyed and saved on the server -->
+
     <div class="custom-dialog" v-if="showDialogOption">
       <div class="custom-dialog-content">
         <h2>Editeaza categoria meniu</h2>
@@ -108,15 +119,15 @@ export default {
         optionName: "",
       },
       restaurantData: '',
-      userId: '', // Initialize userId
-      restaurantId: '', // Initialize restaurantId
-      menuOptionId: '', // Initialize menuOptionId
+      userId: '',
+      restaurantId: '',
+      menuOptionId: '',
       showDialog: false,
       showDialogOption: false,
       activeSubMenu: null,
       activeMealOptions: [],
       newShowDialog:false,
-      newOptionSubMenu: { optionName: '', photoLink: '' }, // Initialize with default values
+      newOptionSubMenu: { optionName: '', photoLink: '' },
       editingSubMenuOption: {
         optionName: '',
         photoLink: '',
@@ -129,6 +140,9 @@ export default {
     ...mapGetters({
       getUserId: "getUserId"
     }),
+    groupedMealOptions() {
+      return this.getMealOptionsBySubMenu();
+    }
   },
   methods: {
     openDialog() {
@@ -143,20 +157,17 @@ export default {
       this.editingSubMenuOption._id = subMenuOption._id;
       this.showDialogOption = true;
     },
+    getMealOptionsBySubMenu() {
+      const groupedMealOptions = {};
+      this.restaurantData.subMenuOptions.forEach(subMenu => {
+
+        groupedMealOptions[subMenu._id] = subMenu.mealOptions;
+      });
+      return groupedMealOptions;
+    },
     setActiveSubMenu(subMenuId) {
-      console.log('setActiveSubMenu called with id:', subMenuId);
       this.activeSubMenu = subMenuId;
-      const subMenu = this.restaurantData.subMenuOptions.find(
-          (subMenuOption) => subMenuOption._id.$oid === subMenuId
-      );
-      if(subMenu) {
-        console.log('Active subMenu:', subMenu);
-        this.activeMealOptions = subMenu.mealOptions || [];
-        console.log('Active meal options:', this.activeMealOptions);
-      } else {
-        console.log('No subMenu found for id:', subMenuId);
-        this.activeMealOptions = [];
-      }
+      // ... rest of your code
     },
     addSubMenuItem() {
       const newSubMenuItem = {
@@ -272,11 +283,14 @@ export default {
       }
     },
   },
-  created() {
-    console.log('Restaurant Name:', this.restaurantName); // Debugging line
-    this.fetchRestaurantData();
+  async created() {
+    await this.fetchRestaurantData();
+    if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+      this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
+    }
     this.userId = this.getUserId;
-  }
+  },
+
 };
 </script>
 
@@ -300,6 +314,42 @@ export default {
 .menu-sidebar {
   background: #f9f9f9;
   padding: 1rem;
+}
+.custom-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  max-width: 400px;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 1000;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.custom-dialog-content input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.menu-option-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.edit-icon {
+  cursor: pointer;
+}
+
+.custom-dialog-content input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
 .submenu-list {
@@ -387,11 +437,26 @@ export default {
 }
 
 .active {
-  background-color: #ddd; /* or any other style you want */
-  /* other styles to make it look "active" */
+  background-color: #ddd;
   cursor: pointer;
   color: #000;
 }
+.icon-container svg {
+  height: 24px;
+  width: 24px;
+  fill: currentColor;
+}
 
+
+.icon-container svg {
+  stroke-width: 2;
+}
+
+
+.icon-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
 </style>
 
