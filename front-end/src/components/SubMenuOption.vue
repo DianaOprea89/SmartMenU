@@ -16,7 +16,8 @@
           :restaurant-name="restaurantName"
           :menu-option="menuOption"
           :sub-menu-options="restaurantData.subMenuOptions"
-          @meal-option-added="handleMealOptionAdded">
+          @meal-option-added="handleMealOptionAdded"
+          @close="newShowDialog = false">
       </meal-option>
     </div>
     <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
@@ -247,6 +248,10 @@ export default {
     },
     handleMealOptionAdded(newMealOption) {
       this.updateSubMenuWithMealOption(newMealOption);
+      const currentPath = this.$route.path;
+      this.$router.replace({ path: '/empty' }).then(() => {
+        this.$router.replace({ path: currentPath });
+      });
     },
     updateSubMenuWithMealOption(mealOption) {
 

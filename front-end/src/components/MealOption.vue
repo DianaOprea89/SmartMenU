@@ -82,7 +82,7 @@ export default {
   },
   methods: {
     closeDialog() {
-      this.showDialog = false;
+      this.$emit('close'); // Emitting an event named 'close'
     },
     clearForm() {
       this.mealOption = {
@@ -108,6 +108,7 @@ export default {
         ...this.mealOption,
         categoryMenuOption: this.mealOption.categoryMenuOption,
       };
+       console.log(this.mealOption.categoryMenuOption)
 
       // You must have userId, restaurantId, menuOptionId, and subMenuOptionId available
       if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.mealOption.categoryMenuOption) {
