@@ -431,6 +431,56 @@ app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+//Put endpont to edit a mealOption//
+app.put('/api/editMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
+    try {
+        const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
+        const { photoLink,optionName,quantity,ingredients,price,description,unit } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const restaurant = user.restaurants.id(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        const menuOption = restaurant.menuOptions.id(menuOptionId);
+        if (!menuOption) {
+            return res.status(404).json({ message: 'Menu option not found' });
+        }
+
+        const subMenuOption = menuOption.subMenuOptions.id(subMenuOptionId);
+        if (!subMenuOption) {
+            return res.status(404).json({ message: 'Sub-menu option not found' });
+        }
+        const mealOption = subMenuOption.mealOptions.id(mealOptionId);
+        if(!mealOptions) {
+            return res.status(404).json({ message: 'Meal  option not found' });
+        }
+
+        // Update the Meal option
+        mealOption.photoLink = photoLink || mealOption.photoLink;
+        mealOption.optionName = optionName || mealOption.optionName;
+        mealOption.quantity = quantity || mealOption.quantity;
+        mealOption.ingredients = ingredients || mealOption.ingredients;
+        mealOption.price = price || mealOption.price;
+        mealOption.description = description || mealOption.description;
+        mealOption.unit = unit || mealOption.unit;
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'Meal option updated successfully',
+            updatedSubMenuOption: subMenuOption
+        });
+    } catch (error) {
+        console.error('Error updating sub-menu option:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 
 // PUT endpoint to edit a sub-menu option//
