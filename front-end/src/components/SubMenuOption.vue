@@ -88,7 +88,55 @@
         </div>
       </div>
     </div>
+<!--Editeaza categoria MealOption-->
+    <div class="custom-dialog" v-if="showDialogOption">
+      <div class="custom-dialog-content">
+        <h2>Adauga Optiune de masa </h2>
+        <div class="form-group">
+          <label for="subMenu">Categorie subMeniu:</label>
+          <select id="subMenu" v-model="mealOption.categoryMenuOption" class="form-control">
+            <option v-for="(option, index) in subMenuOptions" :key="index" :value="option._id">{{ option.subMenuOptionName }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="photoLink">Link poza:</label>
+          <input type="text" id="photoLink" v-model="mealOption.photoLink" class="form-control"/>
+        </div>
+        <div class="form-group">
+          <label for="optionName">Nume categorie masa:</label>
+          <input type="text" id="optionName" v-model="mealOption.optionName" class="form-control"/>
+        </div>
+        <div class="form-group">
+          <label for="quantity">Cantitate</label>
+          <input type="number" id="quantity" v-model="mealOption.quantity" class="form-control"/>
+          <div>
+            <label for="unit">Unitate:</label>
+            <select id="unit" v-model="mealOption.unit" class="form-control">
+              <option value="grams">Grame</option>
+              <option value="liters">Litri</option>
+              <option value="pieces">Bucata</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
 
+          <label for="ingredients">Ingrediente:</label>
+          <textarea id="ingredients" v-model="mealOption.ingredients" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="description">Descriere:</label>
+          <textarea id="description" v-model="mealOption.description" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="price">Pret:</label>
+          <input type="number" id="price" v-model="mealOption.price" class="form-control"/>
+        </div>
+        <div class="dialog-buttons">
+          <button class="btn btn-secondary" @click="closeDialog">Renunta</button>
+          <button class="btn btn-primary" @click="submitMealOption">Adauga</button>
+        </div>
+      </div>
+    </div>
 <!--Editeaza categoria subMenu-->
     <div class="custom-dialog" v-if="showDialogOption">
       <div class="custom-dialog-content">
@@ -136,6 +184,7 @@ export default {
       activeSubMenu: null,
       activeMealOptions: [],
       newShowDialog:false,
+      newMealDialog:false,
       newOptionSubMenu: { optionName: '', photoLink: '' },
       editingSubMenuOption: {
         optionName: '',
@@ -222,6 +271,7 @@ export default {
           });
     },
     async updateMealOption() {
+      this.newMealDialog=true;
       if (!this.editingMealOption._id) {
         console.error("Missing meal option ID for update request");
         return;
@@ -235,9 +285,8 @@ export default {
             }
         );
         if (response.status === 200) {
-          // Handle successful update, e.g., refresh data, close dialog, show message
           this.fetchRestaurantData();
-          this.showDialogOption = false;
+          this.newMealDialog = false;
         }
       } catch (error) {
         console.error("Error updating meal option:", error);
