@@ -1,5 +1,4 @@
 <template>
-
   <div class="container">
     <div class="m-2 icon-container">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
@@ -32,45 +31,46 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4"
                  viewBox="0 0 16 16" @click="editOption(subMenuOption)">
               <path
-                  d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                  d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"
+              />
             </svg>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 m-4" viewBox="0 0 16 16" @click="removeSubMenuItem(subMenuOption._id)">
               <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
             </svg>
           </li>
         </ul>
-
       </aside>
       <main class="menu-main-content">
         <template v-for="(mealOptions, subMenuId) in groupedMealOptions">
           <div v-if="subMenuId === activeSubMenu" :key="subMenuId">
             <ul class="meal-list">
-            <li v-for="mealOption in mealOptions" :key="mealOption._id" class="meal-item">
-              <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
-              <div class="meal-content">
-                <h3>{{ mealOption.optionName }}</h3>
-                <p class="meal-description">{{ mealOption.description }}</p>
-                <p class="meal-ingredients"><strong>Ingredients:</strong> {{ mealOption.ingredients }}</p>
-                <div class="meal-footer">
-                  <span class="meal-quantity">{{ mealOption.quantity }} {{ mealOption.unit }}</span>
-                  <span class="meal-price">{{ mealOption.price }} RON</span>
+              <li v-for="mealOption in mealOptions" :key="mealOption._id" class="meal-item">
+                <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
+                <div class="meal-content">
+                  <h3>{{ mealOption.optionName }}</h3>
+                  <p class="meal-description">{{ mealOption.description }}</p>
+                  <p class="meal-ingredients"><strong>Ingredients:</strong> {{ mealOption.ingredients }}</p>
+                  <div class="meal-footer">
+                    <span class="meal-quantity">{{ mealOption.quantity }} {{ mealOption.unit }}</span>
+                    <span class="meal-price">{{ mealOption.price }} RON</span>
+                  </div>
                 </div>
-              </div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4"
-                   viewBox="0 0 16 16" >
-                <path
-                    d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" @click="updateMealOption(mealOption)"/>
-              </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 m-4" viewBox="0 0 16 16" >
-                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" @click="deleteMealOption(mealOption)"/>
-              </svg>
-            </li>
-          </ul>
-        </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4"
+                     viewBox="0 0 16 16" >
+                  <path
+                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"
+                      @click="newMealCustomDialog=true"/>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 m-4" viewBox="0 0 16 16" >
+                  <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" @click="deleteMealOption(mealOption)"/>
+                </svg>
+              </li>
+            </ul>
+          </div>
         </template>
       </main>
     </div>
-<!--Adauga un subMenu-->
+    <!--Adauga un subMenu-->
     <div class="custom-dialog" v-if="showDialog">
       <div class="custom-dialog-content">
         <h2>Adauga Submeniu Nou</h2>
@@ -88,15 +88,33 @@
         </div>
       </div>
     </div>
-<!--Editeaza categoria MealOption-->
+    <!--Editeaza categoria subMenu-->
     <div class="custom-dialog" v-if="showDialogOption">
+      <div class="custom-dialog-content">
+        <h2>Editeaza categoria meniu</h2>
+        <div class="mb-3">
+          <label for="newName" class="m-2">Nume: </label>
+          <input v-if="newOptionSubMenu" id="newName" v-model="editingSubMenuOption.subMenuOptionName"/>
+        </div>
+        <div class="mb-3" >
+          <label for="newPhotoLink" class="m-2">Link poza: </label>
+          <input v-if="newOptionSubMenu" id="newPhotoLink" v-model="editingSubMenuOption.photoLink"/>
+        </div>
+        <div class="dialog-buttons">
+          <button @click="showDialogOption = false">Renunta</button>
+          <button class="btn btn-primary add-button m-3" @click="updateSubMenuItem(editingSubMenuOption._id)">Editeaza</button>
+        </div>
+      </div>
+    </div>
+    <!--Editeaza categoria MealOption-->
+    <div class="custom-dialog" v-if="newMealCustomDialog">
       <div class="custom-dialog-content">
         <h2>Adauga Optiune de masa </h2>
         <div class="form-group">
-          <label for="subMenu">Categorie subMeniu:</label>
-          <select id="subMenu" v-model="mealOption.categoryMenuOption" class="form-control">
-            <option v-for="(option, index) in subMenuOptions" :key="index" :value="option._id">{{ option.subMenuOptionName }}</option>
-          </select>
+<!--          <label for="subMenu">Categorie subMeniu:</label>-->
+<!--          <select id="subMenu" v-model="mealOption.categoryMenuOption" class="form-control">-->
+<!--            <option v-for="(option, index) in subMenuOptions" :key="index" :value="option._id">{{ option.subMenuOptionName }}</option>-->
+<!--          </select>-->
         </div>
         <div class="form-group">
           <label for="photoLink">Link poza:</label>
@@ -137,27 +155,6 @@
         </div>
       </div>
     </div>
-<!--Editeaza categoria subMenu-->
-    <div class="custom-dialog" v-if="showDialogOption">
-      <div class="custom-dialog-content">
-        <h2>Editeaza categoria meniu</h2>
-        <div class="mb-3">
-          <label for="newName" class="m-2">Nume: </label>
-          <input v-if="newOptionSubMenu" id="newName" v-model="editingSubMenuOption.subMenuOptionName"/>
-        </div>
-        <div class="mb-3" >
-          <label for="newPhotoLink" class="m-2">Link poza: </label>
-          <input v-if="newOptionSubMenu" id="newPhotoLink" v-model="editingSubMenuOption.photoLink"/>
-
-
-        </div>
-        <div class="dialog-buttons">
-
-          <button @click="showDialogOption = false">Renunta</button>
-          <button class="btn btn-primary add-button m-3" @click="updateSubMenuItem(editingSubMenuOption._id)">Editeaza</button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 <script>
@@ -165,7 +162,6 @@ import api from "@/api/api";
 import { getAuthToken } from "@/utility/utility";
 import {mapGetters} from "vuex";
 import MealOption from "@/components/MealOption";
-
 export default {
   components: {MealOption},
   props: ['restaurantName', 'menuOption'],
@@ -184,7 +180,7 @@ export default {
       activeSubMenu: null,
       activeMealOptions: [],
       newShowDialog:false,
-      newMealDialog:false,
+      newMealCustomDialog:false,
       newOptionSubMenu: { optionName: '', photoLink: '' },
       editingSubMenuOption: {
         optionName: '',
@@ -232,7 +228,6 @@ export default {
     getMealOptionsBySubMenu() {
       const groupedMealOptions = {};
       this.restaurantData.subMenuOptions.forEach(subMenu => {
-
         groupedMealOptions[subMenu._id] = subMenu.mealOptions;
       });
       return groupedMealOptions;
@@ -246,7 +241,6 @@ export default {
         photoLink: this.subMenu.photoLink,
         subMenuOptionName: this.subMenu.optionName,
       };
-
       api.post("/api/addSubOptionMenuRestaurants", {
         userId: this.$store.state.user.id,
         name: this.restaurantName,
@@ -271,12 +265,10 @@ export default {
           });
     },
     async updateMealOption() {
-      this.newMealDialog=true;
       if (!this.editingMealOption._id) {
         console.error("Missing meal option ID for update request");
         return;
       }
-
       try {
         const response = await api.put(
             `/api/editMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.subMenuOptionId}/${this.editingMealOption._id}`,
@@ -285,8 +277,9 @@ export default {
             }
         );
         if (response.status === 200) {
+          // Handle successful update, e.g., refresh data, close dialog, show message
           this.fetchRestaurantData();
-          this.newMealDialog = false;
+          this.newShowDialog = false;
         }
       } catch (error) {
         console.error("Error updating meal option:", error);
@@ -317,7 +310,6 @@ export default {
         console.error("Missing IDs for update request");
         return;
       }
-
       try {
         const response = await api.put(
             `/api/editSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`,
@@ -344,7 +336,6 @@ export default {
         console.error("Missing meal option ID for delete request");
         return;
       }
-
       try {
         const response = await api.delete(
             `/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${mealOptionId}`, {
@@ -367,11 +358,9 @@ export default {
       });
     },
     updateSubMenuWithMealOption(mealOption) {
-
       const submenu = this.restaurantData.subMenuOptions.find(subMenu => subMenu._id === mealOption.subMenuId);
       if (submenu) {
         submenu.mealOptions.push(mealOption);
-
       }
       this.newShowDialog=false;
     },
@@ -384,10 +373,8 @@ export default {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
           headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
-
         if (response && response.status === 200 && response.data) {
           const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
-
           this.restaurantData = menuOptionData || null;
           this.restaurantId = response.data._id; // Set restaurantId from the response
           if (menuOptionData) {
@@ -408,11 +395,8 @@ export default {
     }
     this.userId = this.getUserId;
   },
-
 };
 </script>
-
-
 <style scoped>
 .container {
   display: flex;
@@ -420,7 +404,6 @@ export default {
   max-width: 1200px;
   margin: auto;
 }
-
 .menu-layout {
   display: grid;
   grid-template-columns: 1fr 3fr;
@@ -452,34 +435,28 @@ export default {
   padding: 10px;
   margin-bottom: 10px;
 }
-
 .menu-option-image {
   width: 100px;
   height: 100px;
   object-fit: cover;
   border-radius: 5px;
 }
-
 .edit-icon {
   cursor: pointer;
 }
-
 .custom-dialog-content input[type="text"] {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
 }
-
 .submenu-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
 .submenu-list li {
   padding: 0.5rem 0;
 }
-
 .menu-option-image {
   width: 50px;
   height: 50px;
@@ -487,23 +464,19 @@ export default {
   object-fit: cover;
   margin-right: 10px;
 }
-
 .sub-menu-title {
   font-size: 1.2rem;
   font-weight: bold;
   margin: 0;
 }
-
 .menu-main-content {
   background: #fff;
   padding: 1rem;
 }
-
 .meal-list {
   list-style: none;
   padding: 0;
 }
-
 .meal-item {
   display: flex;
   align-items: center;
@@ -511,7 +484,6 @@ export default {
   margin-bottom: 1rem;
   padding-bottom: 1rem;
 }
-
 .meal-image {
   width: 100px;
   height: 100px;
@@ -519,31 +491,25 @@ export default {
   object-fit: cover;
   margin-right: 1rem;
 }
-
 .meal-content {
   flex: 1;
 }
-
 .meal-description {
   font-style: italic;
   margin: 0.5rem 0;
 }
-
 .meal-ingredients {
   margin: 0;
 }
-
 .meal-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 1rem;
 }
-
 .meal-quantity {
   font-size: 0.9rem;
 }
-
 .meal-price {
   font-weight: bold;
   color: #333;
@@ -553,7 +519,6 @@ export default {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
 .active {
   background-color: #ddd;
   cursor: pointer;
@@ -564,17 +529,12 @@ export default {
   width: 24px;
   fill: currentColor;
 }
-
-
 .icon-container svg {
   stroke-width: 2;
 }
-
-
 .icon-container {
   display: flex;
   justify-content: flex-end;
   align-items: center;
 }
 </style>
-
