@@ -322,8 +322,9 @@ app.get('/api/getRestaurants', async (req, res) => {
     }
 });
 
-//Post endpoint to add a restaurant//
 
+
+//Post endpoint to add a restaurant//
 app.post('/api/addRestaurants', async (req, res) => {
     try {
         const { userId, name, address , phoneNumber, aboutUs ,logoImage, newItem } = req.body;
@@ -369,6 +370,7 @@ app.post('/api/addRestaurants', async (req, res) => {
     }
 });
 
+
 //Post endpoint to add an Option Menu//
 app.post('/api/addOptionMenuRestaurants', async (req, res) => {
     try {
@@ -402,6 +404,7 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
     }
 });
 
+
 //Post endpoint to add a subOption //
 app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
     try {
@@ -431,6 +434,8 @@ app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+
 //Put endpont to edit a mealOption//
 app.put('/api/editMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
     try {
@@ -478,6 +483,102 @@ app.put('/api/editMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
         });
     } catch (error) {
         console.error('Error updating sub-menu option:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+// delete endpoint for already dispalyed meal option//
+
+app.delete('/api/deleteMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
+    try {
+        // Extract parameters
+        const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const restaurant = user.restaurants.id(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        const menuOption = restaurant.menuOptions.id(menuOptionId);
+        if (!menuOption) {
+            return res.status(404).json({ message: 'Menu option not found' });
+        }
+
+        const subMenuOption = menuOption.subMenuOptions.id(subMenuOptionId);
+        if (!subMenuOption) {
+            return res.status(404).json({ message: 'Sub-menu option not found' });
+        }
+
+        // Remove the specified meal option
+        const mealOptionIndex = subMenuOption.mealOptions.findIndex(mo => mo._id.toString() === mealOptionId);
+        if (mealOptionIndex === -1) {
+            return res.status(404).json({ message: 'Meal option not found' });
+        }
+
+        subMenuOption.mealOptions.splice(mealOptionIndex, 1);
+
+        await user.save();
+
+        res.status(200).json({ message: 'Meal option removed successfully' });
+    } catch (error) {
+        console.error('Error removing meal option:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+//edit enpoint for already displayed mealOption//
+app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
+    try {
+        const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
+        const updatedMealOption = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const restaurant = user.restaurants.id(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        const menuOption = restaurant.menuOptions.id(menuOptionId);
+        if (!menuOption) {
+            return res.status(404).json({ message: 'Menu option not found' });
+        }
+
+        const subMenuOption = menuOption.subMenuOptions.id(subMenuOptionId);
+        if (!subMenuOption) {
+            return res.status(404).json({ message: 'Sub-menu option not found' });
+        }
+
+        const mealOption = subMenuOption.mealOptions.id(mealOptionId);
+        if (!mealOption) {
+            return res.status(404).json({ message: 'Meal option not found' });
+        }
+
+        mealOption.photoLink = photoLink || mealOption.photoLink;
+        mealOption.optionName = optionName || mealOption.optionName;
+        mealOption.quantity = quantity || mealOption.quantity;
+        mealOption.ingredients = ingredients || mealOption.ingredients;
+        mealOption.price = price || mealOption.price;
+        mealOption.description = description || mealOption.description;
+        mealOption.unit = unit || mealOption.unit;
+        await user.save();
+
+        res.status(200).json({
+            message: 'Meal option updated successfully',
+            updatedMealOption: mealOption
+        });
+    } catch (error) {
+        console.error('Error updating meal option:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
