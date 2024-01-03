@@ -117,12 +117,6 @@
       <div class="custom-dialog-content">
         <h2>Editeaza Optiune de masa </h2>
         <div class="form-group">
-          <label for="subMenu">Categorie subMeniu:</label>
-          <select id="subMenu" v-model="editingMealOption.categoryMenuOption" class="form-control">
-            <option v-for="(option, index) in subMenuOptions" :key="index" :value="option._id">{{ option.subMenuOptionName }}</option>
-          </select>
-        </div>
-        <div class="form-group">
           <label for="photoLink">Link poza:</label>
           <input type="text" id="photoLink" v-model="editingMealOption.photoLink" class="form-control"/>
         </div>
@@ -278,6 +272,15 @@ export default {
           });
     },
     async submitEditedMealOption() {
+      if (!this.editingSubMenuOption._id) {
+        console.error("subMenuOptionId is not defined");
+        return;
+      }
+      if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.editingMealOption._id) {
+        console.error("Missing IDs for update request");
+        return;
+      }
+
       const url = `/api/updateMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.editingSubMenuOption._id}/${this.editingMealOption._id}`;
       try {
         const response = await api.put(url, this.editingMealOption);

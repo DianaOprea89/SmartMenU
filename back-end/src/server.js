@@ -539,22 +539,36 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
         const updatedMealOption = req.body;
 
+        // Log the IDs received in the request
+        console.log('IDs received:', { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId });
+
+        // Find the user and check if exists
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        // Log the query parameters for debugging
+        console.log('Querying for restaurant:', restaurantId);
         const restaurant = user.restaurants.id(restaurantId);
+
+        // More logging
+        console.log('Restaurant found:', restaurant);
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
 
+        // Log for debugging menuOption and subMenuOption
+        console.log('Querying for menuOption:', menuOptionId);
         const menuOption = restaurant.menuOptions.id(menuOptionId);
+        console.log('menuOption found:', menuOption);
         if (!menuOption) {
             return res.status(404).json({ message: 'Menu option not found' });
         }
 
+        console.log('Querying for subMenuOption:', subMenuOptionId);
         const subMenuOption = menuOption.subMenuOptions.id(subMenuOptionId);
+        console.log('subMenuOption found:', subMenuOption);
         if (!subMenuOption) {
             return res.status(404).json({ message: 'Sub-menu option not found' });
         }
