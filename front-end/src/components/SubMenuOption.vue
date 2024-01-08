@@ -214,17 +214,14 @@ export default {
     openNewDialog(){
       this.newShowDialog =true;
     },
-    openEditMealDialog(mealOption) {
-      console.log(mealOption);
-      if (!mealOption ) {
-        console.error("Meal option or sub-menu option is undefined");
-        return; // Exit the method if objects are undefined
+    openEditMealDialog(mealOption, subMenuOptionId) {
+      if (!mealOption) {
+        console.error("Meal option is undefined");
+        return;
       }
-
-
       this.editingMealOption = { ...mealOption };
-        this.newMealCustomDialog = true;
-
+      this.editingSubMenuOption._id = subMenuOptionId;
+      this.newMealCustomDialog = true;
     },
     editOption(subMenuOption) {
       this.editingSubMenuOption.subMenuOptionName = subMenuOption.subMenuOptionName;
