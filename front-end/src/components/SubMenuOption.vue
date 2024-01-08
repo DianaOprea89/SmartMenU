@@ -55,7 +55,7 @@
                     <span class="meal-price">{{ mealOption.price }} RON</span>
                   </div>
                 </div>
-                <div  @click="openEditMealDialog(mealOption)">
+                <div  @click="openEditMealDialog(mealOption, mealOption.categoryMenuOption)">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4"
                        viewBox="0 0 16 16" >
                     <path
@@ -215,14 +215,19 @@ export default {
       this.newShowDialog =true;
     },
     openEditMealDialog(mealOption, subMenuOptionId) {
-      if (!mealOption) {
-        console.error("Meal option is undefined");
+      console.log("Meal Option: ", mealOption);
+      console.log("Sub Menu Option ID: ", subMenuOptionId);
+
+      if (!mealOption || !subMenuOptionId) {
+        console.error("Meal option or sub-menu option is undefined");
         return;
       }
+
       this.editingMealOption = { ...mealOption };
       this.editingSubMenuOption._id = subMenuOptionId;
       this.newMealCustomDialog = true;
     },
+
     editOption(subMenuOption) {
       this.editingSubMenuOption.subMenuOptionName = subMenuOption.subMenuOptionName;
       this.editingSubMenuOption.photoLink = subMenuOption.photoLink;

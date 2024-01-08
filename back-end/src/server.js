@@ -537,7 +537,7 @@ app.delete('/api/deleteMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOp
 app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
-        const updatedMealOption = req.body;
+        const { photoLink, optionName, quantity, ingredients, price, description, unit } = req.body;
 
         // Log the IDs received in the request
         console.log('IDs received:', { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId });
@@ -578,6 +578,7 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
             return res.status(404).json({ message: 'Meal option not found' });
         }
 
+        // Correctly access properties from req.body
         mealOption.photoLink = photoLink || mealOption.photoLink;
         mealOption.optionName = optionName || mealOption.optionName;
         mealOption.quantity = quantity || mealOption.quantity;
@@ -585,6 +586,7 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
         mealOption.price = price || mealOption.price;
         mealOption.description = description || mealOption.description;
         mealOption.unit = unit || mealOption.unit;
+
         await user.save();
 
         res.status(200).json({
