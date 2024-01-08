@@ -492,10 +492,16 @@ app.put('/api/editMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
 
 app.delete('/api/removeMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
     try {
-        // Extract parameters
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
+        console.log("Parameters received:", req.params);
+        console.log("User ID:", userId);
+        console.log("Restaurant ID:", restaurantId);
+        console.log("Menu Option ID:", menuOptionId);
+        console.log("Meal Option ID:", mealOptionId);
+
 
         const user = await User.findById(userId);
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }

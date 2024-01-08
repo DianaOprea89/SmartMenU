@@ -341,19 +341,20 @@ export default {
       }
     },
     async deleteMealOption(mealOptionId) {
+      if (!this.userId || !this.restaurantId || !this.menuOptionId) {
+        console.error("Required IDs are missing");
+        return;
+      }
+      const url = `/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${mealOptionId}`;
       try {
-        // Corrected URL with no spaces around the template literals
-        const url = `/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${mealOptionId}`;
         const response = await api.delete(url);
-
+        console.log("Deleting meal option with URL:", url);
         if (response.status === 200) {
-          // Remove the meal option from the local state or re-fetch data
-          this.fetchRestaurantData();
+          this.fetchRestaurantData(); // Update your local data
         }
       } catch (error) {
         console.error("Error deleting meal option:", error);
       }
-
     },
     handleMealOptionAdded(newMealOption) {
       this.updateSubMenuWithMealOption(newMealOption);
