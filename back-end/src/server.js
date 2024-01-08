@@ -490,7 +490,7 @@ app.put('/api/editMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
 
 // delete endpoint for already dispalyed meal option//
 
-app.delete('/api/deleteMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
+app.delete('/api/removeMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
     try {
         // Extract parameters
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;

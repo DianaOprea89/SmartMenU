@@ -342,7 +342,10 @@ export default {
     },
     async deleteMealOption(mealOptionId) {
       try {
-        const response = await api.delete(`/api/removeMealOption/ ${this.userId}/${this.restaurantId}/${this.menuOptionId} ` + mealOptionId);
+        // Corrected URL with no spaces around the template literals
+        const url = `/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${mealOptionId}`;
+        const response = await api.delete(url);
+
         if (response.status === 200) {
           // Remove the meal option from the local state or re-fetch data
           this.fetchRestaurantData();
@@ -350,6 +353,7 @@ export default {
       } catch (error) {
         console.error("Error deleting meal option:", error);
       }
+
     },
     handleMealOptionAdded(newMealOption) {
       this.updateSubMenuWithMealOption(newMealOption);
