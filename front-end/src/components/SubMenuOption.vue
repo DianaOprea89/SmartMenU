@@ -40,11 +40,13 @@
           </li>
         </ul>
       </aside>
+      <!-- Modified section -->
       <main class="menu-main-content">
-        <template v-for="(mealOptions, subMenuId) in groupedMealOptions">
-          <div v-if="subMenuId === activeSubMenu" :key="subMenuId">
+          <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu]">
             <ul class="meal-list">
-              <li v-for="mealOption in mealOptions" :key="mealOption._id" class="meal-item">
+
+              <li v-for="mealOption in groupedMealOptions[activeSubMenu].mealOptions" :key="mealOption._id" class="meal-item">
+
                 <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
                 <div class="meal-content">
                   <h3>{{ mealOption.optionName }}</h3>
@@ -55,15 +57,12 @@
                     <span class="meal-price">{{ mealOption.price }} RON</span>
                   </div>
                 </div>
-                <div  @click="openEditMealDialog(mealOption, mealOption.categoryMenuOption)">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4"
-                       viewBox="0 0 16 16" >
-                    <path
-                        d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"
-                       />
+                <div @click="openEditMealDialog(mealOption, activeSubMenu)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4" viewBox="0 0 16 16">
+                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                   </svg>
                 </div>
-                <div  @click="deleteMealOption(mealOption._id)">
+                <div @click="deleteMealOption(mealOption._id, activeSubMenu)">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 m-4" viewBox="0 0 16 16" >
                     <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"
                     />
@@ -73,7 +72,6 @@
               </li>
             </ul>
           </div>
-        </template>
       </main>
     </div>
     <!--Adauga un subMenu-->
@@ -199,13 +197,22 @@ export default {
       mealOption: {},      // Initialize as empty object
     };
   },
-  computed:{
+  computed: {
     ...mapGetters({
       getUserId: "getUserId"
     }),
     groupedMealOptions() {
-      return this.getMealOptionsBySubMenu();
-    }
+      const groupedOptions = {};
+      if (this.restaurantData && this.restaurantData.subMenuOptions) {
+        this.restaurantData.subMenuOptions.forEach(subMenuOption => {
+          groupedOptions[subMenuOption._id] = {
+            mealOptions: subMenuOption.mealOptions,
+            subMenuOptionId: subMenuOption._id
+          };
+        });
+      }
+      return groupedOptions;
+    },
   },
   methods: {
     openDialog() {
@@ -340,22 +347,33 @@ export default {
         console.error("Error updating sub-menu item:", error);
       }
     },
-    async deleteMealOption(mealOptionId) {
+    async deleteMealOption(mealOptionId, subMenuOptionId) {
+      console.log("Deleting meal option with IDs:", mealOptionId, subMenuOptionId);
+      // Rest of your code...
       if (!this.userId || !this.restaurantId || !this.menuOptionId) {
         console.error("Required IDs are missing");
         return;
       }
-      const url = `/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${mealOptionId}`;
+      if (!subMenuOptionId || !mealOptionId) {
+        console.error("Invalid IDs for deletion");
+        return;
+      }
+      const url = `/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}/${mealOptionId}`;
       try {
         const response = await api.delete(url);
-        console.log("Deleting meal option with URL:", url);
         if (response.status === 200) {
+          // Update the local state to reflect the removal
+          const subMenuOption = this.restaurantData.subMenuOptions.find(item => item._id === subMenuOptionId);
+          if (subMenuOption) {
+            subMenuOption.mealOptions = subMenuOption.mealOptions.filter(meal => meal._id !== mealOptionId);
+          }
           this.fetchRestaurantData(); // Update your local data
         }
       } catch (error) {
         console.error("Error deleting meal option:", error);
       }
     },
+
     handleMealOptionAdded(newMealOption) {
       this.updateSubMenuWithMealOption(newMealOption);
       const currentPath = this.$route.path;

@@ -491,18 +491,14 @@ app.put('/api/editMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
 // delete endpoint for already dispalyed meal option//
 
 app.delete('/api/removeMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
+    console.log("DELETE request received with params:", req.params);
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
-        console.log("Parameters received:", req.params);
-        console.log("User ID:", userId);
-        console.log("Restaurant ID:", restaurantId);
-        console.log("Menu Option ID:", menuOptionId);
-        console.log("Meal Option ID:", mealOptionId);
-
+        console.log("Received parameters for deletion:", req.params);
 
         const user = await User.findById(userId);
-
         if (!user) {
+            console.error('User not found:', userId);
             return res.status(404).json({ message: 'User not found' });
         }
 
@@ -521,22 +517,23 @@ app.delete('/api/removeMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOp
             return res.status(404).json({ message: 'Sub-menu option not found' });
         }
 
-        // Remove the specified meal option
-        const mealOptionIndex = subMenuOption.mealOptions.findIndex(mo => mo._id.toString() === mealOptionId);
-        if (mealOptionIndex === -1) {
+        // Check if the meal option exists
+        const mealOptionExists = subMenuOption.mealOptions.some(mo => mo._id.toString() === mealOptionId);
+        if (!mealOptionExists) {
             return res.status(404).json({ message: 'Meal option not found' });
         }
 
-        subMenuOption.mealOptions.splice(mealOptionIndex, 1);
-
+        // Remove the meal option using pull
+        subMenuOption.mealOptions.pull(mealOptionId);
         await user.save();
 
         res.status(200).json({ message: 'Meal option removed successfully' });
     } catch (error) {
-        console.error('Error removing meal option:', error);
+        console.error('Error in deleteMealOption:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 
 //edit enpoint for already displayed mealOption//
