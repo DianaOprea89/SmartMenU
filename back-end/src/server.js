@@ -602,6 +602,43 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
     }
 });
 
+// PUT endpoint to update the order of sub-menu options
+app.put('/api/updateSubMenuOrder/:userId/:restaurantId/:menuOptionId', async (req, res) => {
+    try {
+        const { userId, restaurantId, menuOptionId } = req.params;
+        const { newOrder } = req.body; // Expect an array of subMenuOptionIds in the new order
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const restaurant = user.restaurants.id(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        const menuOption = restaurant.menuOptions.id(menuOptionId);
+        if (!menuOption) {
+            return res.status(404).json({ message: 'Menu option not found' });
+        }
+
+        // Reorder the subMenuOptions array according to newOrder
+        menuOption.subMenuOptions = newOrder.map(subMenuOptionId =>
+            menuOption.subMenuOptions.find(option => option._id.toString() === subMenuOptionId)
+        );
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'SubMenu options reordered successfully',
+            newOrder: menuOption.subMenuOptions
+        });
+    } catch (error) {
+        console.error('Error updating submenu order:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 // PUT endpoint to edit a sub-menu option//
 app.put('/api/editSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId', async (req, res) => {

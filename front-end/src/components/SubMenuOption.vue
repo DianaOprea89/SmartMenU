@@ -21,13 +21,14 @@
     </div>
     <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
       <aside class="menu-sidebar">
-        <ul class="submenu-list">
-          <li v-for="(subMenuOption, index) in restaurantData.subMenuOptions"
-              :key="index"
-              :class="{ active: activeSubMenu === subMenuOption._id }"
-              @click="setActiveSubMenu(subMenuOption._id)">
-            <img :src="subMenuOption.photoLink" alt="Menu item" class="menu-option-image">
-            <p class="sub-menu-title">{{ subMenuOption.subMenuOptionName }}</p>
+        <draggable class="submenu-list" v-model="restaurantData.subMenuOptions" @end="onEnd">
+          <template #item="{element}">
+            <li
+                :key="element._id"
+                :class="{ active: activeSubMenu === element._id }"
+                @click="setActiveSubMenu(element._id)">
+              <img :src="element.photoLink" alt="Menu item" class="menu-option-image">
+              <p class="sub-menu-title">{{ element.subMenuOptionName }}</p>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4"
                  viewBox="0 0 16 16" @click="editOption(subMenuOption)">
               <path
@@ -38,7 +39,8 @@
               <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
             </svg>
           </li>
-        </ul>
+            </template>
+        </draggable>
       </aside>
       <!-- Modified section -->
       <main class="menu-main-content">
@@ -160,8 +162,14 @@ import api from "@/api/api";
 import { getAuthToken } from "@/utility/utility";
 import {mapGetters} from "vuex";
 import MealOption from "@/components/MealOption";
-export default {
-  components: {MealOption},
+import { defineComponent } from 'vue';
+import draggable from 'vuedraggable';
+
+export default defineComponent({
+  components: {
+    MealOption,
+    draggable // Add this line
+     },
   props: {
     restaurantName: String,
     menuOption: String,
@@ -172,7 +180,9 @@ export default {
         photoLink: "",
         optionName: "",
       },
-      restaurantData: '',
+      restaurantData: {
+        subMenuOptions: [], // Initialize as an empty array
+      },
       userId: '',
       restaurantId: '',
       menuOptionId: '',
@@ -222,18 +232,17 @@ export default {
       this.newShowDialog =true;
     },
     openEditMealDialog(mealOption, subMenuOptionId) {
-      console.log("Meal Option: ", mealOption);
-      console.log("Sub Menu Option ID: ", subMenuOptionId);
-
       if (!mealOption || !subMenuOptionId) {
         console.error("Meal option or sub-menu option is undefined");
         return;
       }
 
-      this.editingMealOption = { ...mealOption };
-      this.editingSubMenuOption._id = subMenuOptionId;
+      // Clone the mealOption to avoid mutating the original object directly
+      this.editingMealOption = JSON.parse(JSON.stringify(mealOption));
+      this.editingMealOption.subMenuOptionId = subMenuOptionId; // Save the subMenuOptionId if needed
       this.newMealCustomDialog = true;
     },
+
 
     editOption(subMenuOption) {
       this.editingSubMenuOption.subMenuOptionName = subMenuOption.subMenuOptionName;
@@ -411,6 +420,23 @@ export default {
         console.error('Error fetching restaurant details:', error);
       }
     },
+    onEnd() {
+      // Send the updated order to the server
+      this.updateSubMenuOrderOnServer();
+    },
+    updateSubMenuOrderOnServer() {
+
+      api.put(`/api/updateSubMenuOrder/${this.userId}/${this.restaurantId}/${this.menuOptionId}`, {
+        userId: this.userId,
+        restaurantId: this.restaurantId,
+        menuOptionId: this.menuOptionId,
+        newOrder: this.restaurantData.subMenuOptions
+      }).then(() => {
+
+      }).catch(error => {
+        console.error('Failed to update sub-menu order:', error);
+      });
+    },
   },
   async created() {
     await this.fetchRestaurantData();
@@ -419,7 +445,7 @@ export default {
     }
     this.userId = this.getUserId;
   },
-};
+})
 </script>
 <style scoped>
 .container {
