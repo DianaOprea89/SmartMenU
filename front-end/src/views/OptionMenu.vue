@@ -53,9 +53,8 @@
               </div>
               <div class="image-edit-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil"
-                     viewBox="0 0 16 16" @click="editOption(subMenuOption)">
-                  <path
-                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                     viewBox="0 0 16 16" @click="openEditDialog(menuOption)">
+                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                 </svg>
               </div>
               <div>
@@ -87,22 +86,20 @@
         </div>
       </div>
     </div>
+
     <!-- Custom Dialog for Editing Menu Option -->
     <div class="custom-dialog" v-if="showDialogOption">
       <div class="custom-dialog-content">
-        <h2>Editeaza optiunea de meniu</h2>
-        <div class="mb-3">
-          <label for="newName" class="m-2">Nume: </label>
-          <input v-if="newOptionMenu" id="newName" v-model="editingMenuOption.optionName"/>
+        <h2>Editeaza Meniu Existent</h2>
+        <div class="form-group">
+          <label for="photoLink">Link poza:</label>
+          <input type="text" id="photoLink" v-model="editingMenuOption.photoLink" />
         </div>
-        <div class="mb-3" >
-          <label for="newPhotoLink" class="m-2">Link poza: </label>
-          <input v-if="newOptionMenu" id="newPhotoLink" v-model="editingMenuOption.photoLink"/>
-
-
+        <div class="form-group">
+          <label for="itemName">Nume optiune Meniu:</label>
+          <input type="text" id="itemName" v-model="editingMenuOption.optionName" />
         </div>
         <div class="dialog-buttons">
-
           <button class="btn btn-secondary cancel-button m-3" @click="showDialogOption = false">Renunta</button>
           <button class="btn btn-primary add-button m-3" @click="editMenu">Editeaza</button>
         </div>
@@ -158,6 +155,10 @@ export default {
         this.editingMenuOption = JSON.parse(JSON.stringify(menuOption));
         this.showDialogOption = true;
       }
+    },
+    openEditDialog(menuOption) {
+      this.editingMenuOption = JSON.parse(JSON.stringify(menuOption)); // Clone the current menu option
+      this.showDialogOption = true; // Open the dialog
     },
     async removeMenuItem(menuOptionId) {
       const restaurantId = this.restaurantData._id;
