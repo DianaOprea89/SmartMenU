@@ -91,12 +91,12 @@
     <div class="custom-dialog" v-if="showDialogOption">
       <div class="custom-dialog-content">
         <h2>Editeaza Meniu Existent</h2>
-        <div class="form-group">
+        <div class="form-group m-3">
           <label for="photoLink">Link poza:</label>
           <input type="text" id="photoLink" v-model="editingMenuOption.photoLink" />
         </div>
-        <div class="form-group">
-          <label for="itemName">Nume optiune Meniu:</label>
+        <div class="form-group m-3">
+          <label for="itemName">Nume optiune Meniu: </label>
           <input type="text" id="itemName" v-model="editingMenuOption.optionName" />
         </div>
         <div class="dialog-buttons">
@@ -305,7 +305,7 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 60%;
-  max-width: 400px;
+  max-width: 500px;
   background-color: rgba(255, 255, 255, 0.9);
   z-index: 1000;
   padding: 20px;
@@ -330,7 +330,10 @@ export default {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
+  border: 1px solid #ced4da; /* Bootstrap's default border color for input */
+  border-radius: 0.25rem; /* Bootstrap's default border radius for input */
 }
+
 
 .menu-option {
   margin-bottom: 10px; /* Space between each menu option */
