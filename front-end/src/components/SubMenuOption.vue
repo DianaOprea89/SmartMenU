@@ -20,7 +20,7 @@
       </meal-option>
     </div>
     <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
-      <aside class="menu-sidebar">
+      <aside class="menu-sidebar" v-if="restaurantData && restaurantData.subMenuOptions && restaurantData.subMenuOptions.length > 0">
         <draggable class="submenu-list" v-model="restaurantData.subMenuOptions" @end="onEnd">
           <template #item="{element}">
             <li
@@ -224,6 +224,17 @@ export default defineComponent({
       return groupedOptions;
     },
   },
+  async mounted() {
+    console.log("Mounted!")
+    await this.fetchRestaurantData();
+    if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+      this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
+    } else {
+      console.error("SubMenu options are not available or not loaded properly.");
+    }
+    this.userId = this.getUserId;
+  },
+
   methods: {
     openDialog() {
       this.showDialog = true;
@@ -237,25 +248,19 @@ export default defineComponent({
         return;
       }
 
-      // Clone the mealOption to avoid mutating the original object directly
-      this.editingMealOption = JSON.parse(JSON.stringify(mealOption));
-      this.editingMealOption.subMenuOptionId = subMenuOptionId; // Save the subMenuOptionId if needed
+      // Ensure the properties exist before accessing them
+      this.editingMealOption = {
+        ...mealOption,
+        subMenuOptionId: subMenuOptionId ?? null, // Use nullish coalescing
+      };
       this.newMealCustomDialog = true;
     },
-
 
     editOption(subMenuOption) {
       this.editingSubMenuOption.subMenuOptionName = subMenuOption.subMenuOptionName;
       this.editingSubMenuOption.photoLink = subMenuOption.photoLink;
       this.editingSubMenuOption._id = subMenuOption._id;
       this.showDialogOption = true;
-    },
-    getMealOptionsBySubMenu() {
-      const groupedMealOptions = {};
-      this.restaurantData.subMenuOptions.forEach(subMenu => {
-        groupedMealOptions[subMenu._id] = subMenu.mealOptions;
-      });
-      return groupedMealOptions;
     },
     setActiveSubMenu(subMenuId) {
       this.activeSubMenu = subMenuId;
@@ -402,16 +407,23 @@ export default defineComponent({
         console.error('Restaurant name is undefined');
         return;
       }
+
       try {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
           headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
+
         if (response && response.status === 200 && response.data) {
           const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
-          this.restaurantData = menuOptionData || null;
-          this.restaurantId = response.data._id; // Set restaurantId from the response
-          if (menuOptionData) {
-            this.menuOptionId = menuOptionData._id; // Set menuOptionId
+
+          // Check if menuOptionData is not null before accessing _id
+          if (menuOptionData && menuOptionData._id) {
+            this.restaurantData = menuOptionData;
+            this.restaurantId = response.data._id;
+            this.menuOptionId = menuOptionData._id;
+            this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
+          } else {
+            console.error('menuOptionData is null or does not contain _id');
           }
         } else {
           console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
@@ -420,6 +432,7 @@ export default defineComponent({
         console.error('Error fetching restaurant details:', error);
       }
     },
+
     onEnd() {
       // Send the updated order to the server
       this.updateSubMenuOrderOnServer();
@@ -437,13 +450,7 @@ export default defineComponent({
         console.error('Failed to update sub-menu order:', error);
       });
     },
-  },
-  async created() {
-    await this.fetchRestaurantData();
-    if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
-      this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-    }
-    this.userId = this.getUserId;
+
   },
 })
 </script>
