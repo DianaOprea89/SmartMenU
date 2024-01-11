@@ -21,7 +21,7 @@
     </div>
     <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
       <aside class="menu-sidebar" v-if="restaurantData && restaurantData.subMenuOptions && restaurantData.subMenuOptions.length > 0">
-        <draggable class="submenu-list" v-model="restaurantData.subMenuOptions" @end="onEnd">
+        <draggable class="submenu-list" v-model="restaurantData.subMenuOptions" itemKey="_id" @end="onEnd">
           <template #item="{element}">
             <li
                 :key="element._id"
@@ -224,16 +224,7 @@ export default defineComponent({
       return groupedOptions;
     },
   },
-  async mounted() {
-    console.log("Mounted!")
-    await this.fetchRestaurantData();
-    if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
-      this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-    } else {
-      console.error("SubMenu options are not available or not loaded properly.");
-    }
-    this.userId = this.getUserId;
-  },
+
 
   methods: {
     openDialog() {
@@ -452,6 +443,23 @@ export default defineComponent({
     },
 
   },
+  async created() {
+
+    try {
+      await this.fetchRestaurantData();
+      const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
+        headers: { Authorization: `Bearer ${getAuthToken()}` }
+      });
+
+      if (response && response.status === 200) {
+        this.localRestaurantData = response.data;
+      } else {
+        console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
+      }
+    } catch (error) {
+      console.error('Error fetching restaurant details:', error);
+    }
+  }
 })
 </script>
 <style scoped>
