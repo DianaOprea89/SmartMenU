@@ -21,16 +21,13 @@
     </div>
     <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
       <aside class="menu-sidebar" v-if="restaurantData && restaurantData.subMenuOptions && restaurantData.subMenuOptions.length > 0">
-        <draggable class="submenu-list" v-model="restaurantData.subMenuOptions" itemKey="_id" @end="onEnd">
+        <draggable class="submenu-list" v-model="restaurantData.subMenuOptions" itemKey="_id.$oid" @end="onEnd">
           <template #item="{element}">
-            <li
-                :key="element._id"
-                :class="{ active: activeSubMenu === element._id }"
-                @click="setActiveSubMenu(element._id)">
+            <li v-if="element && element._id" :key="element._id['$oid']" :class="{ active: activeSubMenu === element._id['$oid'] }" @click="setActiveSubMenu(element._id['$oid'])">
               <img :src="element.photoLink" alt="Menu item" class="menu-option-image">
               <p class="sub-menu-title">{{ element.subMenuOptionName }}</p>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4"
-                 viewBox="0 0 16 16" @click="editOption(subMenuOption)">
+                 viewBox="0 0 16 16" @click="editOption(element)">
               <path
                   d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"
               />
@@ -239,7 +236,6 @@ export default defineComponent({
         return;
       }
 
-      // Ensure the properties exist before accessing them
       this.editingMealOption = {
         ...mealOption,
         subMenuOptionId: subMenuOptionId ?? null, // Use nullish coalescing
@@ -248,14 +244,19 @@ export default defineComponent({
     },
 
     editOption(subMenuOption) {
-      this.editingSubMenuOption.subMenuOptionName = subMenuOption.subMenuOptionName;
-      this.editingSubMenuOption.photoLink = subMenuOption.photoLink;
-      this.editingSubMenuOption._id = subMenuOption._id;
+      if (!subMenuOption || !subMenuOption._id) {
+        console.error("Sub menu option or its _id is undefined");
+        return;
+      }
+      this.editingSubMenuOption = {
+        ...subMenuOption,
+        _id: subMenuOption._id['$oid'],
+      };
       this.showDialogOption = true;
     },
     setActiveSubMenu(subMenuId) {
       this.activeSubMenu = subMenuId;
-      // ... rest of your code
+
     },
     addSubMenuItem() {
       const newSubMenuItem = {
@@ -307,18 +308,18 @@ export default defineComponent({
       }
     },
     async removeSubMenuItem(subMenuOptionId) {
-
       if (!this.userId || !this.restaurantId || !this.menuOptionId) {
         console.error("Missing IDs for deletion request");
         return;
       }
       try {
-        const response = await api.delete(`/api/removeSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`, {
+        // Use the $oid property to reference the MongoDB ObjectID
+        const response = await api.delete(`/api/removeSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId['$oid']}`, {
           headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
         if (response.status === 200) {
-          // Remove the item from the local state
-          this.restaurantData.subMenuOptions = this.restaurantData.subMenuOptions.filter(item => item._id !== subMenuOptionId);
+          // Filter out the removed sub-menu option
+          this.restaurantData.subMenuOptions = this.restaurantData.subMenuOptions.filter(item => item._id['$oid'] !== subMenuOptionId['$oid']);
         } else {
           console.error("Error removing sub-menu item:", response.data.message);
         }
@@ -363,14 +364,14 @@ export default defineComponent({
         console.error("Invalid IDs for deletion");
         return;
       }
-      const url = `/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}/${mealOptionId}`;
       try {
-        const response = await api.delete(url);
+        // Use the $oid property to reference the MongoDB ObjectID
+        const response = await api.delete(`/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId['$oid']}/${mealOptionId['$oid']}`);
         if (response.status === 200) {
           // Update the local state to reflect the removal
-          const subMenuOption = this.restaurantData.subMenuOptions.find(item => item._id === subMenuOptionId);
+          const subMenuOption = this.restaurantData.subMenuOptions.find(item => item._id['$oid'] === subMenuOptionId['$oid']);
           if (subMenuOption) {
-            subMenuOption.mealOptions = subMenuOption.mealOptions.filter(meal => meal._id !== mealOptionId);
+            subMenuOption.mealOptions = subMenuOption.mealOptions.filter(meal => meal._id['$oid'] !== mealOptionId['$oid']);
           }
           this.fetchRestaurantData(); // Update your local data
         }
@@ -405,14 +406,23 @@ export default defineComponent({
         });
 
         if (response && response.status === 200 && response.data) {
-          const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
+          const restaurantData = response.data;
+          const menuOptionData = restaurantData.menuOptions.find(m => m.optionName === this.menuOption);
 
-          // Check if menuOptionData is not null before accessing _id
           if (menuOptionData && menuOptionData._id) {
-            this.restaurantData = menuOptionData;
-            this.restaurantId = response.data._id;
+            // Ensure subMenuOptions is an array and each element has an _id
+            this.restaurantData = {
+              ...menuOptionData,
+              subMenuOptions: Array.isArray(menuOptionData.subMenuOptions)
+                  ? menuOptionData.subMenuOptions.filter(subMenu => subMenu !== null)
+                  : []
+            };
+
+            this.restaurantId = restaurantData._id;
             this.menuOptionId = menuOptionData._id;
-            this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
+            if (this.restaurantData.subMenuOptions.length > 0) {
+              this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
+            }
           } else {
             console.error('menuOptionData is null or does not contain _id');
           }
@@ -422,7 +432,8 @@ export default defineComponent({
       } catch (error) {
         console.error('Error fetching restaurant details:', error);
       }
-    },
+    }
+    ,
 
     onEnd() {
       // Send the updated order to the server
