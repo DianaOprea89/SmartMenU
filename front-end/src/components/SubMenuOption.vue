@@ -168,9 +168,6 @@ export default {
     menuOption: String,
   },
   data() {
-    return {
-      subMenu: {},
-      data() {
         return {
           subMenu: {
             photoLink: "",
@@ -211,8 +208,6 @@ export default {
           mealOption: {},      // Initialize as empty object
         };
       },
-    }
-  },
   computed: {
     ...mapGetters({
       getUserId: "getUserId"
@@ -392,6 +387,7 @@ export default {
           this.newShowDialog = false;
         },
         async fetchRestaurantData() {
+          console.log('fetchRestaurantData called');
           if (!this.restaurantName) {
             console.error('Restaurant name is undefined');
             return;
@@ -416,6 +412,7 @@ export default {
         }
       },
   async created() {
+    console.log('Created hook called');
     await this.fetchRestaurantData();
     if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
       this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
