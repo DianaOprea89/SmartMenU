@@ -457,8 +457,6 @@ export default {
   z-index: 1000;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 .custom-dialog-content input[type="text"] {
   width: 100%;
