@@ -72,12 +72,12 @@
       <div class="custom-dialog-content">
         <h2>Adauga Meniu Nou </h2>
         <div class="form-group">
-          <label for="photoLink"> Link poza:</label>
-          <input type="text" id="photoLink" v-model="optionMenu.photoLink"/>
+          <label for="photoLink1"> Link poza:</label>
+          <input type="text" id="photoLink1" v-model="optionMenu.photoLink"/>
         </div>
         <div class="form-group">
-          <label for="itemName">Nume optiune Meniu:</label>
-          <input type="text" id="itemName" v-model="optionMenu.optionName"/>
+          <label for="itemName1">Nume optiune Meniu:</label>
+          <input type="text" id="itemName1" v-model="optionMenu.optionName"/>
         </div>
         <div class="dialog-buttons">
           <button class="btn btn-secondary cancel-button m-3" @click="showDialog = false">Renunta</button>
