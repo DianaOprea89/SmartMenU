@@ -11,7 +11,7 @@
         <button class="nav-item">Register</button>
       </router-link>
 
-      <button v-if="isAuthenticated" @click="logout" class="m-5">Logout</button>
+      <button v-if="isAuthenticated" @click="logout" class="m-5 btn btn-secondary">Logout</button>
       <span v-if="isAuthenticated" class="user-span">  Hello, {{ loggedInUser }}!</span>
 
     </div>

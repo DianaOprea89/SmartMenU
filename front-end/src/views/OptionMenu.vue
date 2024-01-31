@@ -21,7 +21,7 @@
     <div class="row">
       <div class="col-12">
         <!-- Button to open the custom dialog -->
-        <button class="btn btn-primary auto-width-button m-5" @click="openDialog">
+        <button class="btn btn-secondary auto-width-button m-5" @click="openDialog">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg icon"
                viewBox="0 0 16 16">
             <path fill-rule="evenodd"
