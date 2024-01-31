@@ -314,9 +314,6 @@ export default {
   display: inline-flex; /* Use inline-flex to keep the button inline */
   align-items: center; /* Align the text and icon vertically */
   padding: 5px 10px; /* Padding around the text and icon */
-  border: 1px solid #cccccc; /* Subtle border */
-  border-radius: 5px; /* Rounded corners for the button look */
-  background-color: #f5f5f5; /* Light background for the button */
   color: black;
   text-decoration: none;
   transition: background-color 0.3s, border-color 0.3s; /* Transition for hover effects */
