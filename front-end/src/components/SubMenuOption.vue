@@ -88,8 +88,8 @@
           <input type="text" id="itemName" v-model="subMenu.optionName"/>
         </div>
         <div class="dialog-buttons">
-          <button class="btn btn-secondary cancel-button m-3" @click="showDialog = false">Renunta</button>
-          <button class="btn btn-primary add-button m-3" @click="addSubMenuItem">Adauga</button>
+          <button class="btn btn-secondary cancel-button m-1" @click="showDialog = false">Renunta</button>
+          <button class="btn btn-primary add-button m-1" @click="addSubMenuItem">Adauga</button>
         </div>
       </div>
     </div>
@@ -106,8 +106,8 @@
           <input v-if="newOptionSubMenu" id="newPhotoLink" v-model="editingSubMenuOption.photoLink"/>
         </div>
         <div class="dialog-buttons">
-          <button @click="showDialogOption = false">Renunta</button>
-          <button class="btn btn-primary add-button m-3" @click="updateSubMenuItem(editingSubMenuOption._id)">Editeaza</button>
+          <button class="btn btn-secondary m-1" @click="showDialogOption = false">Renunta</button>
+          <button class="btn btn-primary add-button m-1" @click="updateSubMenuItem(editingSubMenuOption._id)">Editeaza</button>
         </div>
       </div>
     </div>
@@ -148,8 +148,8 @@
           <input type="number" id="price" v-model="editingMealOption.price" class="form-control"/>
         </div>
         <div class="dialog-buttons">
-          <button class="btn btn-secondary" @click="newMealCustomDialog=false">Renunta</button>
-          <button class="btn btn-primary" @click="submitEditedMealOption">Editeaza</button>
+          <button class="btn btn-secondary m-1" @click="newMealCustomDialog=false">Renunta</button>
+          <button class="btn btn-primary m-1" @click="submitEditedMealOption">Editeaza</button>
         </div>
       </div>
     </div>

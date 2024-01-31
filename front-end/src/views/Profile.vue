@@ -34,7 +34,7 @@
 
 
               <svg
-                  class="bi bi-pencil edit-icon"
+                  class="bi bi-pencil edit-icon m-3"
                   @click="openDialog(restaurant)"
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -379,16 +379,7 @@ export default {
 }
 
 .card-action-button,
-.remove-button {
-  background-color: #f8f9fa;
-  border: none;
-  color: #333;
-  text-align: center;
-  border-radius: 4px;
-  padding: 0.375rem 0.75rem;
-  flex: 1;
-  margin-right: 10px; /* Space between buttons */
-}
+
 
 .edit-icon {
   flex: 0 0 16px;
@@ -399,13 +390,9 @@ export default {
   align-items: center;
 }
 
-.remove-button {
-  background-color: #dc3545;
-  color: white;
-}
 
-.card-action-button:last-child,
-.remove-button:last-child {
+
+.card-action-button:last-child {
   margin-right: 0;
 }
 

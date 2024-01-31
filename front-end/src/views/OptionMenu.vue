@@ -37,36 +37,32 @@
       </div>
     </div>
 
-    <div v-if="restaurantData && restaurantData.menuOptions">
-      <div v-for="(menuOption, index) in restaurantData.menuOptions" :key="index" class="menu-option menu-layout">
-        <div class="menu-option-content" v-if="menuOption">
-          <div class="submenu-list">
-            <div class="menu-option-info">
-
-              <div class="addedRestaurants">
-                <img :src="menuOption.photoLink" alt="added item" class="menu-option-image">
-              </div>
-              <div class="open-menu-option">
-                <div class="form-group" @click="openMenuOption(menuOption)">
-                  <p class="menu-option-name">{{ menuOption.optionName }}</p>
-                </div>
-              </div>
-              <div class="image-edit-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil"
-                     viewBox="0 0 16 16" @click="openEditDialog(menuOption)">
-                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-                </svg>
-              </div>
-              <div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16" @click="removeMenuItem(menuOption._id)">
-                  <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-                </svg>
-              </div>
-            </div>
+    <div v-if="restaurantData && restaurantData.menuOptions" class="menu-options-container">
+      <div v-for="(menuOption, index) in restaurantData.menuOptions" :key="index" class="menu-option">
+        <div v-if="menuOption" class="menu-option-row m-1">
+          <div class="addedRestaurants">
+            <img :src="menuOption.photoLink" alt="added item" class="menu-option-image">
+          </div>
+          <div class="open-menu-option" @click="openMenuOption(menuOption)">
+            <p class="menu-option-name">{{ menuOption.optionName }}</p>
           </div>
         </div>
+
+              <div class="icon-container">
+                <div class="image-edit-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon"
+                       viewBox="0 0 16 16" @click="openEditDialog(menuOption)">
+                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                  </svg>
+                </div>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 delete-icon" viewBox="0 0 16 16" @click="removeMenuItem(menuOption._id)">
+                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                  </svg>
+                </div>
+              </div>
       </div>
-    </div>
+      </div>
     <!-- Custom Dialog -->
     <div class="custom-dialog" v-if="showDialog">
       <div class="custom-dialog-content">
@@ -100,7 +96,7 @@
           <input type="text" id="itemName" v-model="editingMenuOption.optionName" />
         </div>
         <div class="dialog-buttons">
-          <button class="btn btn-secondary cancel-button m-3" @click="showDialogOption = false">Renunta</button>
+          <button class="btn btn-secondary cancel-button m-3 " @click="showDialogOption = false">Renunta</button>
           <button class="btn btn-primary add-button m-3" @click="editMenu">Editeaza</button>
         </div>
       </div>
@@ -288,15 +284,11 @@ export default {
   }
 }
 </script>
-
-
 <style scoped>
-
-.fixed-size-img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 5px;
+.menu-options-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* creates three columns */
+  gap: 20px; /* adds space between the columns */
 }
 
 .custom-dialog {
@@ -305,145 +297,60 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 60%;
-  max-width: 500px;
+  max-width: 400px;
   background-color: rgba(255, 255, 255, 0.9);
   z-index: 1000;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
-.submenu-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin: 0;
-}
-.menu-layout {
-  display: grid;
-  grid-template-columns: 1fr 3fr;
-  gap: 2rem;
-}
-
 .custom-dialog-content input[type="text"] {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
-  border: 1px solid #ced4da; /* Bootstrap's default border color for input */
-  border-radius: 0.25rem; /* Bootstrap's default border radius for input */
 }
-
-
 .menu-option {
-  margin-bottom: 10px; /* Space between each menu option */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Remove margin-bottom if you have gap in grid */
 }
 
-
-
-.menu-option-info {
-
-  margin-right: 6px; /* Adds margin to the right */
-}
-
-.menu-option-info,
-.addedRestaurants,
-.image-edit-icon {
+.menu-option-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-
-.addedRestaurants {
-
-  margin-right: 5px;
-}
-
-.image-edit-icon {
-  flex-grow: 1;
-  padding: 10px;
-}
-
-.menu-option-info {
-  display: flex;
-  position: relative;
-}
-
-.addedRestaurants {
-  position: relative;
-  margin-right: 10px;
+  /* Make sure this is not set to flex-direction: column; */
 }
 
 .menu-option-image {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
   object-fit: cover;
-  border-radius: 5px;
-}
-
-.menu-option-content svg,
-.form-group svg {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
+  margin-right: 15px;
 }
 
 .menu-option-name {
-  display: flex;
-  align-items: center;
-  font-size: 1em;
-  background-color: #ffffff;
-  padding: 5px 10px;
-  border-radius: 5px;
-  position: relative;
-  margin-right: 10px;
-}
-.open-menu-option{
+  font-size: 1.2rem;
+  font-weight: bold;
   cursor: pointer;
 }
-
-.form-group {
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-
-.form-group svg {
-  width: 12px;
-  height: 12px;
-  margin-left: 5px;
-}
-
-.image-edit-icon {
-  position: relative;
-  margin-right: 10px;
-}
-
-
-.image-edit-icon svg {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-.icon-container svg {
-  height: 24px;
-  width: 24px;
-  fill: currentColor;
-}
-
-
-.icon-container svg {
-  stroke-width: 2;
-}
-
 
 .icon-container {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
+  justify-content: flex-start;
+  /* Remove if you want the icons to be in the same row as the name and image */
+  margin-top: 10px;
 }
 
+.edit-icon,
+.delete-icon {
+  width: 20px;
+  height: 20px;
+  fill: #aaa;
+  margin-right: 10px;
+  cursor: pointer;
+}
 </style>
