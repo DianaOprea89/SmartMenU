@@ -26,10 +26,10 @@
     <!-- Right Section -->
     <div class="right-section">
       <router-link to="/menu" >
-        <button class="nav-item">Profile</button>
+        <button class="nav-item btn btn-secondary">Profile</button>
       </router-link>
       <router-link to="/aboutus" >
-        <button class="nav-item">About Us</button>
+        <button class="nav-item btn btn-secondary">About Us</button>
       </router-link>
     </div>
   </div>

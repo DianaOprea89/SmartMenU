@@ -6,7 +6,7 @@
       </div>
       <div>
         <router-link to="/addrestaurant" v-slot="{ navigate }">
-          <button class="btn btn-primary mb-4" @click="navigate">Add a Restaurant</button>
+          <button class="btn btn-secondary mb-4" @click="navigate">Add a Restaurant</button>
         </router-link>
       </div>
       <div>
