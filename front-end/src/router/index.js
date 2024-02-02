@@ -11,7 +11,8 @@ import AddRestaurants from "@/components/AddRestaurants";
 import OptionMenu from "@/views/OptionMenu";
 import MealOption from "@/components/MealOption";
 import SubMenuOption from "@/components/SubMenuOption";
-import ViewMenu from "@/components/ViewMenu";
+import AccessRestaurant from "@/components/AccessRestaurant";
+import ViewRestaurantsMenu from "@/components/ViewRestaurantsMenu";
 
 const routes = [
     {
@@ -97,9 +98,15 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
-        path: '/restaurant/:restaurantName/viewMenu',
-        name: "ViewMenu",
-        component: ViewMenu,
+        path: '/restaurant/:restaurantName/accessRestaurant',
+        name: "AccessRestaurant",
+        component: AccessRestaurant,
+        props: true,
+    },
+    {
+        path: '/restaurant/:restaurantName/accessRestaurant/viewMenu',
+        name: "ViewRestaurantsMenu",
+        component: ViewRestaurantsMenu,
         props: true,
     },
 ];
