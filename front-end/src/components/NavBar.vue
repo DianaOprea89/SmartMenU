@@ -1,7 +1,5 @@
 <template>
   <div id="nav-bar">
-
-
     <!-- Left Section -->
     <div class="left-section">
       <router-link v-if="!isAuthenticated" to="/login" id="log-link">
@@ -10,17 +8,18 @@
       <router-link v-if="!isAuthenticated" to="/register" id="reg-link">
         <button class="nav-item">Register</button>
       </router-link>
-
       <button v-if="isAuthenticated" @click="logout" class="m-5 btn btn-secondary">Logout</button>
       <span v-if="isAuthenticated" class="user-span">  Hello, {{ loggedInUser }}!</span>
-
     </div>
-
     <!-- Title -->
     <div class="header">
-      <router-link to="/" id="products-link">
-        <h1>OrderAI</h1>
-      </router-link>
+      <div>
+        <p>SmartDine</p>
+      </div>
+      <div>
+        <img src="../assets/Logo.png" alt="logo" class="logo">
+      </div>
+
     </div>
 
     <!-- Right Section -->
@@ -71,42 +70,44 @@ export default {
 <style scoped>
 #nav-bar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: space-between; /* Keeps items spread out on the main axis */
+  align-items: center; /* Centers items on the cross axis */
   padding: 10px;
 }
 
 .header {
-  flex: 1; /* Takes up 1/3 of the width */
+  display: flex; /* New: make header also a flex container */
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+  flex: 1; /* Each child will take 1/3 of the space */
 }
 
-.left-section, .right-section {
+.left-section,
+.right-section {
   display: flex;
   align-items: center;
-}
-
-.left-section {
-  flex: 1; /* Takes up 1/3 of the width */
+  flex: 1; /* Adjusted: make both take 1/3 of the space */
 }
 
 .right-section {
-  flex: 2; /* Takes up 2/3 of the width */
-  justify-content: flex-end;
+  justify-content: flex-end; /* Aligns items to the end of the container */
 }
 
 .nav-item {
-  margin: 0 10px; /* Add space between buttons */
+  margin: 0 10px; /* Space between items */
 }
 
-/* Additional styling for the "Cart!" button */
-#cart-link button {
-  background-color: #ff5733; /* Change to your desired color */
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+.logo {
+  height: auto; /* Adjust the height automatically to maintain aspect ratio */
+  width: 100px; /* Adjust width as needed */
 }
 
-/* Adjust the styles as needed */
+/* New: Style for the title text to align with logo */
+.header p {
+  margin: 0; /* Removes default margin */
+  padding-right: 10px; /* Adds some space between text and logo */
+}
+
+/* Existing styles ... */
+
 </style>
