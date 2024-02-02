@@ -8,12 +8,22 @@
       </router-link>
     </div>
     <div class="m-5">
-      <h1 class="restaurant-title align-content-center" >Menu options for: <strong>{{ restaurantName }}</strong></h1>
+      <h1 class="restaurant-title align-content-center" > <strong>{{ restaurantName }}</strong></h1>
     </div>
-    <div v-if="restaurant" class="menu-options-container">
-          <div v-for="menuOption in restaurant.menuOptions" :key="menuOption._id" class="m-1">
+    <div v-if="restaurant" class="menu-options-container ">
+      <div class="each-option">
+         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+      </svg>
+      </div>
+      <div class="each-option">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel-fill" viewBox="0 0 16 16">
+        <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
+      </svg>
+      </div>
+          <div v-for="menuOption in restaurant.menuOptions" :key="menuOption._id" class="m-1 each-option" >
             <img :src="menuOption.photoLink" alt="Meal image" class="meal-image">
-            <button class="btn btn-secondary m-1" >{{ menuOption.optionName }} </button>
+            <span >{{ menuOption.optionName }} </span>
           </div>
     </div>
     <div v-else>
@@ -77,8 +87,8 @@ li {
   /* Add any additional resets you require */
 }
 .meal-image {
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 15px;
@@ -87,23 +97,52 @@ li {
   display: inline-flex; /* Use inline-flex to keep the button inline */
   align-items: center; /* Align the text and icon vertically */
   padding: 5px 10px; /* Padding around the text and icon */
-  color: black;
+  color: rgba(0, 0, 0, 0.97);
   text-decoration: none;
   transition: background-color 0.3s, border-color 0.3s; /* Transition for hover effects */
 }
-
-.go-back:hover {
-  background-color: #e6e6e6; /* Slightly darker background on hover */
-  border-color: #b3b3b3; /* Darker border on hover */
-  text-decoration: none; /* No underline on hover */
-}
-
-.go-back svg {
-  margin-left: 5px; /* Small space between text and icon */
-}
 .menu-options-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* creates three columns */
-  gap: 20px; /* adds space between the columns */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Align items to the start of the container */
+  gap: 15px; /* Adjust the space between the elements */
+  padding: 10px; /* Padding around the entire container */
+}
+
+.each-option {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 15px; /* Adjust padding to give more horizontal space */
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 25px; /* More pronounced rounded corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  text-decoration: none; /* In case it's a link, remove underline */
+  font-size: 0.9rem; /* Consistent font size */
+  color: #333; /* Consistent text color */
+}
+
+.each-option:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px); /* Lift the element slightly on hover */
+}
+
+.each-option svg {
+  margin-right: 8px; /* Consistent space between the icon and text */
+}
+
+.meal-image {
+  width: 40px; /* Slightly larger images */
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px; /* Consistent space between the image and text */
+}
+
+/* Style the text within the option for better visual */
+.each-option span {
+  font-size: 0.9rem; /* Adjust font size as needed */
+  color: #333; /* Text color */
 }
 </style>
