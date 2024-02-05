@@ -94,31 +94,35 @@ export default {
       },
     }
   },
-  methods: {
-    setActiveSubMenu(subMenuId) {
-      const menuOption = this.restaurant.menuOptions.find(option => option._id === subMenuId);
-      if (menuOption && menuOption.subMenuOptions) {
-        this.activeSubMenu = subMenuId;
-        this.restaurantData = {
-          ...this.restaurantData,
-          subMenuOptions: menuOption.subMenuOptions
-        };
-        this.groupedMealOptions = this.getGroupedMealOptions(menuOption.subMenuOptions);
-      } else {
-        console.error(`No submenu options found for ID: ${subMenuId}`);
-
-      }
-    },
-    getGroupedMealOptions(subMenuOptions) {
+  computed:{
+    groupedMealOptions() {
       const groupedOptions = {};
-      subMenuOptions.forEach(subMenuOption => {
-        groupedOptions[subMenuOption._id] = {
-          mealOptions: subMenuOption.mealOptions || [],
-          subMenuOptionId: subMenuOption._id
-        };
-      });
+      if (this.restaurant && this.restaurant.subMenuOptions) {
+        this.restaurant.subMenuOptions.forEach(subMenuOption => {
+          groupedOptions[subMenuOption._id] = {
+            mealOptions: subMenuOption.mealOptions || [], // Provide a fallback empty array
+            subMenuOptionId: subMenuOption._id
+          };
+        });
+      }
       return groupedOptions;
     },
+  },
+  methods: {
+    setActiveSubMenu(subMenuId) {
+      // Find the clicked menu option by its ID
+      const menuOption = this.restaurant.menuOptions.find(option => option._id === subMenuId);
+
+      if (menuOption && menuOption.subMenuOptions) {
+        this.activeSubMenu = subMenuId;
+        // Directly assign the new value to trigger reactivity
+        this.restaurantData.subMenuOptions = menuOption.subMenuOptions;
+      } else {
+        console.error(`No submenu options found for ID: ${subMenuId}`);
+        // Handle the case where the submenu doesn't exist
+      }
+    },
+
     async fetchRestaurant() {
       try {
         const response = await api.get('/api/userData');
