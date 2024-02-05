@@ -30,11 +30,44 @@
         </svg>
 
     </div>
-    <div v-for="menuOption in restaurant.menuOptions" :key="menuOption._id" class="m-1 each-option">
+    <div v-for="menuOption in restaurant.menuOptions" :key="menuOption._id" class="m-1 each-option"   @click="setActiveSubMenu(menuOption._id)">
       <img :src="menuOption.photoLink" alt="Meal image" class="meal-image">
       <span>{{ menuOption.optionName }} </span>
     </div>
   </div>
+    <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
+      <aside class="menu-sidebar">
+        <ul class="submenu-list">
+          <li v-for="(subMenuOption, index) in restaurantData.subMenuOptions"
+              :key="index"
+              :class="{ active: activeSubMenu === subMenuOption._id }"
+              @click="setActiveSubMenu(subMenuOption._id)">
+            <img :src="subMenuOption.photoLink" alt="Menu item" class="menu-option-image">
+            <p class="sub-menu-title">{{ subMenuOption.subMenuOptionName }}</p>
+          </li>
+        </ul>
+      </aside>
+      <!-- Modified section -->
+      <main class="menu-main-content">
+        <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu]">
+          <ul class="meal-list">
+            <li v-for="mealOption in groupedMealOptions[activeSubMenu].mealOptions" :key="mealOption._id" class="meal-item">
+              <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
+              <div class="meal-content">
+                <h3>{{ mealOption.optionName }}</h3>
+                <p class="meal-description">{{ mealOption.description }}</p>
+                <p class="meal-ingredients"><strong>Ingredients:</strong> {{ mealOption.ingredients }}</p>
+                <div class="meal-footer">
+                  <span class="meal-quantity">{{ mealOption.quantity }} {{ mealOption.unit }}</span>
+                  <span class="meal-price">{{ mealOption.price }} RON</span>
+                </div>
+              </div>
+
+            </li>
+          </ul>
+        </div>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -53,16 +86,44 @@ export default {
     return {
       restaurant: null,
       showSearchBar: false,
+      activeSubMenu: null,
+      activeMealOptions: [],
+      mealOption: {},
+      restaurantData: {
+        subMenuOptions: [] ,
+      },
     }
   },
   methods: {
+    setActiveSubMenu(subMenuId) {
+      const menuOption = this.restaurant.menuOptions.find(option => option._id === subMenuId);
+      if (menuOption && menuOption.subMenuOptions) {
+        this.activeSubMenu = subMenuId;
+        this.restaurantData = {
+          ...this.restaurantData,
+          subMenuOptions: menuOption.subMenuOptions
+        };
+        this.groupedMealOptions = this.getGroupedMealOptions(menuOption.subMenuOptions);
+      } else {
+        console.error(`No submenu options found for ID: ${subMenuId}`);
+
+      }
+    },
+    getGroupedMealOptions(subMenuOptions) {
+      const groupedOptions = {};
+      subMenuOptions.forEach(subMenuOption => {
+        groupedOptions[subMenuOption._id] = {
+          mealOptions: subMenuOption.mealOptions || [],
+          subMenuOptionId: subMenuOption._id
+        };
+      });
+      return groupedOptions;
+    },
     async fetchRestaurant() {
       try {
-        // Assuming '/api/userData' endpoint returns an array of restaurants
         const response = await api.get('/api/userData');
 
         if (response && response.status === 200) {
-          // Find the restaurant by name
           const matchingRestaurant = response.data.restaurants.find(r => r.name === this.restaurantName);
           this.restaurant = matchingRestaurant || null;
         } else {
@@ -77,31 +138,31 @@ export default {
     },
   },
   created() {
-    this.fetchRestaurant(); // Fetch the specific restaurant when the component is created
+    this.fetchRestaurant();
   },
 }
 </script>
 
 <style scoped>
 .search-option {
-  cursor: pointer; /* Changes cursor to pointer when hovering over the search icon */
+  cursor: pointer;
 }
 
 .search-input {
-  /* Adjust the style to match the provided image */
-  margin: 0; /* Removes margin */
-  border: none; /* Removes border */
-  outline: none; /* Removes outline */
-  border-radius: 20px; /* Rounded corners */
-  padding: 5px 10px; /* Padding inside the search bar */
-  width: calc(100% - 20px); /* Full width minus padding */
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow for depth */
-  transition: all 0.3s; /* Smooth transition for opening/closing */
+
+  margin: 0;
+  border: none;
+  outline: none;
+  border-radius: 20px;
+  padding: 5px 10px;
+  width: calc(100% - 20px);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
 }
 
-/* This will only apply when showSearchBar is true */
+
 .search-input:focus {
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Deeper shadow when focused */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 
@@ -110,39 +171,40 @@ export default {
 }
 
 ul {
-  padding-left: 0; /* Removes padding from the ul */
-  list-style-type: none; /* Removes the bullets */
+  padding-left: 0;
+  list-style-type: none;
 }
 
 li {
-  margin: 0; /* Removes margin from li */
-  padding: 0; /* Removes padding from li */
-  /* Add any additional resets you require */
-}
+  margin: 0;
+  padding: 0;
 
-.meal-image {
+}
+.menu-option-image {
   width: 50px;
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 15px;
+  margin-right: 10px;
 }
 
 .go-back {
-  display: inline-flex; /* Use inline-flex to keep the button inline */
-  align-items: center; /* Align the text and icon vertically */
-  padding: 5px 10px; /* Padding around the text and icon */
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
   color: rgba(0, 0, 0, 0.97);
   text-decoration: none;
-  transition: background-color 0.3s, border-color 0.3s; /* Transition for hover effects */
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .menu-options-container {
   display: flex;
+  flex-wrap: wrap;
+  gap:10px;
   align-items: center;
-  justify-content: flex-start; /* Align items to the start of the container */
-  gap: 15px; /* Adjust the space between the elements */
-  padding: 10px; /* Padding around the entire container */
+  justify-content: flex-start;
+  gap: 15px;
+  padding: 10px;
 }
 
 .each-option {
@@ -161,24 +223,99 @@ li {
 
 .each-option:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px); /* Lift the element slightly on hover */
+  transform: translateY(-2px);
 }
 
 .each-option svg {
-  margin-right: 8px; /* Consistent space between the icon and text */
+  margin-right: 8px;
 }
 
 .meal-image {
-  width: 40px; /* Slightly larger images */
+  width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 8px; /* Consistent space between the image and text */
+  margin-right: 8px;
 }
 
-/* Style the text within the option for better visual */
 .each-option span {
-  font-size: 0.9rem; /* Adjust font size as needed */
-  color: #333; /* Text color */
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: auto;
+}
+.menu-layout {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 2rem;
+}
+.active {
+  background-color: #ddd;
+}
+.menu-sidebar {
+  background: #f9f9f9;
+  padding: 1rem;
+}
+.custom-dialog-content input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.submenu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.submenu-list li {
+  padding: 0.5rem 0;
+}
+sub-menu-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+}
+.menu-main-content {
+  background: #fff;
+  padding: 1rem;
+}
+.meal-list {
+  list-style: none;
+  padding: 0;
+}
+.meal-item {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+}
+
+.meal-content {
+  flex: 1;
+}
+.meal-description {
+  font-style: italic;
+  margin: 0.5rem 0;
+}
+.meal-ingredients {
+  margin: 0;
+}
+.meal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+.meal-quantity {
+  font-size: 0.9rem;
+}
+.meal-price {
+  font-weight: bold;
+  color: #333;
 }
 </style>
