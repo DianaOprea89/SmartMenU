@@ -14,20 +14,21 @@
       <h1 class="restaurant-title align-content-center"><strong>{{ restaurantName }}</strong></h1>
     </div>
     <div v-if="restaurant" class="menu-options-container ">
-      <div class="each-option">
+      <div class="each-option search-option" @click="toggleSearchBar">
         <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-search"
              viewBox="0 0 16 16">
           <path
               d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
         </svg>
       </div>
+      <input v-if="showSearchBar" type="text" placeholder="Search..." class="search-input"/>
       <div class="each-option">
         <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-funnel-fill"
              viewBox="0 0 16 16">
           <path
               d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
         </svg>
-        <input v-if="showSearchBar" type="text" placeholder="Search..." class="search-input"/>
+
     </div>
     <div v-for="menuOption in restaurant.menuOptions" :key="menuOption._id" class="m-1 each-option">
       <img :src="menuOption.photoLink" alt="Meal image" class="meal-image">
@@ -82,14 +83,27 @@ export default {
 </script>
 
 <style scoped>
-.search-input {
-  /* Style your search input */
-  margin-top: 10px;
-  padding: 8px;
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.search-option {
+  cursor: pointer; /* Changes cursor to pointer when hovering over the search icon */
 }
+
+.search-input {
+  /* Adjust the style to match the provided image */
+  margin: 0; /* Removes margin */
+  border: none; /* Removes border */
+  outline: none; /* Removes outline */
+  border-radius: 20px; /* Rounded corners */
+  padding: 5px 10px; /* Padding inside the search bar */
+  width: calc(100% - 20px); /* Full width minus padding */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+  transition: all 0.3s; /* Smooth transition for opening/closing */
+}
+
+/* This will only apply when showSearchBar is true */
+.search-input:focus {
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Deeper shadow when focused */
+}
+
 
 .restaurant-title {
   font-size: 1.5rem;
