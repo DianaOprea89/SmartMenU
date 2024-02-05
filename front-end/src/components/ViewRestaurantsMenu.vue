@@ -1,34 +1,39 @@
 <template>
   <div class="container">
     <div class="m-2 icon-container">
-      <router-link :to="`/restaurant/${encodeURIComponent(restaurantName)}/accessRestaurant`" class="go-back d-flex justify-content-end ">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle m-1" viewBox="0 0 16 16">
-          <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z"/>
+      <router-link :to="`/restaurant/${encodeURIComponent(restaurantName)}/accessRestaurant`"
+                   class="go-back d-flex justify-content-end ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+             class="bi bi-arrow-left-circle m-1" viewBox="0 0 16 16">
+          <path fill-rule="evenodd"
+                d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z"/>
         </svg>
       </router-link>
     </div>
     <div class="m-5">
-      <h1 class="restaurant-title align-content-center" > <strong>{{ restaurantName }}</strong></h1>
+      <h1 class="restaurant-title align-content-center"><strong>{{ restaurantName }}</strong></h1>
     </div>
     <div v-if="restaurant" class="menu-options-container ">
       <div class="each-option">
-         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-      </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-search"
+             viewBox="0 0 16 16">
+          <path
+              d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+        </svg>
       </div>
       <div class="each-option">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel-fill" viewBox="0 0 16 16">
-        <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
-      </svg>
-      </div>
-          <div v-for="menuOption in restaurant.menuOptions" :key="menuOption._id" class="m-1 each-option" >
-            <img :src="menuOption.photoLink" alt="Meal image" class="meal-image">
-            <span >{{ menuOption.optionName }} </span>
-          </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-funnel-fill"
+             viewBox="0 0 16 16">
+          <path
+              d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
+        </svg>
+        <input v-if="showSearchBar" type="text" placeholder="Search..." class="search-input"/>
     </div>
-    <div v-else>
-      <p>Loading menu options...</p>
+    <div v-for="menuOption in restaurant.menuOptions" :key="menuOption._id" class="m-1 each-option">
+      <img :src="menuOption.photoLink" alt="Meal image" class="meal-image">
+      <span>{{ menuOption.optionName }} </span>
     </div>
+  </div>
   </div>
 </template>
 
@@ -45,7 +50,8 @@ export default {
   },
   data() {
     return {
-      restaurant: null, // Define the restaurant property
+      restaurant: null,
+      showSearchBar: false,
     }
   },
   methods: {
@@ -65,6 +71,9 @@ export default {
         console.error('An error occurred while fetching the restaurant:', error);
       }
     },
+    toggleSearchBar() {
+      this.showSearchBar = !this.showSearchBar;
+    },
   },
   created() {
     this.fetchRestaurant(); // Fetch the specific restaurant when the component is created
@@ -73,9 +82,19 @@ export default {
 </script>
 
 <style scoped>
-.restaurant-title{
+.search-input {
+  /* Style your search input */
+  margin-top: 10px;
+  padding: 8px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.restaurant-title {
   font-size: 1.5rem;
 }
+
 ul {
   padding-left: 0; /* Removes padding from the ul */
   list-style-type: none; /* Removes the bullets */
@@ -86,6 +105,7 @@ li {
   padding: 0; /* Removes padding from li */
   /* Add any additional resets you require */
 }
+
 .meal-image {
   width: 50px;
   height: 50px;
@@ -93,6 +113,7 @@ li {
   object-fit: cover;
   margin-right: 15px;
 }
+
 .go-back {
   display: inline-flex; /* Use inline-flex to keep the button inline */
   align-items: center; /* Align the text and icon vertically */
@@ -101,6 +122,7 @@ li {
   text-decoration: none;
   transition: background-color 0.3s, border-color 0.3s; /* Transition for hover effects */
 }
+
 .menu-options-container {
   display: flex;
   align-items: center;
