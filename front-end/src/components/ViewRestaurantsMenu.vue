@@ -84,7 +84,9 @@ export default {
   },
   data() {
     return {
-      restaurant: null,
+      restaurant: {
+        menuOptions: [] // Even if it's empty initially
+      },
       showSearchBar: false,
       activeSubMenu: null,
       activeMealOptions: [],
@@ -94,13 +96,13 @@ export default {
       },
     }
   },
-  computed:{
+  computed: {
     groupedMealOptions() {
       const groupedOptions = {};
-      if (this.restaurant && this.restaurant.subMenuOptions) {
-        this.restaurant.subMenuOptions.forEach(subMenuOption => {
+      if (this.restaurantData && this.restaurantData.subMenuOptions) {
+        this.restaurantData.subMenuOptions.forEach(subMenuOption => {
           groupedOptions[subMenuOption._id] = {
-            mealOptions: subMenuOption.mealOptions || [], // Provide a fallback empty array
+            mealOptions: subMenuOption.mealOptions,
             subMenuOptionId: subMenuOption._id
           };
         });
@@ -109,37 +111,44 @@ export default {
     },
   },
   methods: {
+    getGroupedMealOptions(subMenuOptions) {
+      const groupedOptions = {};
+      subMenuOptions.forEach(subMenuOption => {
+        groupedOptions[subMenuOption._id] = {
+          mealOptions: subMenuOption.mealOptions || [],
+          subMenuOptionId: subMenuOption._id
+        };
+      });
+      return groupedOptions;
+    },
     setActiveSubMenu(subMenuId) {
-      // Find the clicked menu option by its ID
       const menuOption = this.restaurant.menuOptions.find(option => option._id === subMenuId);
-
-      if (menuOption && menuOption.subMenuOptions) {
+      if (menuOption && Array.isArray(menuOption.subMenuOptions)) {
         this.activeSubMenu = subMenuId;
-        // Directly assign the new value to trigger reactivity
-        this.restaurantData.subMenuOptions = menuOption.subMenuOptions;
+        this.restaurantData.subMenuOptions = [...menuOption.subMenuOptions]; // Use spread to ensure reactivity
       } else {
         console.error(`No submenu options found for ID: ${subMenuId}`);
-        // Handle the case where the submenu doesn't exist
+        // You may want to reset activeSubMenu and restaurantData.subMenuOptions to their default states here
       }
     },
-
     async fetchRestaurant() {
       try {
         const response = await api.get('/api/userData');
-
         if (response && response.status === 200) {
           const matchingRestaurant = response.data.restaurants.find(r => r.name === this.restaurantName);
-          this.restaurant = matchingRestaurant || null;
+          if (matchingRestaurant) {
+            this.restaurant = matchingRestaurant;
+            console.log('Restaurant data loaded:', this.restaurant);
+          } else {
+            console.error('Restaurant with the given name not found.');
+          }
         } else {
           console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');
         }
       } catch (error) {
         console.error('An error occurred while fetching the restaurant:', error);
       }
-    },
-    toggleSearchBar() {
-      this.showSearchBar = !this.showSearchBar;
-    },
+    }
   },
   created() {
     this.fetchRestaurant();

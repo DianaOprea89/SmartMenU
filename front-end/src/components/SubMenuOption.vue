@@ -253,7 +253,6 @@ export default {
         },
         setActiveSubMenu(subMenuId) {
           this.activeSubMenu = subMenuId;
-          // ... rest of your code
         },
         addSubMenuItem() {
           const newSubMenuItem = {
