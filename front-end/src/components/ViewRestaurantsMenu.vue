@@ -14,7 +14,7 @@
       <h1 class="restaurant-title align-content-center"><strong>{{ restaurantName }}</strong></h1>
     </div>
     <div v-if="restaurant" class="menu-options-container ">
-      <div class="each-option search-option" @click="toggleSearchBar">
+      <div class="each-option search-option" >
         <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-search"
              viewBox="0 0 16 16">
           <path
@@ -73,6 +73,7 @@
 
 <script>
 import api from "@/api/api";
+import {getAuthToken} from "@/utility/utility";
 
 export default {
   name: "ViewRestaurantsMenu",
@@ -85,73 +86,84 @@ export default {
   data() {
     return {
       restaurant: {
-        menuOptions: [] // Even if it's empty initially
+        menuOptions: [] ,
       },
       showSearchBar: false,
       activeSubMenu: null,
       activeMealOptions: [],
       mealOption: {},
       restaurantData: {
-        subMenuOptions: [] ,
+        subMenuOptions: {},
       },
     }
   },
   computed: {
     groupedMealOptions() {
       const groupedOptions = {};
-      if (this.restaurantData && this.restaurantData.subMenuOptions) {
-        this.restaurantData.subMenuOptions.forEach(subMenuOption => {
-          groupedOptions[subMenuOption._id] = {
-            mealOptions: subMenuOption.mealOptions,
-            subMenuOptionId: subMenuOption._id
+      if (this.restaurantData.subMenuOptions && this.activeSubMenu) {
+        const subMenu = this.restaurantData.subMenuOptions.find(option => option._id === this.activeSubMenu);
+        if (subMenu) {
+          groupedOptions[this.activeSubMenu] = {
+            mealOptions: subMenu.mealOptions || [],
+            subMenuOptionId: this.activeSubMenu
           };
-        });
+        }
       }
       return groupedOptions;
     },
   },
   methods: {
-    getGroupedMealOptions(subMenuOptions) {
-      const groupedOptions = {};
-      subMenuOptions.forEach(subMenuOption => {
-        groupedOptions[subMenuOption._id] = {
-          mealOptions: subMenuOption.mealOptions || [],
-          subMenuOptionId: subMenuOption._id
-        };
-      });
-      return groupedOptions;
-    },
     setActiveSubMenu(subMenuId) {
+      if (!this.restaurant || !Array.isArray(this.restaurant.menuOptions)) {
+        console.error('Restaurant data is not loaded yet or menuOptions is not an array.');
+        return;
+      }
       const menuOption = this.restaurant.menuOptions.find(option => option._id === subMenuId);
-      if (menuOption && Array.isArray(menuOption.subMenuOptions)) {
+      if (!menuOption) {
+        console.error(`No menu option found for ID: ${subMenuId}`);
+        return;
+      }
+      if (Array.isArray(menuOption.subMenuOptions)) {
         this.activeSubMenu = subMenuId;
-        this.restaurantData.subMenuOptions = [...menuOption.subMenuOptions]; // Use spread to ensure reactivity
+        this.restaurantData.subMenuOptions = [...menuOption.subMenuOptions];
       } else {
         console.error(`No submenu options found for ID: ${subMenuId}`);
-        // You may want to reset activeSubMenu and restaurantData.subMenuOptions to their default states here
+        this.activeSubMenu = null;
+        this.restaurantData.subMenuOptions = [];
       }
     },
-    async fetchRestaurant() {
+
+    async fetchRestaurantData() {
+      console.log('fetchRestaurantData called');
+      if (!this.restaurantName) {
+        console.error('Restaurant name is undefined');
+        return;
+      }
       try {
-        const response = await api.get('/api/userData');
-        if (response && response.status === 200) {
-          const matchingRestaurant = response.data.restaurants.find(r => r.name === this.restaurantName);
-          if (matchingRestaurant) {
-            this.restaurant = matchingRestaurant;
-            console.log('Restaurant data loaded:', this.restaurant);
-          } else {
-            console.error('Restaurant with the given name not found.');
+        const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
+          headers: {Authorization: `Bearer ${getAuthToken()}`}
+        });
+        if (response && response.status === 200 && response.data) {
+          this.restaurant = response.data;
+          const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
+          this.restaurantData = menuOptionData || null;
+          this.restaurantId = response.data._id;
+          if (menuOptionData) {
+            this.menuOptionId = menuOptionData._id;
+          }
+          if (this.restaurant.menuOptions.length > 0) {
+            this.setActiveSubMenu(this.restaurant.menuOptions[0]._id);
           }
         } else {
-          console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');
+          console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
         }
       } catch (error) {
-        console.error('An error occurred while fetching the restaurant:', error);
+        console.error('Error fetching restaurant details:', error);
       }
     }
   },
-  created() {
-    this.fetchRestaurant();
+  async created() {
+    await this.fetchRestaurantData();
   },
 }
 </script>
@@ -169,13 +181,13 @@ export default {
   border-radius: 20px;
   padding: 5px 10px;
   width: calc(100% - 20px);
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.3s;
 }
 
 
 .search-input:focus {
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 
@@ -216,7 +228,6 @@ li {
   gap:10px;
   align-items: center;
   justify-content: flex-start;
-  gap: 15px;
   padding: 10px;
 }
 
@@ -287,7 +298,7 @@ li {
 .submenu-list li {
   padding: 0.5rem 0;
 }
-sub-menu-title {
+.sub-menu-title {
   font-size: 1.2rem;
   font-weight: bold;
   margin: 0;
