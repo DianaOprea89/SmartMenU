@@ -6,7 +6,7 @@ export default class api2 {
     }
 
     getServerLocation() {
-        return 'http://localhost:8008/';
+        return 'http://localhost:8009/';
     }
 
     // async run(apiEndpoint) {
