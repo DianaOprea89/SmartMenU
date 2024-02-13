@@ -133,7 +133,35 @@ export default {
       }
     },
 
-
+    async fetchRestaurantData() {
+      console.log('fetchRestaurantData called');
+      if (!this.restaurantName) {
+        console.error('Restaurant name is undefined');
+        return;
+      }
+      try {
+        const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
+          headers: {Authorization: `Bearer ${getAuthToken()}`}
+        });
+        if (response && response.status === 200 && response.data) {
+          this.restaurant = response.data;
+          const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
+          this.restaurantData = menuOptionData || null;
+          this.restaurantId = response.data._id;
+          if (menuOptionData) {
+            this.menuOptionId = menuOptionData._id;
+          }
+          if (this.restaurant.menuOptions.length > 0) {
+            this.setActiveSubMenu(this.restaurant.menuOptions[0]._id);
+          }
+        } else {
+          console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
+        }
+      } catch (error) {
+        console.error('Error fetching restaurant details:', error);
+      }
+    }
+  },
   async created() {
     await this.fetchRestaurantData();
   },
