@@ -62,11 +62,11 @@
                   <span class="meal-price">{{ mealOption.price }} RON</span>
                 </div>
               </div>
-
             </li>
           </ul>
         </div>
       </main>
+
     </div>
   </div>
 </template>
@@ -93,7 +93,7 @@ export default {
       activeMealOptions: [],
       mealOption: {},
       restaurantData: {
-        subMenuOptions: {},
+        subMenuOptions: [],
       },
     }
   },
@@ -102,9 +102,9 @@ export default {
       const groupedOptions = {};
       if (this.restaurantData.subMenuOptions && this.activeSubMenu) {
         const subMenu = this.restaurantData.subMenuOptions.find(option => option._id === this.activeSubMenu);
-        if (subMenu) {
+        if (subMenu && subMenu.mealOptions) {
           groupedOptions[this.activeSubMenu] = {
-            mealOptions: subMenu.mealOptions || [],
+            mealOptions: subMenu.mealOptions,
             subMenuOptionId: this.activeSubMenu
           };
         }
@@ -114,16 +114,13 @@ export default {
   },
   methods: {
     setActiveSubMenu(subMenuId) {
-      if (!this.restaurant || !Array.isArray(this.restaurant.menuOptions)) {
-        console.error('Restaurant data is not loaded yet or menuOptions is not an array.');
-        return;
+      // Ensure restaurantData is an object before attempting to set its properties
+      if (!this.restaurantData) {
+        this.restaurantData = { subMenuOptions: [] };
       }
+      // Now proceed with finding and setting subMenuOptions...
       const menuOption = this.restaurant.menuOptions.find(option => option._id === subMenuId);
-      if (!menuOption) {
-        console.error(`No menu option found for ID: ${subMenuId}`);
-        return;
-      }
-      if (Array.isArray(menuOption.subMenuOptions)) {
+      if (menuOption && Array.isArray(menuOption.subMenuOptions)) {
         this.activeSubMenu = subMenuId;
         this.restaurantData.subMenuOptions = [...menuOption.subMenuOptions];
       } else {
