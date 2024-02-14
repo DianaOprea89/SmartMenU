@@ -64,6 +64,7 @@
               </div>
             </li>
           </ul>
+          {{ activeSubMenu && groupedMealOptions[activeSubMenu] ? 'Rendering' : 'Not Rendering' }}
         </div>
       </main>
 
@@ -109,11 +110,18 @@ export default {
           };
         }
       }
+      console.log(this.restaurantData);
       return groupedOptions;
     },
   },
+  mounted() {
+    this.$nextTick(() => {
+      console.log(this.activeSubMenu && this.groupedMealOptions[this.activeSubMenu]);
+    });
+  },
   methods: {
     setActiveSubMenu(subMenuId) {
+
       // Ensure restaurantData is an object before attempting to set its properties
       if (!this.restaurantData) {
         this.restaurantData = { subMenuOptions: [] };
@@ -131,7 +139,9 @@ export default {
     },
 
     async fetchRestaurantData() {
+      console.log(this.restaurantData);
       console.log('fetchRestaurantData called');
+
       if (!this.restaurantName) {
         console.error('Restaurant name is undefined');
         return;
