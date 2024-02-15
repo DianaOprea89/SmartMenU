@@ -121,20 +121,20 @@ export default {
   },
   methods: {
     setActiveSubMenu(subMenuId) {
+      // Log the incoming ID and compare with expected IDs from the data
+      console.log('setActiveSubMenu called with ID:', subMenuId);
 
-      // Ensure restaurantData is an object before attempting to set its properties
-      if (!this.restaurantData) {
-        this.restaurantData = { subMenuOptions: [] };
-      }
-      // Now proceed with finding and setting subMenuOptions...
-      const menuOption = this.restaurant.menuOptions.find(option => option._id === subMenuId);
-      if (menuOption && Array.isArray(menuOption.subMenuOptions)) {
-        this.activeSubMenu = subMenuId;
-        this.restaurantData.subMenuOptions = [...menuOption.subMenuOptions];
+      // Assuming restaurantData is an array of menu options
+      const subMenu = this.restaurantData.find(menu => menu._id === subMenuId);
+
+      if (subMenu && subMenu.subMenuOptions && subMenu.subMenuOptions.length > 0) {
+        // If submenu options are found, set them as active
+        this.activeSubMenuOptions = subMenu.subMenuOptions;
+        console.log('Submenu options found:', this.activeSubMenuOptions);
       } else {
-        console.error(`No submenu options found for ID: ${subMenuId}`);
-        this.activeSubMenu = null;
-        this.restaurantData.subMenuOptions = [];
+        // Log an error or set a flag to show that no options were found
+        console.error('No submenu options found for ID:', subMenuId);
+        this.activeSubMenuOptions = null; // or an appropriate fallback
       }
     },
 
