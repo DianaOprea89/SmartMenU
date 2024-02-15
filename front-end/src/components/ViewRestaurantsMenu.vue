@@ -66,7 +66,6 @@
           </ul>
         </div>
       </main>
-
     </div>
   </div>
 </template>
@@ -122,11 +121,7 @@ export default {
         this.activeSubMenu = null;
       }
     },
-
     async fetchRestaurantData() {
-      console.log(this.restaurantData);
-      console.log('fetchRestaurantData called');
-
       if (!this.restaurantName) {
         console.error('Restaurant name is undefined');
         return;
@@ -134,11 +129,9 @@ export default {
 
       try {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`);
-
         if (response && response.status === 200 && response.data) {
           this.restaurant = response.data;
           console.log('Available menu options:', response.data.menuOptions.map(m => m.optionName));
-          console.log('Searching for menu option:', this.menuOption);
           const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption) || response.data.menuOptions[0];
           this.restaurantData = menuOptionData || null;
           this.restaurantId = response.data._id;
