@@ -49,9 +49,9 @@
       </aside>
       <!-- Modified section -->
       <main class="menu-main-content">
-        <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu]">
+        <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu] && groupedMealOptions[activeSubMenu].length">
           <ul class="meal-list">
-            <li v-for="mealOption in groupedMealOptions[activeSubMenu].mealOptions" :key="mealOption._id" class="meal-item">
+            <li v-for="mealOption in groupedMealOptions[activeSubMenu]" :key="mealOption._id" class="meal-item">
               <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
               <div class="meal-content">
                 <h3>{{ mealOption.optionName }}</h3>
@@ -64,7 +64,6 @@
               </div>
             </li>
           </ul>
-          {{ activeSubMenu && groupedMealOptions[activeSubMenu] ? 'Rendering' : 'Not Rendering' }}
         </div>
       </main>
 
@@ -100,41 +99,37 @@ export default {
   },
   computed: {
     groupedMealOptions() {
+      // Initialize an empty object for holding grouped meal options
       const groupedOptions = {};
-      if (this.restaurantData.subMenuOptions && this.activeSubMenu) {
-        const subMenu = this.restaurantData.subMenuOptions.find(option => option._id === this.activeSubMenu);
-        if (subMenu && subMenu.mealOptions) {
-          groupedOptions[this.activeSubMenu] = {
-            mealOptions: subMenu.mealOptions,
-            subMenuOptionId: this.activeSubMenu
-          };
+
+      // Only proceed if there's an active submenu and restaurantData.subMenuOptions is available
+      if (this.activeSubMenu && this.restaurantData && this.restaurantData.subMenuOptions) {
+        // Find the active submenu
+        const activeSubMenu = this.restaurantData.subMenuOptions.find(option => option._id === this.activeSubMenu);
+
+        // If the active submenu is found and it has meal options, populate the groupedOptions object
+        if (activeSubMenu && activeSubMenu.mealOptions) {
+          groupedOptions[this.activeSubMenu] = activeSubMenu.mealOptions;
         }
       }
-      console.log(this.restaurantData);
+
       return groupedOptions;
     },
   },
-  mounted() {
-    this.$nextTick(() => {
-      console.log(this.activeSubMenu && this.groupedMealOptions[this.activeSubMenu]);
-    });
-  },
   methods: {
     setActiveSubMenu(subMenuId) {
-      // Log the incoming ID and compare with expected IDs from the data
-      console.log('setActiveSubMenu called with ID:', subMenuId);
+      if (!this.restaurantData || !this.restaurantData.subMenuOptions) {
+        console.error('restaurantData is not available or has no subMenuOptions.');
+        return;
+      }
 
-      // Assuming restaurantData is an array of menu options
-      const subMenu = this.restaurantData.find(menu => menu._id === subMenuId);
-
-      if (subMenu && subMenu.subMenuOptions && subMenu.subMenuOptions.length > 0) {
-        // If submenu options are found, set them as active
-        this.activeSubMenuOptions = subMenu.subMenuOptions;
-        console.log('Submenu options found:', this.activeSubMenuOptions);
+      // Check if the submenu ID exists within the restaurantData's subMenuOptions
+      const subMenuExists = this.restaurantData.subMenuOptions.some(option => option._id === subMenuId);
+      if (subMenuExists) {
+        this.activeSubMenu = subMenuId;
       } else {
-        // Log an error or set a flag to show that no options were found
         console.error('No submenu options found for ID:', subMenuId);
-        this.activeSubMenuOptions = null; // or an appropriate fallback
+        this.activeSubMenu = null; // Reset activeSubMenu if no submenu is found
       }
     },
 
@@ -146,18 +141,29 @@ export default {
         console.error('Restaurant name is undefined');
         return;
       }
+
       try {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
           headers: {Authorization: `Bearer ${getAuthToken()}`}
         });
+
         if (response && response.status === 200 && response.data) {
           this.restaurant = response.data;
-          const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
+
+          // Debugging Tip: Log available menu options and the current search term
+          console.log('Available menu options:', response.data.menuOptions.map(m => m.optionName));
+          console.log('Searching for menu option:', this.menuOption);
+
+          // Implement fallback mechanism
+          const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption) || response.data.menuOptions[0];
+
           this.restaurantData = menuOptionData || null;
           this.restaurantId = response.data._id;
+
           if (menuOptionData) {
             this.menuOptionId = menuOptionData._id;
           }
+
           if (this.restaurant.menuOptions.length > 0) {
             this.setActiveSubMenu(this.restaurant.menuOptions[0]._id);
           }
@@ -167,9 +173,9 @@ export default {
       } catch (error) {
         console.error('Error fetching restaurant details:', error);
       }
-    }
+    },
   },
-  async created() {
+    async created() {
     await this.fetchRestaurantData();
   },
 }
