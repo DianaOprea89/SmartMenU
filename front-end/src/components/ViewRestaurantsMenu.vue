@@ -14,33 +14,36 @@
       <h1 class="restaurant-title align-content-center"><strong>{{ restaurantName }}</strong></h1>
     </div>
     <div v-if="restaurant" class="menu-options-container ">
-      <div class="each-option search-option" >
+      <div class="each-option search-option" @click="toggleSearchBar">
         <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-search"
              viewBox="0 0 16 16">
           <path
               d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
         </svg>
       </div>
-      <input v-if="showSearchBar" type="text" placeholder="Search..." class="search-input"/>
+
+      <div v-if="showSearchBar">
+        <input v-model="searchQuery" @input="searchMenuOptions" type="text" placeholder="Search..." class="search-input"/>
+      </div>
       <div class="each-option">
         <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-funnel-fill"
              viewBox="0 0 16 16">
           <path
               d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
         </svg>
-
+      </div>
+      <div v-for="menuOption in restaurant.menuOptions" :key="menuOption._id" class="m-1 each-option"
+           @click="setActiveSubMenu(menuOption._id)">
+        <img :src="menuOption.photoLink" alt="Meal image" class="meal-image">
+        <span :class="{ 'search-highlight': isSearchMatch('menuOption', menuOption._id) }">{{ menuOption.optionName }} </span>
+      </div>
     </div>
-    <div v-for="menuOption in restaurant.menuOptions" :key="menuOption._id" class="m-1 each-option"   @click="setActiveSubMenu(menuOption._id)">
-      <img :src="menuOption.photoLink" alt="Meal image" class="meal-image">
-      <span>{{ menuOption.optionName }} </span>
-    </div>
-  </div>
     <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
       <aside class="menu-sidebar">
         <ul class="submenu-list">
           <li v-for="(subMenuOption, index) in restaurantData.subMenuOptions"
               :key="index"
-              :class="{ active: activeSubMenu === subMenuOption._id }"
+              :class="{ active: activeSubMenu === subMenuOption._id, 'search-highlight': isSearchMatch('subMenuOption', subMenuOption._id) }"
               @click="setActiveSubMenu(subMenuOption._id)">
             <img :src="subMenuOption.photoLink" alt="Menu item" class="menu-option-image">
             <p class="sub-menu-title">{{ subMenuOption.subMenuOptionName }}</p>
@@ -51,10 +54,10 @@
       <main class="menu-main-content">
         <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu] && groupedMealOptions[activeSubMenu].length">
           <ul class="meal-list">
-            <li v-for="mealOption in groupedMealOptions[activeSubMenu]" :key="mealOption._id" class="meal-item">
+            <li v-for="mealOption in groupedMealOptions[activeSubMenu]" :key="mealOption._id" class="meal-item" >
               <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
               <div class="meal-content">
-                <h3>{{ mealOption.optionName }}</h3>
+                <h3 >{{ mealOption.optionName }}</h3>
                 <p class="meal-description">{{ mealOption.description }}</p>
                 <p class="meal-ingredients"><strong>Ingredients:</strong> {{ mealOption.ingredients }}</p>
                 <div class="meal-footer">
@@ -84,8 +87,9 @@ export default {
   data() {
     return {
       restaurant: {
-        menuOptions: [] ,
+        menuOptions: [],
       },
+      searchQuery: "",
       showSearchBar: false,
       activeSubMenu: null,
       activeMealOptions: [],
@@ -93,6 +97,8 @@ export default {
       restaurantData: {
         subMenuOptions: [],
       },
+      filteredMenuOptions: [],
+      searchMatches: [],
     }
   },
   computed: {
@@ -109,6 +115,32 @@ export default {
     },
   },
   methods: {
+    isSearchMatch(type, id) {
+      return this.searchMatches.some(match => match.type === type && match.id === id);
+    },
+    searchMenuOptions() {
+      const query = this.searchQuery.toLowerCase();
+      this.searchMatches = [];
+      this.restaurant.menuOptions.forEach(option => {
+        if (option.optionName.toLowerCase().includes(query)) {
+          this.searchMatches.push({
+            type: 'menuOption',
+            id: option._id,
+          });
+        }
+      });
+      if (this.restaurantData && this.restaurantData.subMenuOptions) {
+        this.restaurantData.subMenuOptions.forEach(subMenuOption => {
+          if (subMenuOption.subMenuOptionName.toLowerCase().includes(query)) {
+            this.searchMatches.push({
+              type: 'subMenuOption',
+              id: subMenuOption._id,
+            });
+          }
+        });
+      }
+
+    },
     setActiveSubMenu(subMenuId) {
       if (!this.restaurantData || !this.restaurantData.subMenuOptions) {
         console.error('restaurantData is not available or has no subMenuOptions.');
@@ -121,9 +153,15 @@ export default {
         this.activeSubMenu = null;
       }
     },
+    toggleSearchBar() {
+      this.showSearchBar = !this.showSearchBar;
+      if (!this.showSearchBar) {
+        this.searchQuery = "";
+        this.filteredMenuOptions = this.restaurant.menuOptions;
+      }
+    },
     async fetchRestaurantData() {
       if (!this.restaurantName) {
-        console.error('Restaurant name is undefined');
         return;
       }
 
@@ -131,7 +169,6 @@ export default {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`);
         if (response && response.status === 200 && response.data) {
           this.restaurant = response.data;
-          console.log('Available menu options:', response.data.menuOptions.map(m => m.optionName));
           const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption) || response.data.menuOptions[0];
           this.restaurantData = menuOptionData || null;
           this.restaurantId = response.data._id;
@@ -150,13 +187,17 @@ export default {
     },
 
   },
-    async created() {
+  async created() {
     await this.fetchRestaurantData();
   },
 }
 </script>
 
 <style scoped>
+.search-highlight {
+  color: #de0909; /* Highlight color */
+  font-weight: bold; /* Bold text for better visibility */
+}
 .search-option {
   cursor: pointer;
 }
@@ -193,6 +234,7 @@ li {
   padding: 0;
 
 }
+
 .menu-option-image {
   width: 50px;
   height: 50px;
@@ -213,7 +255,7 @@ li {
 .menu-options-container {
   display: flex;
   flex-wrap: wrap;
-  gap:10px;
+  gap: 10px;
   align-items: center;
   justify-content: flex-start;
   padding: 10px;
@@ -261,44 +303,54 @@ li {
   max-width: 1200px;
   margin: auto;
 }
+
 .menu-layout {
   display: grid;
   grid-template-columns: 1fr 3fr;
   gap: 2rem;
 }
+
 .active {
   background-color: #ddd;
 }
+
 .menu-sidebar {
   background: #f9f9f9;
   padding: 1rem;
 }
+
 .custom-dialog-content input[type="text"] {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
 }
+
 .submenu-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
+
 .submenu-list li {
   padding: 0.5rem 0;
 }
+
 .sub-menu-title {
   font-size: 1.2rem;
   font-weight: bold;
   margin: 0;
 }
+
 .menu-main-content {
   background: #fff;
   padding: 1rem;
 }
+
 .meal-list {
   list-style: none;
   padding: 0;
 }
+
 .meal-item {
   display: flex;
   align-items: center;
@@ -310,22 +362,27 @@ li {
 .meal-content {
   flex: 1;
 }
+
 .meal-description {
   font-style: italic;
   margin: 0.5rem 0;
 }
+
 .meal-ingredients {
   margin: 0;
 }
+
 .meal-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 1rem;
 }
+
 .meal-quantity {
   font-size: 0.9rem;
 }
+
 .meal-price {
   font-weight: bold;
   color: #333;
