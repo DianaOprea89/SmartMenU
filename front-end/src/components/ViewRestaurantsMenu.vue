@@ -73,7 +73,6 @@
 
 <script>
 import api from "@/api/api";
-import {getAuthToken} from "@/utility/utility";
 
 export default {
   name: "ViewRestaurantsMenu",
@@ -134,9 +133,7 @@ export default {
       }
 
       try {
-        const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
-          headers: {Authorization: `Bearer ${getAuthToken()}`}
-        });
+        const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`);
 
         if (response && response.status === 200 && response.data) {
           this.restaurant = response.data;
@@ -158,6 +155,7 @@ export default {
         console.error('Error fetching restaurant details:', error);
       }
     },
+
   },
     async created() {
     await this.fetchRestaurantData();
