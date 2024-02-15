@@ -99,15 +99,9 @@ export default {
   },
   computed: {
     groupedMealOptions() {
-      // Initialize an empty object for holding grouped meal options
       const groupedOptions = {};
-
-      // Only proceed if there's an active submenu and restaurantData.subMenuOptions is available
       if (this.activeSubMenu && this.restaurantData && this.restaurantData.subMenuOptions) {
-        // Find the active submenu
         const activeSubMenu = this.restaurantData.subMenuOptions.find(option => option._id === this.activeSubMenu);
-
-        // If the active submenu is found and it has meal options, populate the groupedOptions object
         if (activeSubMenu && activeSubMenu.mealOptions) {
           groupedOptions[this.activeSubMenu] = activeSubMenu.mealOptions;
         }
@@ -122,14 +116,11 @@ export default {
         console.error('restaurantData is not available or has no subMenuOptions.');
         return;
       }
-
-      // Check if the submenu ID exists within the restaurantData's subMenuOptions
       const subMenuExists = this.restaurantData.subMenuOptions.some(option => option._id === subMenuId);
       if (subMenuExists) {
         this.activeSubMenu = subMenuId;
       } else {
-        console.error('No submenu options found for ID:', subMenuId);
-        this.activeSubMenu = null; // Reset activeSubMenu if no submenu is found
+        this.activeSubMenu = null;
       }
     },
 
@@ -149,21 +140,14 @@ export default {
 
         if (response && response.status === 200 && response.data) {
           this.restaurant = response.data;
-
-          // Debugging Tip: Log available menu options and the current search term
           console.log('Available menu options:', response.data.menuOptions.map(m => m.optionName));
           console.log('Searching for menu option:', this.menuOption);
-
-          // Implement fallback mechanism
           const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption) || response.data.menuOptions[0];
-
           this.restaurantData = menuOptionData || null;
           this.restaurantId = response.data._id;
-
           if (menuOptionData) {
             this.menuOptionId = menuOptionData._id;
           }
-
           if (this.restaurant.menuOptions.length > 0) {
             this.setActiveSubMenu(this.restaurant.menuOptions[0]._id);
           }
