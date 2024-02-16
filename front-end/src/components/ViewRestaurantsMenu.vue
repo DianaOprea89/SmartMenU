@@ -142,21 +142,18 @@ export default {
 
     },
     setActiveSubMenu(menuOptionId) {
-      // Find the new active menu option based on the menuOptionId
       const newActiveMenuOption = this.restaurant.menuOptions.find(option => option._id === menuOptionId);
-      // Reset activeSubMenu before setting it
-      this.activeSubMenu = null;
 
-      // Check if the new active menu option has submenu options
-      if (newActiveMenuOption && newActiveMenuOption.subMenuOptions && newActiveMenuOption.subMenuOptions.length > 0) {
-        // Update the restaurantData with the submenu options of the new active menu option
-        this.restaurantData.subMenuOptions = newActiveMenuOption.subMenuOptions;
-        // Set the first submenu option as the active one
-        this.activeSubMenu = newActiveMenuOption.subMenuOptions[0]._id;
+      if (newActiveMenuOption) {
+        if (Array.isArray(newActiveMenuOption.subMenuOptions) && newActiveMenuOption.subMenuOptions.length > 0) {
+          this.restaurantData = { ...this.restaurantData, subMenuOptions: [...newActiveMenuOption.subMenuOptions] };
+          this.activeSubMenu = newActiveMenuOption.subMenuOptions[0]._id;
+        } else {
+          console.error('No submenu options found for menu option ID:', menuOptionId);
+          this.restaurantData = { ...this.restaurantData, subMenuOptions: [] };
+        }
       } else {
-        // If no submenu options are found, clear the restaurantData.subMenuOptions
-        this.restaurantData.subMenuOptions = [];
-        console.error('No submenu options found for menu option ID:', menuOptionId);
+        console.error('Menu option with ID not found:', menuOptionId);
       }
     },
 
@@ -185,8 +182,9 @@ export default {
           if (menuOptionData) {
             this.menuOptionId = menuOptionData._id;
           }
-          if (this.restaurant.menuOptions.length > 0) {
-            this.setActiveSubMenu(this.restaurant.menuOptions[0]._id);
+          const defaultMenuOption = this.restaurant.menuOptions.find(m => m.optionName === 'Bucatarie') || this.restaurant.menuOptions[0];
+          if (defaultMenuOption) {
+            this.setActiveSubMenu(defaultMenuOption._id);
           }
         } else {
           console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
