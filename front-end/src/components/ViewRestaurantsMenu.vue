@@ -57,7 +57,9 @@
       <main class="menu-main-content">
         <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu] && groupedMealOptions[activeSubMenu].length" >
           <ul class="meal-list">
-            <li v-for="mealOption in groupedMealOptions[activeSubMenu]" :key="mealOption._id" class="meal-item" >
+            <li v-for="mealOption in groupedMealOptions[activeSubMenu]" :key="mealOption._id"
+                class="meal-item"
+                :class="{ 'search-highlight': isSearchMatch('mealOption', mealOption._id) }">
               <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
               <div class="meal-content">
                 <h3 >{{ mealOption.optionName }}</h3>
