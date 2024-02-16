@@ -142,15 +142,20 @@ export default {
 
     },
     setActiveSubMenu(menuOptionId) {
+      // Find the new active menu option based on the menuOptionId
       const newActiveMenuOption = this.restaurant.menuOptions.find(option => option._id === menuOptionId);
-
+      // Reset activeSubMenu before setting it
       this.activeSubMenu = null;
-      this.restaurantData.subMenuOptions = [];
 
-      if (newActiveMenuOption && Array.isArray(newActiveMenuOption.subMenuOptions) && newActiveMenuOption.subMenuOptions.length > 0) {
+      // Check if the new active menu option has submenu options
+      if (newActiveMenuOption && newActiveMenuOption.subMenuOptions && newActiveMenuOption.subMenuOptions.length > 0) {
+        // Update the restaurantData with the submenu options of the new active menu option
+        this.restaurantData.subMenuOptions = newActiveMenuOption.subMenuOptions;
+        // Set the first submenu option as the active one
         this.activeSubMenu = newActiveMenuOption.subMenuOptions[0]._id;
-        this.restaurantData.subMenuOptions = [...newActiveMenuOption.subMenuOptions];
       } else {
+        // If no submenu options are found, clear the restaurantData.subMenuOptions
+        this.restaurantData.subMenuOptions = [];
         console.error('No submenu options found for menu option ID:', menuOptionId);
       }
     },
