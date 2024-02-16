@@ -23,7 +23,8 @@
       </div>
 
       <div v-if="showSearchBar">
-        <input v-model="searchQuery" @input="searchMenuOptions" type="text" placeholder="Search..." class="search-input"/>
+        <input v-model="searchQuery" @input="searchMenuOptions" type="text" placeholder="Search..."
+               class="search-input"/>
       </div>
       <div class="each-option">
         <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-funnel-fill"
@@ -38,7 +39,9 @@
            :class="{ 'search-highlight': isSearchMatch('menuOption', menuOption._id) }"
            @click="setActiveSubMenu(menuOption._id)">
         <img :src="menuOption.photoLink" alt="Meal image" class="meal-image">
-        <span :class="{ 'search-highlight': isSearchMatch('menuOption', menuOption._id) }">{{ menuOption.optionName }} </span>
+        <span :class="{ 'search-highlight': isSearchMatch('menuOption', menuOption._id) }">{{
+            menuOption.optionName
+          }} </span>
       </div>
     </div>
     <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
@@ -55,14 +58,14 @@
       </aside>
       <!-- Modified section -->
       <main class="menu-main-content">
-        <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu] && groupedMealOptions[activeSubMenu].length" >
+        <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu] && groupedMealOptions[activeSubMenu].length">
           <ul class="meal-list">
             <li v-for="mealOption in groupedMealOptions[activeSubMenu]" :key="mealOption._id"
                 class="meal-item"
                 :class="{ 'search-highlight': isSearchMatch('mealOption', mealOption._id) }">
               <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
               <div class="meal-content">
-                <h3 >{{ mealOption.optionName }}</h3>
+                <h3>{{ mealOption.optionName }}</h3>
                 <p class="meal-description">{{ mealOption.description }}</p>
                 <p class="meal-ingredients"><strong>Ingredients:</strong> {{ mealOption.ingredients }}</p>
                 <div class="meal-footer">
@@ -121,15 +124,20 @@ export default {
   },
   methods: {
     isSearchMatch(type, id) {
-      if (!this.searchQuery) return false; // No search query, no highlight
+      if (!this.searchQuery) return false;
       const searchLower = this.searchQuery.toLowerCase();
+      const nameIncludesQuery = (name) => name.toLowerCase().includes(searchLower);
       if (type === 'menuOption') {
         const menuOption = this.restaurant.menuOptions.find(option => option._id === id);
-        return menuOption && menuOption.optionName.toLowerCase().includes(searchLower);
+        return menuOption && nameIncludesQuery(menuOption.optionName);
       } else if (type === 'subMenuOption') {
-        // Similar logic for subMenuOption if necessary
+        const subMenuOption = this.restaurantData.subMenuOptions.find(option => option._id === id);
+        return subMenuOption && nameIncludesQuery(subMenuOption.subMenuOptionName);
+      } else if (type === 'mealOption') {
+        const mealOption = this.groupedMealOptions[this.activeSubMenu].find(option => option._id === id);
+        return mealOption && nameIncludesQuery(mealOption.optionName);
       }
-      return false; // Default to no match found
+      return false;
     },
     searchMenuOptions() {
       const query = this.searchQuery.toLowerCase();
@@ -155,9 +163,14 @@ export default {
 
     },
     setActiveSubMenu(menuOptionId) {
+      console.log('Attempting to set active submenu with ID:', menuOptionId);
+      console.log('Available menu options:', this.restaurant.menuOptions);
+
       const newActiveMenuOption = this.restaurant.menuOptions.find(option => option._id === menuOptionId);
 
       if (newActiveMenuOption) {
+        console.log('Found menu option:', newActiveMenuOption);
+
         if (Array.isArray(newActiveMenuOption.subMenuOptions) && newActiveMenuOption.subMenuOptions.length > 0) {
           this.restaurantData = { ...this.restaurantData, subMenuOptions: [...newActiveMenuOption.subMenuOptions] };
           this.activeSubMenu = newActiveMenuOption.subMenuOptions[0]._id;
@@ -169,6 +182,7 @@ export default {
         console.error('Menu option with ID not found:', menuOptionId);
       }
     },
+
 
     toggleSearchBar() {
       this.showSearchBar = !this.showSearchBar;
@@ -216,9 +230,9 @@ export default {
 
 <style scoped>
 .search-highlight {
-  color: #de0909; /* Highlight color */
-  font-weight: bold; /* Bold text for better visibility */
+  background-color: yellow; /* or any highlight color you prefer */
 }
+
 .search-option {
   cursor: pointer;
 }
