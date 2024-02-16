@@ -32,7 +32,10 @@
               d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
         </svg>
       </div>
-      <div v-for="menuOption in restaurant.menuOptions" :key="menuOption._id" class="m-1 each-option"
+      <div v-for="menuOption in restaurant.menuOptions"
+           :key="menuOption._id"
+           class="m-1 each-option"
+           :class="{ 'search-highlight': isSearchMatch('menuOption', menuOption._id) }"
            @click="setActiveSubMenu(menuOption._id)">
         <img :src="menuOption.photoLink" alt="Meal image" class="meal-image">
         <span :class="{ 'search-highlight': isSearchMatch('menuOption', menuOption._id) }">{{ menuOption.optionName }} </span>
@@ -52,7 +55,7 @@
       </aside>
       <!-- Modified section -->
       <main class="menu-main-content">
-        <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu] && groupedMealOptions[activeSubMenu].length">
+        <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu] && groupedMealOptions[activeSubMenu].length" >
           <ul class="meal-list">
             <li v-for="mealOption in groupedMealOptions[activeSubMenu]" :key="mealOption._id" class="meal-item" >
               <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
@@ -116,7 +119,15 @@ export default {
   },
   methods: {
     isSearchMatch(type, id) {
-      return this.searchMatches.some(match => match.type === type && match.id === id);
+      if (!this.searchQuery) return false; // No search query, no highlight
+      const searchLower = this.searchQuery.toLowerCase();
+      if (type === 'menuOption') {
+        const menuOption = this.restaurant.menuOptions.find(option => option._id === id);
+        return menuOption && menuOption.optionName.toLowerCase().includes(searchLower);
+      } else if (type === 'subMenuOption') {
+        // Similar logic for subMenuOption if necessary
+      }
+      return false; // Default to no match found
     },
     searchMenuOptions() {
       const query = this.searchQuery.toLowerCase();
