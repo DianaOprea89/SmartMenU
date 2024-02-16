@@ -141,18 +141,20 @@ export default {
       }
 
     },
-    setActiveSubMenu(subMenuId) {
-      if (!this.restaurantData || !this.restaurantData.subMenuOptions) {
-        console.error('restaurantData is not available or has no subMenuOptions.');
-        return;
-      }
-      const subMenuExists = this.restaurantData.subMenuOptions.some(option => option._id === subMenuId);
-      if (subMenuExists) {
-        this.activeSubMenu = subMenuId;
+    setActiveSubMenu(menuOptionId) {
+      const newActiveMenuOption = this.restaurant.menuOptions.find(option => option._id === menuOptionId);
+
+      this.activeSubMenu = null;
+      this.restaurantData.subMenuOptions = [];
+
+      if (newActiveMenuOption && Array.isArray(newActiveMenuOption.subMenuOptions) && newActiveMenuOption.subMenuOptions.length > 0) {
+        this.activeSubMenu = newActiveMenuOption.subMenuOptions[0]._id;
+        this.restaurantData.subMenuOptions = [...newActiveMenuOption.subMenuOptions];
       } else {
-        this.activeSubMenu = null;
+        console.error('No submenu options found for menu option ID:', menuOptionId);
       }
     },
+
     toggleSearchBar() {
       this.showSearchBar = !this.showSearchBar;
       if (!this.showSearchBar) {
@@ -161,6 +163,7 @@ export default {
       }
     },
     async fetchRestaurantData() {
+
       if (!this.restaurantName) {
         return;
       }
@@ -169,7 +172,9 @@ export default {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`);
         if (response && response.status === 200 && response.data) {
           this.restaurant = response.data;
+          console.log('Fetched menu options:', response.data.menuOptions);
           const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption) || response.data.menuOptions[0];
+          console.log('Found menuOptionData:', menuOptionData);
           this.restaurantData = menuOptionData || null;
           this.restaurantId = response.data._id;
           if (menuOptionData) {
