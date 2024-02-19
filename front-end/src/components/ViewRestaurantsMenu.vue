@@ -112,13 +112,13 @@ export default {
   computed: {
     groupedMealOptions() {
       const groupedOptions = {};
-      if (this.activeSubMenu && this.restaurantData && this.restaurantData.subMenuOptions) {
+      // Ensure restaurantData.subMenuOptions is not empty
+      if (this.activeSubMenu && this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
         const activeSubMenu = this.restaurantData.subMenuOptions.find(option => option._id === this.activeSubMenu);
         if (activeSubMenu && activeSubMenu.mealOptions) {
           groupedOptions[this.activeSubMenu] = activeSubMenu.mealOptions;
         }
       }
-
       return groupedOptions;
     },
   },
@@ -164,24 +164,33 @@ export default {
     },
     setActiveSubMenu(menuOptionId) {
       console.log('Attempting to set active submenu with ID:', menuOptionId);
-      console.log('Available menu options:', this.restaurant.menuOptions);
 
+      // Find the new active menu option based on the menuOptionId
       const newActiveMenuOption = this.restaurant.menuOptions.find(option => option._id === menuOptionId);
 
       if (newActiveMenuOption) {
         console.log('Found menu option:', newActiveMenuOption);
 
+        // Check if the new active menu option has submenu options
         if (Array.isArray(newActiveMenuOption.subMenuOptions) && newActiveMenuOption.subMenuOptions.length > 0) {
-          this.restaurantData = { ...this.restaurantData, subMenuOptions: [...newActiveMenuOption.subMenuOptions] };
+          // Update restaurantData with the new submenu options
+          this.restaurantData.subMenuOptions = newActiveMenuOption.subMenuOptions;
+          // Set the first submenu option as active
           this.activeSubMenu = newActiveMenuOption.subMenuOptions[0]._id;
         } else {
+          // If no submenu options are found, clear the current submenu options
           console.error('No submenu options found for menu option ID:', menuOptionId);
-          this.restaurantData = { ...this.restaurantData, subMenuOptions: [] };
+          this.restaurantData.subMenuOptions = [];
+          this.activeSubMenu = null;
         }
       } else {
         console.error('Menu option with ID not found:', menuOptionId);
       }
+
+      // Debug groupedMealOptions after update
+      console.log('groupedMealOptions after update:', this.groupedMealOptions);
     },
+
 
 
     toggleSearchBar() {
