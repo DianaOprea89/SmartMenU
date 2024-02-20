@@ -162,30 +162,26 @@ export default {
       }
 
     },
-    setActiveSubMenu(subMenuOptionId) {
-      console.log('Attempting to set active submenu with ID:', subMenuOptionId);
+    setActiveSubMenu(menuOptionId) {
+      console.log('Attempting to set active submenu with ID:', menuOptionId);
+      console.log('Available menu options:', this.restaurant.menuOptions);
 
-      // Let's find the parent menu option that contains the submenu with the given ID
-      let found = false;
-      for (let menuOption of this.restaurant.menuOptions) {
-        const subMenuOption = menuOption.subMenuOptions.find(sub => sub._id === subMenuOptionId);
-        if (subMenuOption) {
-          this.restaurantData.subMenuOptions = menuOption.subMenuOptions;
-          this.activeSubMenu = subMenuOptionId;
-          found = true;
-          break; // Stop the loop as we found the submenu option
+      const newActiveMenuOption = this.restaurant.menuOptions.find(option => option._id === menuOptionId);
+
+      if (newActiveMenuOption) {
+        console.log('Found menu option:', newActiveMenuOption);
+
+        if (Array.isArray(newActiveMenuOption.subMenuOptions) && newActiveMenuOption.subMenuOptions.length > 0) {
+          this.restaurantData = { ...this.restaurantData, subMenuOptions: [...newActiveMenuOption.subMenuOptions] };
+          this.activeSubMenu = newActiveMenuOption.subMenuOptions[0]._id;
+        } else {
+          console.error('No submenu options found for menu option ID:', menuOptionId);
+          this.restaurantData = { ...this.restaurantData, subMenuOptions: [] };
         }
+      } else {
+        console.error('Menu option with ID not found:', menuOptionId);
       }
-
-      if (!found) {
-        console.error('Submenu option with ID not found:', subMenuOptionId);
-        this.restaurantData.subMenuOptions = [];
-        this.activeSubMenu = null;
-      }
-
-      console.log('groupedMealOptions after update:', this.groupedMealOptions);
     },
-
 
 
     toggleSearchBar() {
