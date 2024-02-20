@@ -47,8 +47,8 @@
     <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
       <aside class="menu-sidebar">
         <ul class="submenu-list">
-          <li v-for="(subMenuOption, index) in restaurantData.subMenuOptions"
-              :key="index"
+          <li v-for="(subMenuOption) in restaurantData.subMenuOptions"
+              :key="subMenuOption._id"
               :class="{ active: activeSubMenu === subMenuOption._id, 'search-highlight': isSearchMatch('subMenuOption', subMenuOption._id) }"
               @click="setActiveSubMenu(subMenuOption._id)">
             <img :src="subMenuOption.photoLink" alt="Menu item" class="menu-option-image">
@@ -164,22 +164,15 @@ export default {
     },
     setActiveSubMenu(menuOptionId) {
       console.log('Attempting to set active submenu with ID:', menuOptionId);
-      console.log('Available menu options:', this.restaurant.menuOptions);
+      const menuOption = this.restaurant.menuOptions.find(option => option._id === menuOptionId);
 
-      const newActiveMenuOption = this.restaurant.menuOptions.find(option => option._id === menuOptionId);
-
-      if (newActiveMenuOption) {
-        console.log('Found menu option:', newActiveMenuOption);
-
-        if (Array.isArray(newActiveMenuOption.subMenuOptions) && newActiveMenuOption.subMenuOptions.length > 0) {
-          this.restaurantData = { ...this.restaurantData, subMenuOptions: [...newActiveMenuOption.subMenuOptions] };
-          this.activeSubMenu = newActiveMenuOption.subMenuOptions[0]._id;
-        } else {
-          console.error('No submenu options found for menu option ID:', menuOptionId);
-          this.restaurantData = { ...this.restaurantData, subMenuOptions: [] };
-        }
+      if (menuOption && Array.isArray(menuOption.subMenuOptions)) {
+        this.restaurantData.subMenuOptions = [...menuOption.subMenuOptions]; // Ensuring reactivity
+        this.activeSubMenu = menuOption.subMenuOptions[0]?._id || null; // Using optional chaining
       } else {
-        console.error('Menu option with ID not found:', menuOptionId);
+        console.error('Submenu options not found or empty for menu option ID:', menuOptionId);
+        this.restaurantData.subMenuOptions = [];
+        this.activeSubMenu = null;
       }
     },
 
@@ -192,26 +185,19 @@ export default {
       }
     },
     async fetchRestaurantData() {
-
       if (!this.restaurantName) {
         return;
       }
-
       try {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`);
         if (response && response.status === 200 && response.data) {
           this.restaurant = response.data;
           console.log('Fetched menu options:', response.data.menuOptions);
-          const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption) || response.data.menuOptions[0];
-          console.log('Found menuOptionData:', menuOptionData);
-          this.restaurantData = menuOptionData || null;
-          this.restaurantId = response.data._id;
-          if (menuOptionData) {
-            this.menuOptionId = menuOptionData._id;
-          }
           const defaultMenuOption = this.restaurant.menuOptions.find(m => m.optionName === 'Bucatarie') || this.restaurant.menuOptions[0];
-          if (defaultMenuOption) {
+          if (defaultMenuOption && defaultMenuOption.subMenuOptions.length) {
             this.setActiveSubMenu(defaultMenuOption._id);
+          } else {
+            console.error('Default "Bucatarie" menu option not found or has no submenus');
           }
         } else {
           console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
@@ -220,9 +206,8 @@ export default {
         console.error('Error fetching restaurant details:', error);
       }
     },
-
   },
-  async created() {
+    async created() {
     await this.fetchRestaurantData();
   },
 }
