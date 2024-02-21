@@ -37,7 +37,7 @@
            :key="menuOption._id"
            class="m-1 each-option"
            :class="{ 'search-highlight': isSearchMatch('menuOption', menuOption._id) }"
-           @click="setActiveSubMenu(menuOption._id)">
+           @click="setActiveMenu(menuOption._id)">
         <img :src="menuOption.photoLink" alt="Meal image" class="meal-image">
         <span :class="{ 'search-highlight': isSearchMatch('menuOption', menuOption._id) }">{{
             menuOption.optionName
@@ -58,9 +58,9 @@
       </aside>
       <!-- Modified section -->
       <main class="menu-main-content">
-        <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu] && groupedMealOptions[activeSubMenu].length">
+        <div v-if="activeSubMenu">
           <ul class="meal-list">
-            <li v-for="mealOption in groupedMealOptions[activeSubMenu]" :key="mealOption._id"
+            <li v-for="mealOption in currentMealOptions" :key="mealOption._id"
                 class="meal-item"
                 :class="{ 'search-highlight': isSearchMatch('mealOption', mealOption._id) }">
               <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
@@ -103,7 +103,7 @@ export default {
       activeMealOptions: [],
       mealOption: {},
       restaurantData: {
-        subMenuOptions: [],
+        subMenuOptions: [], // This should be an array, not an object
       },
       filteredMenuOptions: [],
       searchMatches: [],
@@ -112,17 +112,37 @@ export default {
   computed: {
     groupedMealOptions() {
       const groupedOptions = {};
-      if (this.activeSubMenu && this.restaurantData && this.restaurantData.subMenuOptions) {
-        const activeSubMenu = this.restaurantData.subMenuOptions.find(option => option._id === this.activeSubMenu);
-        if (activeSubMenu && activeSubMenu.mealOptions) {
-          groupedOptions[this.activeSubMenu] = activeSubMenu.mealOptions;
-        }
+      if (this.restaurantData && this.restaurantData.subMenuOptions) {
+        this.restaurantData.subMenuOptions.forEach(subMenuOption => {
+          groupedOptions[subMenuOption._id] = {
+            mealOptions: subMenuOption.mealOptions,
+            subMenuOptionId: subMenuOption._id
+          };
+        });
       }
-
       return groupedOptions;
+    },
+    currentMealOptions() {
+      const activeSubMenu = this.restaurantData.subMenuOptions.find(option => option._id === this.activeSubMenu);
+      return activeSubMenu ? activeSubMenu.mealOptions : [];
     },
   },
   methods: {
+    setActiveMenu(menuOptionId) {
+      const menuOption = this.restaurant.menuOptions.find(option => option._id === menuOptionId);
+      if (menuOption) {
+        this.restaurantData.subMenuOptions = menuOption.subMenuOptions || [];
+        if (this.restaurantData.subMenuOptions.length > 0) {
+          this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
+        } else {
+          // Handle case where there are no submenu options
+          this.activeSubMenu = null;
+        }
+      } else {
+        console.error('Menu option not found for ID:', menuOptionId);
+      }
+    },
+
     isSearchMatch(type, id) {
       if (!this.searchQuery) return false;
       const searchLower = this.searchQuery.toLowerCase();
@@ -162,20 +182,11 @@ export default {
       }
 
     },
-    setActiveSubMenu(menuOptionId) {
-      console.log('Attempting to set active submenu with ID:', menuOptionId);
-      const menuOption = this.restaurant.menuOptions.find(option => option._id === menuOptionId);
+    setActiveSubMenu(subMenuOptionId) {
+      console.log('Attempting to set active submenu with ID:', subMenuOptionId);
+      this.activeSubMenu = subMenuOptionId;
 
-      if (menuOption && Array.isArray(menuOption.subMenuOptions)) {
-        this.restaurantData.subMenuOptions = [...menuOption.subMenuOptions]; // Ensuring reactivity
-        this.activeSubMenu = menuOption.subMenuOptions[0]?._id || null; // Using optional chaining
-      } else {
-        console.error('Submenu options not found or empty for menu option ID:', menuOptionId);
-        this.restaurantData.subMenuOptions = [];
-        this.activeSubMenu = null;
-      }
     },
-
 
     toggleSearchBar() {
       this.showSearchBar = !this.showSearchBar;
