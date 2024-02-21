@@ -146,42 +146,52 @@ export default {
     isSearchMatch(type, id) {
       if (!this.searchQuery) return false;
       const searchLower = this.searchQuery.toLowerCase();
-      const nameIncludesQuery = (name) => name.toLowerCase().includes(searchLower);
+
+      // Depending on the type, find the corresponding item and check if its name includes the search query.
+      let itemName = '';
       if (type === 'menuOption') {
-        const menuOption = this.restaurant.menuOptions.find(option => option._id === id);
-        return menuOption && nameIncludesQuery(menuOption.optionName);
+        const item = this.restaurant.menuOptions.find(option => option._id === id);
+        itemName = item ? item.optionName : '';
       } else if (type === 'subMenuOption') {
-        const subMenuOption = this.restaurantData.subMenuOptions.find(option => option._id === id);
-        return subMenuOption && nameIncludesQuery(subMenuOption.subMenuOptionName);
+        const item = this.restaurantData.subMenuOptions.find(option => option._id === id);
+        itemName = item ? item.subMenuOptionName : '';
       } else if (type === 'mealOption') {
-        const mealOption = this.groupedMealOptions[this.activeSubMenu].find(option => option._id === id);
-        return mealOption && nameIncludesQuery(mealOption.optionName);
+        // Assuming mealOption IDs are unique across all submenus.
+        const allMeals = this.restaurantData.subMenuOptions.flatMap(subMenu => subMenu.mealOptions);
+        const item = allMeals.find(option => option._id === id);
+        itemName = item ? item.optionName : '';
       }
-      return false;
+
+      return itemName.toLowerCase().includes(searchLower);
     },
     searchMenuOptions() {
       const query = this.searchQuery.toLowerCase();
-      this.searchMatches = [];
+      this.searchMatches = []; // Reset matches
+
+      // Check menu options
       this.restaurant.menuOptions.forEach(option => {
         if (option.optionName.toLowerCase().includes(query)) {
-          this.searchMatches.push({
-            type: 'menuOption',
-            id: option._id,
-          });
+          this.searchMatches.push({ type: 'menuOption', id: option._id });
         }
       });
-      if (this.restaurantData && this.restaurantData.subMenuOptions) {
-        this.restaurantData.subMenuOptions.forEach(subMenuOption => {
-          if (subMenuOption.subMenuOptionName.toLowerCase().includes(query)) {
-            this.searchMatches.push({
-              type: 'subMenuOption',
-              id: subMenuOption._id,
-            });
+
+      // Check submenu options
+      this.restaurantData.subMenuOptions.forEach(option => {
+        if (option.subMenuOptionName.toLowerCase().includes(query)) {
+          this.searchMatches.push({ type: 'subMenuOption', id: option._id });
+        }
+      });
+
+      // Check meal options
+      this.restaurantData.subMenuOptions.forEach(subMenu => {
+        subMenu.mealOptions.forEach(meal => {
+          if (meal.optionName.toLowerCase().includes(query)) {
+            this.searchMatches.push({ type: 'mealOption', id: meal._id });
           }
         });
-      }
-
+      });
     },
+
     setActiveSubMenu(subMenuOptionId) {
       console.log('Attempting to set active submenu with ID:', subMenuOptionId);
       this.activeSubMenu = subMenuOptionId;
@@ -203,12 +213,20 @@ export default {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`);
         if (response && response.status === 200 && response.data) {
           this.restaurant = response.data;
-          console.log('Fetched menu options:', response.data.menuOptions);
-          const defaultMenuOption = this.restaurant.menuOptions.find(m => m.optionName === 'Bucatarie') || this.restaurant.menuOptions[0];
-          if (defaultMenuOption && defaultMenuOption.subMenuOptions.length) {
-            this.setActiveSubMenu(defaultMenuOption._id);
-          } else {
-            console.error('Default "Bucatarie" menu option not found or has no submenus');
+          console.log('Fetched restaurant data:', response.data);
+
+          // Check if there are menu options available
+          if (this.restaurant.menuOptions && this.restaurant.menuOptions.length > 0) {
+            // Set the first menu option as active
+            const firstMenuOption = this.restaurant.menuOptions[0];
+            this.setActiveMenu(firstMenuOption._id);
+
+            // Check if there are submenu options available for the first menu option
+            if (firstMenuOption.subMenuOptions && firstMenuOption.subMenuOptions.length > 0) {
+              // Set the first submenu option as active
+              const firstSubMenuOption = firstMenuOption.subMenuOptions[0];
+              this.setActiveSubMenu(firstSubMenuOption._id);
+            }
           }
         } else {
           console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
@@ -216,8 +234,8 @@ export default {
       } catch (error) {
         console.error('Error fetching restaurant details:', error);
       }
+    }
     },
-  },
     async created() {
     await this.fetchRestaurantData();
   },
@@ -226,7 +244,7 @@ export default {
 
 <style scoped>
 .search-highlight {
-  background-color: yellow; /* or any highlight color you prefer */
+  background-color: rgba(252, 252, 170, 0.62); /* or any highlight color you prefer */
 }
 
 .search-option {
