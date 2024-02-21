@@ -103,7 +103,7 @@ export default {
       activeMealOptions: [],
       mealOption: {},
       restaurantData: {
-        subMenuOptions: [], // This should be an array, not an object
+        subMenuOptions: [],
       },
       filteredMenuOptions: [],
       searchMatches: [],
@@ -135,7 +135,6 @@ export default {
         if (this.restaurantData.subMenuOptions.length > 0) {
           this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
         } else {
-          // Handle case where there are no submenu options
           this.activeSubMenu = null;
         }
       } else {
@@ -146,8 +145,6 @@ export default {
     isSearchMatch(type, id) {
       if (!this.searchQuery) return false;
       const searchLower = this.searchQuery.toLowerCase();
-
-      // Depending on the type, find the corresponding item and check if its name includes the search query.
       let itemName = '';
       if (type === 'menuOption') {
         const item = this.restaurant.menuOptions.find(option => option._id === id);
@@ -166,23 +163,21 @@ export default {
     },
     searchMenuOptions() {
       const query = this.searchQuery.toLowerCase();
-      this.searchMatches = []; // Reset matches
+      this.searchMatches = [];
 
-      // Check menu options
+
       this.restaurant.menuOptions.forEach(option => {
         if (option.optionName.toLowerCase().includes(query)) {
           this.searchMatches.push({ type: 'menuOption', id: option._id });
         }
       });
 
-      // Check submenu options
       this.restaurantData.subMenuOptions.forEach(option => {
         if (option.subMenuOptionName.toLowerCase().includes(query)) {
           this.searchMatches.push({ type: 'subMenuOption', id: option._id });
         }
       });
 
-      // Check meal options
       this.restaurantData.subMenuOptions.forEach(subMenu => {
         subMenu.mealOptions.forEach(meal => {
           if (meal.optionName.toLowerCase().includes(query)) {
@@ -214,16 +209,10 @@ export default {
         if (response && response.status === 200 && response.data) {
           this.restaurant = response.data;
           console.log('Fetched restaurant data:', response.data);
-
-          // Check if there are menu options available
           if (this.restaurant.menuOptions && this.restaurant.menuOptions.length > 0) {
-            // Set the first menu option as active
             const firstMenuOption = this.restaurant.menuOptions[0];
             this.setActiveMenu(firstMenuOption._id);
-
-            // Check if there are submenu options available for the first menu option
             if (firstMenuOption.subMenuOptions && firstMenuOption.subMenuOptions.length > 0) {
-              // Set the first submenu option as active
               const firstSubMenuOption = firstMenuOption.subMenuOptions[0];
               this.setActiveSubMenu(firstSubMenuOption._id);
             }
@@ -244,7 +233,7 @@ export default {
 
 <style scoped>
 .search-highlight {
-  background-color: rgba(252, 252, 170, 0.62); /* or any highlight color you prefer */
+  background-color: rgba(234, 170, 252, 0.62);
 }
 
 .search-option {
