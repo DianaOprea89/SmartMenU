@@ -366,11 +366,11 @@ li {
 }
 
 .meal-image {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
+  width: 150px;
+  height: 150px;
+  margin-right: 20px;
+  border-radius: 5%;
   object-fit: cover;
-  margin-right: 8px;
 }
 
 .menu-image {
