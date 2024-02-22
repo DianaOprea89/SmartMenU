@@ -38,7 +38,7 @@
            class="m-1 each-option"
            :class="{ 'search-highlight': isSearchMatch('menuOption', menuOption._id) }"
            @click="setActiveMenu(menuOption._id)">
-        <img :src="menuOption.photoLink" alt="Meal image" class="meal-image">
+        <img :src="menuOption.photoLink" alt="Meal image" class="menu-image">
         <span :class="{ 'search-highlight': isSearchMatch('menuOption', menuOption._id) }">{{
             menuOption.optionName
           }} </span>
@@ -323,13 +323,19 @@ li {
 }
 
 .meal-image {
-  width: 40px;
-  height: 40px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 8px;
 }
-
+.menu-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+}
 .each-option span {
   font-size: 0.9rem;
   color: #333;
