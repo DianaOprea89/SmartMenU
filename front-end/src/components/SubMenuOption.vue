@@ -530,11 +530,11 @@ export default {
   padding-bottom: 1rem;
 }
 .meal-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 5px;
+  width: 150px;
+  height: 150px;
+  margin-right: 20px;
+  border-radius: 5%;
   object-fit: cover;
-  margin-right: 1rem;
 }
 .meal-content {
   flex: 1;
