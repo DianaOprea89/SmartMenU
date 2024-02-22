@@ -21,7 +21,7 @@
           @close="newShowDialog = false">
       </meal-option>
     </div>
-    <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
+    <div class="menu-layout"   v-if="restaurantData && restaurantData.subMenuOptions">
       <aside class="menu-sidebar">
         <ul class="submenu-list">
           <li v-for="(subMenuOption, index) in restaurantData.subMenuOptions"
@@ -227,6 +227,7 @@ export default {
         },
       },
       methods: {
+
         openDialog() {
           this.showDialog = true;
         },
@@ -234,10 +235,7 @@ export default {
           this.newShowDialog = true;
         },
         openEditMealDialog(mealOption, subMenuOptionId) {
-          console.log("Meal Option: ", mealOption);
-          console.log("Sub Menu Option ID: ", subMenuOptionId);
           if (!mealOption || !subMenuOptionId) {
-            console.error("Meal option or sub-menu option is undefined");
             return;
           }
           this.editingMealOption = {...mealOption};
@@ -249,6 +247,7 @@ export default {
           this.editingSubMenuOption.photoLink = subMenuOption.photoLink;
           this.editingSubMenuOption._id = subMenuOption._id;
           this.showDialogOption = true;
+
         },
         setActiveSubMenu(subMenuId) {
           this.activeSubMenu = subMenuId;
@@ -320,6 +319,9 @@ export default {
             console.error("Error removing sub-menu item:", error);
           }
         },
+        refreshPage() {
+          window.location.reload();
+        },
         async updateSubMenuItem(subMenuOptionId) {
           if (!this.userId || !this.restaurantId || !this.menuOptionId || !subMenuOptionId) {
             console.error("Missing IDs for update request");
@@ -333,11 +335,11 @@ export default {
                 }
             );
             if (response.status === 200) {
-              // Update the local state to reflect the changes
               const index = this.restaurantData.subMenuOptions.findIndex(item => item._id === subMenuOptionId);
               if (index !== -1) {
                 this.restaurantData.subMenuOptions[index] = JSON.parse(JSON.stringify(this.editingSubMenuOption));
               }
+              this.refreshPage();
               this.showDialogOption = false; // Close the dialog
             } else {
               console.error("Error updating sub-menu item:", response.data.message);
