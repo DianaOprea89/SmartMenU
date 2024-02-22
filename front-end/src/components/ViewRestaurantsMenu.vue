@@ -26,13 +26,17 @@
         <input v-model="searchQuery" @input="searchMenuOptions" type="text" placeholder="Search..."
                class="search-input"/>
       </div>
-      <div class="each-option">
+      <div class="each-option" @click="toggleFilter">
         <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-funnel-fill"
              viewBox="0 0 16 16">
           <path
               d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
         </svg>
       </div>
+      <div v-if="showFilter">
+        <input v-model="filterQuery" type="text" placeholder="Filter meals..." class="filter-input"/>
+      </div>
+
       <div v-for="menuOption in restaurant.menuOptions"
            :key="menuOption._id"
            class="m-1 each-option"
@@ -60,7 +64,7 @@
       <main class="menu-main-content">
         <div v-if="activeSubMenu">
           <ul class="meal-list">
-            <li v-for="mealOption in currentMealOptions" :key="mealOption._id"
+            <li v-for="mealOption in filteredMealOptions" :key="mealOption._id"
                 class="meal-item"
                 :class="{ 'search-highlight': isSearchMatch('mealOption', mealOption._id) }">
               <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
@@ -107,6 +111,8 @@ export default {
       },
       filteredMenuOptions: [],
       searchMatches: [],
+      filterQuery: '',
+      showFilter: false,
     }
   },
   computed: {
@@ -121,6 +127,17 @@ export default {
         });
       }
       return groupedOptions;
+    },
+    filteredMealOptions() {
+      const activeSubMenuOption = this.restaurantData.subMenuOptions.find(option => option._id === this.activeSubMenu);
+      if (!activeSubMenuOption || !activeSubMenuOption.mealOptions) {
+        return [];
+      }
+
+      const query = this.filterQuery.toLowerCase();
+      return activeSubMenuOption.mealOptions.filter(mealOption => {
+        return mealOption.optionName.toLowerCase().includes(query) || mealOption.ingredients.toLowerCase().includes(query);
+      });
     },
     currentMealOptions() {
       const activeSubMenu = this.restaurantData.subMenuOptions.find(option => option._id === this.activeSubMenu);
@@ -192,13 +209,15 @@ export default {
       this.activeSubMenu = subMenuOptionId;
 
     },
-
     toggleSearchBar() {
       this.showSearchBar = !this.showSearchBar;
       if (!this.showSearchBar) {
         this.searchQuery = "";
         this.filteredMenuOptions = this.restaurant.menuOptions;
       }
+    },
+    toggleFilter() {
+      this.showFilter = !this.showFilter;
     },
     async fetchRestaurantData() {
       if (!this.restaurantName) {
@@ -256,7 +275,19 @@ export default {
 .search-input:focus {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
-
+.filter-input{
+  margin: 0;
+  border: none;
+  outline: none;
+  border-radius: 20px;
+  padding: 5px 10px;
+  width: calc(100% - 20px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+}
+.filter-input:focus {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
 
 .restaurant-title {
   font-size: 1.5rem;
