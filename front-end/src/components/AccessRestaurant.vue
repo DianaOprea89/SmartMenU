@@ -4,8 +4,8 @@
         <div>
           <h1 class="restaurant-title"><em> Welcome to </em><strong class="text-body-danger">{{ restaurantName }}</strong></h1>
         </div>
-      <div v-if="qrCodeData" class="d-flex justify-content-end row" @click="viewRestaurant">
-        <img :src="qrCodeData" alt="QR Code" class="col-2" />
+      <div v-if="qrCodeData" class="d-flex justify-content-end row " @click="viewRestaurant">
+        <img :src="qrCodeData" alt="QR Code" class="col-2 m-3" />
       </div>
         <div class="row">
           <div class="col-7">
