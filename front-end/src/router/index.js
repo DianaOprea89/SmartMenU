@@ -14,6 +14,7 @@ import SubMenuOption from "@/components/SubMenuOption";
 import AccessRestaurant from "@/components/AccessRestaurant";
 import ViewRestaurantsMenu from "@/components/ViewRestaurantsMenu";
 
+
 const routes = [
     {
         path: '/',
@@ -109,6 +110,7 @@ const routes = [
         component: ViewRestaurantsMenu,
         props: true,
     },
+
 ];
 
 const router = createRouter({

@@ -2,8 +2,12 @@
   <div class="container">
     <div v-if="restaurant">
         <div>
-          <p class="restaurant-title"> Welcome to <strong>{{ restaurantName }}</strong></p>
+          <h1 class="restaurant-title"><em> Welcome to </em><strong class="text-body-danger">{{ restaurantName }}</strong></h1>
         </div>
+      <div v-if="qrCodeData" class="d-flex justify-content-end row" @click="viewRestaurant">
+        <p class="col-2"> Qenerated Qr Code</p>
+        <img :src="qrCodeData" alt="QR Code" class="col-2" />
+      </div>
         <div class="row">
           <div class="col-7">
             <p><strong>About Us: </strong>{{ restaurant.aboutUs }}</p>
@@ -25,11 +29,14 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="16" height="16" fill="currentColor" class="bi bi-plus-lg icon m-2"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M32.1 29.3C33.5 12.8 47.4 0 64 0H256c16.6 0 30.5 12.8 31.9 29.3l14 168.4c6 72-42.5 135.2-109.9 150.6V448h48c17.7 0 32 14.3 32 32s-14.3 32-32 32H160 80c-17.7 0-32-14.3-32-32s14.3-32 32-32h48V348.4C60.6 333 12.1 269.8 18.1 197.8l14-168.4zm56 98.7H231.9l-5.3-64H93.4l-5.3 64z"/></svg>
       </div>
     </div>
+
   </div>
 </template>
 
 <script>
 import api from "@/api/api";
+import QRCode from 'qrcode';
+
 export default {
   name: "AccessRestaurant",
   props:{
@@ -41,9 +48,18 @@ export default {
   data(){
     return{
       restaurant: null,
+      qrCodeData: '',
     }
   },
   methods:{
+    async generateQRCode() {
+      try {
+        const url = `http://localhost:8080/restaurant/${encodeURIComponent(this.restaurantName)}/accessRestaurant`;
+        this.qrCodeData = await QRCode.toDataURL(url);
+      } catch (error) {
+        console.error('Error generating QR code:', error);
+      }
+    },
     async fetchRestaurant() {
       try {
         // Replace '/api/userData' with the correct endpoint that fetches a single restaurant
@@ -59,9 +75,24 @@ export default {
         console.error('An error occurred while fetching the restaurant:', error);
       }
     },
+    viewRestaurant(){
+      this.$router.push({ name: 'ViewRestaurantsMenu' });
+    },
     goToViewRestaurantsMenu() {
       // Navigate to the ViewRestaurantsMenu component
       this.$router.push({ name: 'ViewRestaurantsMenu' });
+    }
+  },
+  mounted() {
+    this.generateQRCode()
+  },
+  watch: {
+    // Watch for changes to the restaurantName prop
+    restaurantName(newName, oldName) {
+      if (newName !== oldName) {
+        // Regenerate the QR code if the name changes
+        this.generateQRCode();
+      }
     }
   },
   created() {
