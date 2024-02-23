@@ -236,27 +236,35 @@ app.get('/api/getRestaurants', async (req, res) => {
 });
 //Post endpoint to add a restaurant//
 app.post('/api/addRestaurants', async (req, res) => {
+    // Corrected log statement to display the incoming request body
+    console.log('Received request with data:', req.body);
+
     try {
-        const { userId, name, address , phoneNumber, aboutUs ,logoImage, newItem } = req.body;
+        const { userId, name, address, phoneNumber, aboutUs, logoImage, newItem } = req.body;
+
         // Find the user by userId
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+
         const existingRestaurant = user.restaurants.find((restaurant) => restaurant.name === name);
         if (existingRestaurant) {
             return res.status(400).json({ message: 'Restaurant with this name already exists' });
         }
+
         const newRestaurant = {
             name,
             address,
             phoneNumber,
             logoImage,
             aboutUs,
-            menuOptions: [newItem],
+            menuOptions: newItem ? [newItem] : [], // Adjust based on whether newItem is provided
         };
+
         user.restaurants.push(newRestaurant);
         await user.save();
+
         res.status(201).json({
             message: 'Restaurant created and associated with the user',
             restaurant: newRestaurant,
@@ -266,6 +274,7 @@ app.post('/api/addRestaurants', async (req, res) => {
         res.status(500).json({ message: 'Error creating restaurant' });
     }
 });
+
 //Post endpoint to add an Option Menu//
 app.post('/api/addOptionMenuRestaurants', async (req, res) => {
     try {

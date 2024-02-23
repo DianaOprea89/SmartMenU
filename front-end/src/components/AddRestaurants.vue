@@ -1,8 +1,8 @@
 <template>
   <div class="add-restaurant-form container text-center" v-if="isAuthenticated">
     <h2 class="text-center mb-4">Add Your Restaurant</h2>
-    <form @submit="addRestaurant">
-      <div class="row mb-3">
+    <form @submit.prevent="addRestaurant">
+    <div class="row mb-3">
         <div class="col-sm-8">
           <input type="text" class="form-control form-control-sm" id="restaurant-name" placeholder="Name" v-model="restaurant.name" required>
         </div>
@@ -29,7 +29,7 @@
         </div>
       </div>
       <div class="text-center">
-        <button type="submit" class="btn btn-primary btn-sm">Add Restaurant</button>
+        <button type="submit" class="btn btn-primary btn-sm" @submit="addRestaurant">Add Restaurant</button>
       </div>
     </form>
   </div>
@@ -37,8 +37,7 @@
 
 
 <script>
-// eslint-disable-next-line no-unused-vars
-import router from "@/router";
+import api from "@/api/api";
 export default {
   name: "AddRestaurants",
   data() {
@@ -53,10 +52,10 @@ export default {
     };
   },
   computed: {
-      isAuthenticated() {
-        console.log("isAuthenticated computed property:", this.$store.getters.isAuthenticated);
-        return this.$store.getters.isAuthenticated;
-        },
+    isAuthenticated() {
+      console.log("isAuthenticated computed property:", this.$store.getters.isAuthenticated);
+      return this.$store.getters.isAuthenticated;
+    },
     userId() {
 
       return this.$store.getters.yourUserIdGetter;
@@ -69,37 +68,27 @@ export default {
           ...this.restaurant,
           userId: this.userId
         };
+        console.log('Sending request with data:', restaurantData);
 
-        const response = await fetch("http://localhost:8008/api/addRestaurants", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
-          },
-          body: JSON.stringify(restaurantData)
-        });
+        const response = await api.post('/api/addRestaurants', restaurantData);
 
-        if (response.ok) {
+        if (response.status === 200 || response.status === 201) {
           this.restaurant = { name: '', address: '', phoneNumber: '', aboutUs: '', logoImage: '' };
-          alert('Restaurant added successfully!');
 
-
-          setTimeout(() => {
-            console.log('After navigation');
-            this.$router.push("/menu");
-          }, 0);
+          this.$router.push("/menu");
         } else {
-
           const errorData = await response.json();
           alert(`Failed to add restaurant: ${errorData.message}`);
         }
       } catch (error) {
         console.error('Error adding restaurant:', error);
-        alert('Error adding restaurant.');
+
       }
     }
+
+
   }
-};
+}
 </script>
 
 <style scoped>
