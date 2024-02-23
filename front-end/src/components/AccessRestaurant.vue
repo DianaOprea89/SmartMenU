@@ -1,7 +1,6 @@
 <template>
   <div class="container">
-    <div v-if="restaurants">
-      <div  v-for="restaurant in restaurants" :key="restaurant._id.$oid">
+    <div v-if="restaurant">
         <div>
           <p class="restaurant-title"> Welcome to <strong>{{ restaurantName }}</strong></p>
         </div>
@@ -16,8 +15,6 @@
           </div>
         </div>
       </div>
-    </div>
-
     <div class="menu-tab row menu-access"  @click="goToViewRestaurantsMenu">
       <div class="col-10">
         <p class="menu-title">MENU</p>
@@ -43,21 +40,23 @@ export default {
   },
   data(){
     return{
-      restaurants: [],
+      restaurant: null,
     }
   },
   methods:{
-    async fetchRestaurants() {
+    async fetchRestaurant() {
       try {
-        const response = await api.get('/api/userData');
+        // Replace '/api/userData' with the correct endpoint that fetches a single restaurant
+        const response = await api.get(`/api/restaurant/${this.restaurantName}`);
 
         if (response && response.status === 200) {
-          this.restaurants = response.data.restaurants; // Update local state
+          // Since you're fetching a single restaurant, you don't need an array
+          this.restaurant = response.data; // Update local state
         } else {
-          console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');
+          console.error('Failed to fetch restaurant. Status:', response ? response.status : 'Unknown');
         }
       } catch (error) {
-        console.error('An error occurred while fetching restaurants:', error);
+        console.error('An error occurred while fetching the restaurant:', error);
       }
     },
     goToViewRestaurantsMenu() {
@@ -66,7 +65,7 @@ export default {
     }
   },
   created() {
-    this.fetchRestaurants(); // Fetch restaurants when the component is created
+    this.fetchRestaurant(); // Fetch restaurants when the component is created
   },
 }
 </script>
