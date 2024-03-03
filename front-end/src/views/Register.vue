@@ -47,8 +47,6 @@
 
 <script>
 import { v4 as uuidv4 } from 'uuid';
-// import api2 from './../api/api2.js';
-
 export default {
   name: "RegisterPage",
   data() {
@@ -83,11 +81,8 @@ export default {
           password: this.password
         }));
 
-        // let api2RegisterObj = new api2();
-        // const api2RegisterReponse = api2RegisterObj.run();
 
-
-        const response = await fetch("http://localhost:8008/api/register", {
+        const response = await fetch("http://localhost:8009/api/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -107,7 +102,8 @@ export default {
         }
 
         localStorage.setItem("user", JSON.stringify(data.user));
-        this.$router.push({ name: 'UserProfile', params: { userId: generatedId } });
+        this.$router.push('/login');
+        alert("The user has been created. Please login in with the user mail and password in order to continue.")
       } catch (error) {
         console.error('Error:', error);
 

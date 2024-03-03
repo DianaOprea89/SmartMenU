@@ -7,9 +7,9 @@ import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import User from './schemas/CombinedSchema.js';
 import 'express-async-errors';
-import apiOut from './apiOut.js';
 dotenv.config();
 const app = express();
+
 const corsOptions = {
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -18,7 +18,9 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+
 console.log("Connecting to MongoDB at:", process.env.MONGODB_URI);
+
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -124,75 +126,71 @@ app.delete('/api/removeRestaurant/:userId/:restaurantId', async (req, res) => {
     }
 });
 app.post('/api/register', async (req, res) => {
-    let apiOutObj = new apiOut(res);
-    // -----------------------------
-    // 1. input checks
-    const { name, email, password, passwordConfirm } = req.body;
-    if (!name || !email || !password || !passwordConfirm) {
-        apiOutObj.addError('name', 'Name is required');
-    }
-    if (password !== passwordConfirm) {
-        apiOutObj.addError('password', 'Passwords do not match');
-    }
-    // Simple regex for basic email validation
-    const emailRegex = /^(([^<>()\]\\.,;:\s@"]+(\.[^<>()\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    if (!emailRegex.test(email)) {
-        apiOutObj.addError('email', 'Invalid email format');
-        //return res.status(400).json({ message: 'Invalid email format' });
-    }
-    // guard for input checks
-    if (apiOutObj.hasErrors()) {
-        apiOutObj.sendReply();
-        return;
-    }
-    // -----------------------------
-    // 2. db checks
     try {
+        const { name, email, password, passwordConfirm } = req.body;
+
+        if (!name || !email || !password || !passwordConfirm) {
+            return res.status(400).json({ message: 'Please fill all fields' });
+        }
+
+        if (password !== passwordConfirm) {
+            return res.status(400).json({ message: 'Passwords do not match' });
+        }
+
+        // Simple regex for basic email validation
+        const emailRegex = /^(([^<>()\]\\.,;:\s@"]+(\.[^<>()\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Invalid email format' });
+        }
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            apiOutObj.addError('email', 'Email already in use');
+            return res.status(400).json({ message: 'Email already in use' });
         }
-    } catch (error) {
-        apiOutObj.addError('db', error.message);
-        return;
-    }
-    // guard for db checks
-    if (apiOutObj.hasErrors()) {
-        apiOutObj.sendReply();
-        return;
-    }
-    // -----------------------------
-    // 3. logic
-    try {
+
         const hashedPassword = await bcrypt.hash(password, 10);
+
         const user = new User({
             username: name, // Ensure this matches your schema
             email,
             passwordHash: hashedPassword
         });
+
         await user.save();
+
+        // Send minimal user information back
+        res.status(201).json({
+            message: 'User registered successfully',
+            user: { username: user.username, email } // Don't send back the password or hashed password
+        });
     } catch (error) {
-        apiOutObj.addError('db', error.message);
-        return;
+        console.error('Registration error:', error);
+        // Send a generic error message to the client
+        res.status(500).json({ message: 'Error registering user' });
     }
-    apiOutObj.sendReply();
 });
+
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
+
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'User does not exist' });
         }
+
         const validPassword = await bcrypt.compare(password, user.passwordHash);
+
         if (!validPassword) {
             return res.status(400).json({ message: 'Invalid password' });
         }
+
         const token = jwt.sign(
             { userId: user._id, email: user.email },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
+
         res.status(200).json({
             message: 'Logged in successfully',
             token,
@@ -206,6 +204,7 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ message: 'Error logging in user' });
     }
 });
+
 app.get('/api/getRestaurants', async (req, res) => {
     const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null; // Authorization: 'Bearer TOKEN'
     console.log('Received token:', token); // Log the received token
