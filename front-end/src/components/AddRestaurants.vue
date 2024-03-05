@@ -47,7 +47,8 @@ export default {
         address: '',
         phoneNumber: '',
         aboutUs: '',
-        logoImage: ''
+        logoImage: '',
+        tables:''
       }
     };
   },
@@ -73,7 +74,7 @@ export default {
         const response = await api.post('/api/addRestaurants', restaurantData);
 
         if (response.status === 200 || response.status === 201) {
-          this.restaurant = { name: '', address: '', phoneNumber: '', aboutUs: '', logoImage: '' };
+          this.restaurant = { name: '', address: '', phoneNumber: '', aboutUs: '', logoImage: '',tables:'' };
 
           this.$router.push("/menu");
         } else {

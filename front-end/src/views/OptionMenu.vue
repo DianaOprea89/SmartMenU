@@ -14,6 +14,9 @@
         <p>{{ restaurantData.address }}</p>
         <p>{{ restaurantData.phoneNumber }}</p>
       </div>
+      <div>
+        <p>{{restaurantData.tables}}</p>
+      </div>
       <div class="col-5">
         <img :src="restaurantData.logoImage" class="fixed-size-img" alt="the restaurant pictures">
       </div>

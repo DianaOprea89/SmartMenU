@@ -24,7 +24,6 @@
                 <p class="card-text">{{ restaurant.phoneNumber }}</p>
               </div>
             </div>
-<!--         <option-menu  :restaurantName="restaurant.name"/>-->
             <div class="card-actions-container">
 
               <router-link :to="`/restaurant/${encodeURIComponent(restaurant.name)}`" class="nolink card-action-button" :restaurantName="restaurant.name">
@@ -66,6 +65,10 @@
                       <div class="mb-3">
                         <label for="newPhoneNumber" class="m-2">Phone Number:</label>
                         <input id="newPhoneNumber" v-model="editingRestaurant.phoneNumber"/>
+                      </div>
+                      <div class="mb-3">
+                        <label for="newTablesNumber" class="m-2">Tables number:</label>
+                        <input id="newTablesNumber" v-model="editingRestaurant.tables">
                       </div>
 
                     </div>
@@ -118,10 +121,8 @@ export default {
   },
   props: ['restaurantName'],
   computed: {
-    ...mapGetters({
-      getUserId: "getUserId"
-    }),
-  },
+      ...mapGetters(['getUserId']), // Ensure 'getUserId' matches the name of your getter
+    },
   methods: {
     openDialog(restaurant) {
       this.editingRestaurant = JSON.parse(JSON.stringify(restaurant));
@@ -150,14 +151,20 @@ export default {
         name: this.editingRestaurant.name,
         aboutUs: this.editingRestaurant.aboutUs,
         address: this.editingRestaurant.address,
-        phoneNumber: this.editingRestaurant.phoneNumber
+        phoneNumber: this.editingRestaurant.phoneNumber,
+        tables: this.editingRestaurant.tables
       };
 
-      const userId = this.getUserId;
+      const userId = this.$store.state.user.id;
+      if (!userId) {
+        console.error('UserId is undefined or empty!');
+        return; // Exit the function if userId is not valid
+      }
+      const restaurantId = this.editingRestaurant._id;
 
       try {
         const response = await api.put(
-            `/api/editRestaurant/${userId}/${this.editingRestaurant._id}`,
+            `/api/editRestaurant/${userId}/${restaurantId}`,
             restaurantData,
             {
               headers: {Authorization: `Bearer ${getAuthToken()}`}
@@ -187,7 +194,7 @@ export default {
     async removeRestaurant(restaurantId) {
       console.log('Clicked "Remove" button for restaurant with ID:', restaurantId);
       try {
-        const userId = this.$store.getters.getUserId;
+        const userId = this.$store.state.user.id;
         console.log('Removing restaurant with ID:', restaurantId);
         const apiUrl = `/api/removeRestaurant/${userId}/${restaurantId}`;
         console.log('Deleting restaurant with URL:', apiUrl);
@@ -221,6 +228,8 @@ export default {
     },
   },
   created() {
+    console.log('Vuex State:', this.$store.state); // Add this line
+
     this.fetchRestaurants(); // Fetch restaurants when the component is created
   },
 };

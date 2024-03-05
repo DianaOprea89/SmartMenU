@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
             phoneNumber: String,
             aboutUs: String,
             logoImage: String,
+            tables:String,
             menuOptions: [
                 {
                     photoLink: String,

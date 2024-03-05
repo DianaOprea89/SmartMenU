@@ -117,12 +117,13 @@ export default createStore({
 
                 if (response.data.token) {
                     localStorage.setItem('jwtToken', response.data.token);
-                    commit('setUser', {
-                        email: response.data.user.email,
-                        name: response.data.user.name,
-                        id: response.data.user.id,
-                        token: response.data.token, // Update to use 'token'
-                    });
+                    commit('setUser', response.data.user);
+                    // commit('setUser', {
+                    //     email: response.data.user.email,
+                    //     name: response.data.user.name,
+                    //     id: response.data.user.id,
+                    //     token: response.data.token, // Update to use 'token'
+                    // });
                     console.log('User logged in:', this.state.user);
                 } else {
                     throw new Error('Login failed');
