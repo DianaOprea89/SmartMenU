@@ -5,6 +5,7 @@ import api from "@/api/api";
 export default createStore({
     plugins: [createPersistedState()],
     state: {
+        loadingUserData: false,
         user: {
             email: localStorage.getItem('userEmail') || '',
             name: localStorage.getItem('userName') || '',
@@ -14,6 +15,9 @@ export default createStore({
         },
     },
     mutations: {
+        setLoadingState(state, isLoading) {
+            state.loadingUserData = isLoading;
+        },
         setUser(state, payload) {
             console.log('Committing user data', payload);
             state.user.email = payload.email;
@@ -66,6 +70,7 @@ export default createStore({
     },
     actions: {
         async loadUserData({commit}) {
+            commit('setLoadingState', true);
             try {
                 const token = localStorage.getItem('jwtToken'); // Use 'jwtToken' to match what's used in your code
                 if (!token) {
@@ -107,6 +112,7 @@ export default createStore({
             } catch (error) {
                 console.error('Error during loadUserData:', error);
                 console.error('Failed to load user data:', error);
+                commit('setLoadingState', false);
                 // Handle the error here, such as showing an error message to the user
             }
         },

@@ -8,9 +8,10 @@ import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import 'bootstrap/dist/js/bootstrap.min.js'; // Import Bootstrap JavaScript
 
 const app = createApp(App);
-app.use(store);
+
 app.use(router);
 
-app.mount('#app');
+app.use(store).mount('#app');
+
 
 
