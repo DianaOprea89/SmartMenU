@@ -117,12 +117,10 @@ export default {
     },
     async submitMealOption() {
       const userId = await this.fetchUserId();
-        console.log('Submitting meal option with IDs:', {
-          userId: userId,
-          restaurantId: this.restaurantId,
-          menuOptionId: this.menuOptionId,
-          subMenuOptionId: this.mealOption.categoryMenuOption,
-        });
+      console.log('User ID:', userId);
+      console.log('Restaurant ID:', this.restaurantId);
+      console.log('Menu Option ID:', this.menuOptionId);
+      console.log('Sub Menu Option ID:', this.mealOption.categoryMenuOption);
 
       const mealOptionData = {
         ...this.mealOption,
@@ -148,7 +146,6 @@ export default {
             console.error("Error adding meal option:", error);
           });
     },
-
 
     async fetchRestaurantData() {
       if (!this.restaurantName) {
@@ -182,10 +179,10 @@ export default {
     },
 
   },
-  created() {
+  async created() {
     console.log('Component created! Fetching restaurant data...');
-    this.fetchRestaurantData();
-    this.userId = this.getUserId;
+    await this.fetchRestaurantData();
+    this.userId = await this.fetchUserId();
   },
 };
 </script>

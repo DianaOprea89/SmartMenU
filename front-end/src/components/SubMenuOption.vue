@@ -304,6 +304,7 @@ export default {
             console.error("subMenuOptionId is not defined");
             return;
           }
+
           if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.editingMealOption._id) {
             console.error("Missing IDs for update request");
             return;
