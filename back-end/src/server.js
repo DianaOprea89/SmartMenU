@@ -65,7 +65,7 @@ app.get('/api/userData', async (req, res) => {
         res.status(200).json({
             name: user.username,
             email: user.email,
-            id: user._id,
+            id: user.id,
             restaurants: user.restaurants, // Make sure to include populated restaurants here
         });
     } catch (error) {
@@ -82,9 +82,8 @@ app.get('/api/userData', async (req, res) => {
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
         const { userId, restaurantId } = req.params;
-        const updatedData = req.body; // Updated restaurant data from the request body
-        // Find the user by userId
-        const user = await User.findById(userId);
+        const updatedData = req.body;
+        const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -127,7 +126,7 @@ app.delete('/api/removeRestaurant/:userId/:restaurantId', async (req, res) => {
 });
 app.post('/api/register', async (req, res) => {
     try {
-        const { name, email, password, passwordConfirm } = req.body;
+        const { name, email, password, passwordConfirm, id } = req.body;
 
         if (!name || !email || !password || !passwordConfirm) {
             return res.status(400).json({ message: 'Please fill all fields' });
@@ -153,7 +152,8 @@ app.post('/api/register', async (req, res) => {
         const user = new User({
             username: name, // Ensure this matches your schema
             email,
-            passwordHash: hashedPassword
+            passwordHash: hashedPassword,
+            id
         });
 
         await user.save();
@@ -239,12 +239,16 @@ app.post('/api/addRestaurants', async (req, res) => {
     console.log('Received request with data:', req.body);
 
     try {
-        const { userId, name, address, phoneNumber, aboutUs, logoImage, newItem } = req.body;
+        const { userId, name, address, phoneNumber, aboutUs, logoImage, tables,rooms, newItem } = req.body;
 
         // Find the user by userId
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (!userId || userId.trim() === '') {
+            return res.status(400).json({ message: 'User ID is required' });
         }
 
         const existingRestaurant = user.restaurants.find((restaurant) => restaurant.name === name);
@@ -258,6 +262,8 @@ app.post('/api/addRestaurants', async (req, res) => {
             phoneNumber,
             logoImage,
             aboutUs,
+            tables,
+            rooms,
             menuOptions: newItem ? [newItem] : [], // Adjust based on whether newItem is provided
         };
 
@@ -279,7 +285,7 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
     try {
         const { userId, name, newItem } = req.body;
         // Find the user by userId
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -303,7 +309,7 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
 app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
     try {
         const { userId, name, menuOptionName, newSubMenuItem } = req.body;
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -328,7 +334,7 @@ app.put('/api/editMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
         const { photoLink,optionName,quantity,ingredients,price,description,unit } = req.body;
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -372,7 +378,7 @@ app.delete('/api/removeMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOp
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
         console.log("Received parameters for deletion:", req.params);
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
             console.error('User not found:', userId);
             return res.status(404).json({ message: 'User not found' });
@@ -411,7 +417,7 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
         // Log the IDs received in the request
         console.log('IDs received:', { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId });
         // Find the user and check if exists
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -465,7 +471,7 @@ app.put('/api/editSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOpti
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId } = req.params;
         const { photoLink, subMenuOptionName } = req.body;
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -500,7 +506,7 @@ app.put('/api/editSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOpti
 app.delete('/api/removeSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId', async (req, res) => {
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId } = req.params;
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -526,9 +532,7 @@ app.post('/api/addMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId } = req.params;
         const newMealOption = req.body; // The new meal option data
-        // Validate the meal option data as necessary
-        // ...
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -562,7 +566,7 @@ app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
         const { userId, restaurantId } = req.params;
         const { name, aboutUs, address, phoneNumber } = req.body;
         // Find the user by userId
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -593,7 +597,7 @@ app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
 app.delete('/api/removeOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId', async (req, res) => {
     const { userId, restaurantId, menuOptionId } = req.params;
     try {
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -618,7 +622,7 @@ app.put('/api/editOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId', as
         const { userId, restaurantId, menuOptionId } = req.params;
         const { photoLink, optionName } = req.body; // Assuming these are the fields you want to update
         // Find the user by userId
-        const user = await User.findById(userId);
+        const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }

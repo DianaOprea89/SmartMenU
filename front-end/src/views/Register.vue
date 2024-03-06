@@ -74,6 +74,7 @@ export default {
 
       try {
         const generatedId = uuidv4();
+        console.log(generatedId);
         console.log("Data being sent to the server:", JSON.stringify({
           id: generatedId,
           name: this.name,

@@ -97,15 +97,15 @@ export default createStore({
 
                     throw new Error('Failed to fetch user data');
                 }
-                const fullUserData = await response.json();
+                const userData = await response.json();
 
-                console.log('User data from response', fullUserData);
+                console.log('User data from response', userData);
 
                 commit('setUser', { // Update to pass 'token' if needed
-                    email: fullUserData.email,
-                    name: fullUserData.name,
-                    id: fullUserData.id,
-                    restaurants: fullUserData.restaurants,
+                    email: userData.email,
+                    name: userData.name,
+                    id: userData.id,
+                    restaurants: userData.restaurants,
                     token: token, // Update to use 'token' from local storage
                 });
                 console.log('State after commit:', this.state.user);

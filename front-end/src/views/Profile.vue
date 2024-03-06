@@ -20,8 +20,10 @@
               <h5 class="card-title">{{ restaurant.name }}</h5>
               <p class="card-text">{{ restaurant.aboutUs }}</p>
               <div class="card-contact">
-                <p class="card-text">{{ restaurant.address }}</p>
-                <p class="card-text">{{ restaurant.phoneNumber }}</p>
+                <p class="card-text">Adress: {{ restaurant.address }}</p>
+                <p class="card-text">Phone: {{ restaurant.phoneNumber }}</p>
+                <p class="card-text">Tables : {{ restaurant.tables }}</p>
+                <p class="card-text">Rooms: {{ restaurant.rooms }}</p>
               </div>
             </div>
             <div class="card-actions-container">
@@ -67,8 +69,16 @@
                         <input id="newPhoneNumber" v-model="editingRestaurant.phoneNumber"/>
                       </div>
                       <div class="mb-3">
+                        <label for="newLogoImage" class="m-2">Logo Image:</label>
+                        <input id="newLogoImage" v-model="editingRestaurant.logoImage"/>
+                      </div>
+                      <div class="mb-3">
                         <label for="newTablesNumber" class="m-2">Tables number:</label>
                         <input id="newTablesNumber" v-model="editingRestaurant.tables">
+                      </div>
+                      <div class="mb-3">
+                        <label for="newRoomsNumber" class="m-2">Rooms number:</label>
+                        <input id="newRoomsNumber" v-model="editingRestaurant.rooms">
                       </div>
 
                     </div>
@@ -146,16 +156,36 @@ export default {
         console.error('An error occurred while fetching restaurants:', error);
       }
     },
+    async fetchUserId() {
+      try {
+        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
+        const response = await api.get('/api/userData', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.data && response.data.id) {
+          return response.data.id; // Assuming the response includes the user ID
+        } else {
+          throw new Error('User ID not found in response');
+        }
+      } catch (error) {
+        console.error('Failed to fetch user ID:', error);
+        return null; // Handle error or return null if ID couldn't be fetched
+      }
+    },
     async editRestaurant() {
       const restaurantData = {
         name: this.editingRestaurant.name,
         aboutUs: this.editingRestaurant.aboutUs,
         address: this.editingRestaurant.address,
         phoneNumber: this.editingRestaurant.phoneNumber,
-        tables: this.editingRestaurant.tables
+        logoImage:this.editingRestaurant.logoImage,
+        tables: this.editingRestaurant.tables,
+        rooms: this.editingRestaurant.rooms,
       };
 
-      const userId = this.$store.state.user.id;
+      const userId = await this.fetchUserId();
       if (!userId) {
         console.error('UserId is undefined or empty!');
         return; // Exit the function if userId is not valid
