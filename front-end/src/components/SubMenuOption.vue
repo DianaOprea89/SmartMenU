@@ -160,7 +160,6 @@
 <script>
 import api from "@/api/api";
 import { getAuthToken } from "@/utility/utility";
-import {mapGetters} from "vuex";
 import MealOption from "@/components/MealOption";
 export default {
   components: {MealOption},
@@ -175,7 +174,7 @@ export default {
             optionName: "",
           },
           restaurantData: '',
-          userId: '',
+          userId: null,
           restaurantId: '',
           menuOptionId: '',
 
@@ -210,9 +209,6 @@ export default {
         };
       },
   computed: {
-    ...mapGetters({
-      getUserId: "getUserId"
-    }),
     groupedMealOptions() {
           const groupedOptions = {};
           if (this.restaurantData && this.restaurantData.subMenuOptions) {
@@ -254,30 +250,33 @@ export default {
         },
         async fetchUserId() {
           try {
-            const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
+            const token = localStorage.getItem('jwtToken');
             const response = await api.get('/api/userData', {
               headers: {
                 'Authorization': `Bearer ${token}`
               }
             });
             if (response.data && response.data.id) {
-              return response.data.id; // Assuming the response includes the user ID
+              this.userId = response.data.id; // Directly set userId here
             } else {
-              throw new Error('User ID not found in response');
+              console.error('User ID not found in response');
             }
           } catch (error) {
             console.error('Failed to fetch user ID:', error);
-            return null; // Handle error or return null if ID couldn't be fetched
           }
         },
         async addSubMenuItem() {
+          await this.fetchUserId(); // This ensures this.userId is updated
+          if (!this.userId) {
+            console.error("User ID is not set.");
+            return;
+          }
           const newSubMenuItem = {
             photoLink: this.subMenu.photoLink,
             subMenuOptionName: this.subMenu.optionName,
           };
-          const userId = await this.fetchUserId();
           api.post("/api/addSubOptionMenuRestaurants", {
-            userId: userId,
+            userId: this.userId, // Use this.userId directly
             name: this.restaurantName,
             menuOptionName: this.menuOption,
             newSubMenuItem,
@@ -300,21 +299,20 @@ export default {
               });
         },
         async submitEditedMealOption() {
-          if (!this.editingSubMenuOption._id) {
-            console.error("subMenuOptionId is not defined");
-            return;
-          }
-
-          if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.editingMealOption._id) {
-            console.error("Missing IDs for update request");
-            return;
+          if (!this.userId) {
+            console.error("User ID is undefined, fetching now...");
+            await this.fetchUserId(); // Attempt to fetch userId if not set
           }
           const url = `/api/updateMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.editingSubMenuOption._id}/${this.editingMealOption._id}`;
+
           try {
-            const response = await api.put(url, this.editingMealOption);
+            const response = await api.put(url, this.editingMealOption, {
+              headers: { 'Authorization': `Bearer ${getAuthToken()}` },
+            });
+
             if (response.status === 200) {
-              this.fetchRestaurantData();
-              this.newMealCustomDialog = false;
+              console.log('Meal option updated successfully');
+              this.refreshPage();
             }
           } catch (error) {
             console.error("Error updating meal option:", error);
@@ -435,13 +433,14 @@ export default {
       },
   async created() {
     console.log('Created hook called');
+    await this.fetchUserId();
     await this.fetchRestaurantData();
     if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
       this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
       if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
         this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
       }
-      this.userId = this.getUserId;
+
     }
   }
 }

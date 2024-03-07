@@ -309,11 +309,16 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
 app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
     try {
         const { userId, name, menuOptionName, newSubMenuItem } = req.body;
+        console.log("UserId:",userId);
+        console.log("name:",name);
+
         const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        console.log("User's restaurants:", user.restaurants);
         const restaurant = user.restaurants.find(r => r.name === name);
+
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
@@ -413,11 +418,13 @@ app.delete('/api/removeMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOp
 app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
+        if (!userId || !restaurantId || !menuOptionId || !subMenuOptionId || !mealOptionId) {
+            return res.status(400).json({ message: 'Missing required parameters' });
+        }
+
         const { photoLink, optionName, quantity, ingredients, price, description, unit } = req.body;
-        // Log the IDs received in the request
-        console.log('IDs received:', { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId });
-        // Find the user and check if exists
         const user = await User.findOne({ id: userId });
+        console.log("The user is",user);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -429,16 +436,11 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
-        // Log for debugging menuOption and subMenuOption
-        console.log('Querying for menuOption:', menuOptionId);
         const menuOption = restaurant.menuOptions.id(menuOptionId);
-        console.log('menuOption found:', menuOption);
         if (!menuOption) {
             return res.status(404).json({ message: 'Menu option not found' });
         }
-        console.log('Querying for subMenuOption:', subMenuOptionId);
         const subMenuOption = menuOption.subMenuOptions.id(subMenuOptionId);
-        console.log('subMenuOption found:', subMenuOption);
         if (!subMenuOption) {
             return res.status(404).json({ message: 'Sub-menu option not found' });
         }
@@ -446,6 +448,8 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
         if (!mealOption) {
             return res.status(404).json({ message: 'Meal option not found' });
         }
+
+
         // Correctly access properties from req.body
         mealOption.photoLink = photoLink || mealOption.photoLink;
         mealOption.optionName = optionName || mealOption.optionName;
