@@ -24,6 +24,7 @@
                 <p class="card-text">Phone: {{ restaurant.phoneNumber }}</p>
                 <p class="card-text">Tables : {{ restaurant.tables }}</p>
                 <p class="card-text">Rooms: {{ restaurant.rooms }}</p>
+                <p class="card-text">Allergens: {{restaurant.allergens}}</p>
               </div>
             </div>
             <div class="card-actions-container">
@@ -79,6 +80,10 @@
                       <div class="mb-3">
                         <label for="newRoomsNumber" class="m-2">Rooms number:</label>
                         <input id="newRoomsNumber" v-model="editingRestaurant.rooms">
+                      </div>
+                      <div class="mb-3">
+                        <label for="newAllergens" class="m-2">Allergens:</label>
+                        <input id="newAllergens" v-model="editingRestaurant.allergens">
                       </div>
 
                     </div>

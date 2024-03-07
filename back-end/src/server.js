@@ -239,7 +239,7 @@ app.post('/api/addRestaurants', async (req, res) => {
     console.log('Received request with data:', req.body);
 
     try {
-        const { userId, name, address, phoneNumber, aboutUs, logoImage, tables,rooms, newItem } = req.body;
+        const { userId, name, address, phoneNumber, aboutUs, logoImage, tables,rooms, allergens, newItem } = req.body;
 
         // Find the user by userId
         const user = await User.findOne({ id: userId });
@@ -264,6 +264,7 @@ app.post('/api/addRestaurants', async (req, res) => {
             aboutUs,
             tables,
             rooms,
+            allergens,
             menuOptions: newItem ? [newItem] : [], // Adjust based on whether newItem is provided
         };
 
@@ -568,7 +569,7 @@ app.post('/api/addMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
         const { userId, restaurantId } = req.params;
-        const { name, aboutUs, address, phoneNumber } = req.body;
+        const { name, aboutUs, address, phoneNumber, rooms, tables, allergens } = req.body;
         // Find the user by userId
         const user = await User.findOne({ id: userId });
         if (!user) {
@@ -587,6 +588,9 @@ app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
         restaurant.aboutUs = aboutUs || restaurant.aboutUs;
         restaurant.address = address || restaurant.address;
         restaurant.phoneNumber = phoneNumber || restaurant.phoneNumber;
+        restaurant.rooms = rooms || restaurant.rooms;
+        restaurant.tables = tables || restaurant.tables;
+        restaurant.allergens = allergens || restaurant.allergens;
         await user.save();
         res.status(200).json({
             message: 'Restaurant updated successfully',

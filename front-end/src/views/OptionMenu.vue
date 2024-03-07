@@ -13,13 +13,14 @@
         <p>{{ restaurantData.aboutUs }}</p>
         <p>{{ restaurantData.address }}</p>
         <p>{{ restaurantData.phoneNumber }}</p>
+        <div>
+          <p>Tables: {{restaurantData.tables}}</p>
+          <p>Rooms: {{restaurantData.rooms}}</p>
+          <p>Allergens: {{restaurantData.allergens}}</p>
+        </div>
       </div>
-      <div>
-        <p>{{restaurantData.tables}}</p>
-      </div>
-      <div>
-        <p>{{restaurantData.rooms}}</p>
-      </div>
+
+
       <div class="col-5">
         <img :src="restaurantData.logoImage" class="fixed-size-img" alt="the restaurant pictures">
       </div>

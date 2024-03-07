@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
             logoImage: String,
             tables: Number,
             rooms: Number,
+            allergens: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Allergen',
+            }],
             menuOptions: [
                 {
                     photoLink: String,

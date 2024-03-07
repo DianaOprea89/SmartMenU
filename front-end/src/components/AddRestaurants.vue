@@ -38,6 +38,11 @@
           <input type="number" class="form-control form-control-sm" id="restaurant-rooms" placeholder="Numbers of rooms" v-model="restaurant.rooms">
         </div>
       </div>
+      <div class="row mb-3">
+        <div class="col-sm-8">
+          <input type="text" class="form-control form-control-sm" id="restaurant-allergens" placeholder="Allergens" v-model="restaurant.allergens">
+        </div>
+      </div>
       <div class="text-center">
         <button type="submit" class="btn btn-primary btn-sm" @submit="addRestaurant">Add Restaurant</button>
       </div>
@@ -60,6 +65,7 @@ export default {
         logoImage: '',
         tables: '',
         rooms: '',
+        allergens:'',
 
       }
     };
@@ -112,7 +118,7 @@ export default {
         const response = await api.post('/api/addRestaurants', restaurantData);
 
         if (response.status === 200 || response.status === 201) {
-          this.restaurant = { name: '', address: '', phoneNumber: '', aboutUs: '', logoImage: '', tables: '', rooms: '' };
+          this.restaurant = { name: '', address: '', phoneNumber: '', aboutUs: '', logoImage: '', tables: '', rooms: '', allergens: '' };
           this.$router.push("/menu");
         } else {
           const errorData = await response.json();
