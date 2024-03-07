@@ -188,6 +188,7 @@ export default {
         logoImage:this.editingRestaurant.logoImage,
         tables: this.editingRestaurant.tables,
         rooms: this.editingRestaurant.rooms,
+        allergens: this.editingRestaurant.allergens,
       };
 
       const userId = await this.fetchUserId();

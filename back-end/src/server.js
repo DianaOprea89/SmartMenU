@@ -255,7 +255,6 @@ app.post('/api/addRestaurants', async (req, res) => {
         if (existingRestaurant) {
             return res.status(400).json({ message: 'Restaurant with this name already exists' });
         }
-
         const newRestaurant = {
             name,
             address,
