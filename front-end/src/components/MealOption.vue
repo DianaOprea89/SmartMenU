@@ -23,7 +23,7 @@
           <label for="unit">Unitate:</label>
           <select id="unit" v-model="mealOption.unit" class="form-control">
             <option value="grams">Grame</option>
-            <option value="liters">Litri</option>
+            <option value="liters">Mililitrii</option>
             <option value="pieces">Bucata</option>
           </select>
         </div>
@@ -56,7 +56,7 @@
 <script>
 import api from "@/api/api";
 import { getAuthToken } from "@/utility/utility";
-import {mapGetters} from "vuex";
+
 
 export default {
   name: "MealOption",
@@ -80,11 +80,6 @@ export default {
 
       },
     };
-  },
-  computed:{
-    ...mapGetters({
-      getUserId: "getUserId"
-    }),
   },
   methods: {
     async fetchUserId() {
