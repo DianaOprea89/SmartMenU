@@ -41,6 +41,10 @@
         <label for="price">Pret:</label>
         <input type="number" id="price" v-model="mealOption.price" class="form-control"/>
       </div>
+      <div class="form-group">
+        <label for="allergens">Alergeni:</label>
+        <input type="text" id="allergens" v-model="mealOption.allergens" class="form-control"/>
+      </div>
       <div class="dialog-buttons">
         <button class="btn btn-secondary" @click="closeDialog">Renunta</button>
         <button class="btn btn-primary" @click="submitMealOption">Adauga</button>
@@ -68,6 +72,7 @@ export default {
         price: "",
         description: "",
         unit: "",
+        allergens:"",
         categoryMenuOption: "",
         userId: '', // Initialize userId
         restaurantId: '', // Initialize restaurantId

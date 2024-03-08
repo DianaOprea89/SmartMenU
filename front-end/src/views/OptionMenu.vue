@@ -16,7 +16,6 @@
         <div>
           <p>Tables: {{restaurantData.tables}}</p>
           <p>Rooms: {{restaurantData.rooms}}</p>
-          <p>Allergens: {{restaurantData.allergens}}</p>
         </div>
       </div>
 

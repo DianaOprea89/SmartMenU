@@ -59,6 +59,7 @@
                   <span class="meal-quantity">{{ mealOption.quantity }} {{ mealOption.unit }}</span>
                   <span class="meal-price">{{ mealOption.price }} RON</span>
                 </div>
+                <div class="meal-footer">Alergeni: {{ mealOption.allergens.join(', ') }}</div>
               </div>
               <div @click="openEditMealDialog(mealOption, activeSubMenu)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4" viewBox="0 0 16 16">
@@ -148,6 +149,10 @@
           <label for="price">Pret:</label>
           <input type="number" id="price" v-model="editingMealOption.price" class="form-control"/>
         </div>
+        <div class="form-group">
+          <label for="allergens">Alergeni:</label>
+          <input type="text" id="allergens" v-model="editingMealOption.allergens" class="form-control"/>
+        </div>
         <div class="dialog-buttons">
           <button class="btn btn-secondary m-1" @click="newMealCustomDialog=false">Renunta</button>
           <button class="btn btn-primary m-1" @click="submitEditedMealOption">Editeaza</button>
@@ -192,7 +197,7 @@ export default {
           },
           items: [],
           newMealOption: {
-            photoLink: '', optionName: '', description: '', ingredients: '', quantity: "", unit: "", price: "",
+            photoLink: '', optionName: '', description: '', ingredients: '', quantity: "", unit: "", price: "", allergens:"",
           },
           editingMealOption: {
             photoLink: "",
@@ -202,6 +207,7 @@ export default {
             price: "",
             description: "",
             unit: "",
+            allergens:"",
             categoryMenuOption: "",
           },
           subMenuOptions: [],  // Initialize as empty array

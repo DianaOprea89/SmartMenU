@@ -13,6 +13,7 @@ import MealOption from "@/components/MealOption";
 import SubMenuOption from "@/components/SubMenuOption";
 import AccessRestaurant from "@/components/AccessRestaurant";
 import ViewRestaurantsMenu from "@/components/ViewRestaurantsMenu";
+import Allergens from "@/components/Allergens";
 
 
 const routes = [
@@ -76,6 +77,11 @@ const routes = [
         path: '/aboutus',
         name: "AboutUs",
         component: AboutUs
+    },
+    {
+        path: '/allergens',
+        name: "Allergens",
+        component: Allergens
     },
     {
         path: '/addrestaurant',

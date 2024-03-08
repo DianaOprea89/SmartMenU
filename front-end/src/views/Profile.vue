@@ -24,7 +24,6 @@
                 <p class="card-text">Phone: {{ restaurant.phoneNumber }}</p>
                 <p class="card-text">Tables : {{ restaurant.tables }}</p>
                 <p class="card-text">Rooms: {{ restaurant.rooms }}</p>
-                <p class="card-text">Allergens: {{restaurant.allergens}}</p>
               </div>
             </div>
             <div class="card-actions-container">
@@ -81,10 +80,6 @@
                         <label for="newRoomsNumber" class="m-2">Rooms number:</label>
                         <input id="newRoomsNumber" v-model="editingRestaurant.rooms">
                       </div>
-                      <div class="mb-3">
-                        <label for="newAllergens" class="m-2">Allergens:</label>
-                        <input id="newAllergens" v-model="editingRestaurant.allergens">
-                      </div>
 
                     </div>
                     <div class="dialog-buttons">
@@ -122,7 +117,6 @@
 import api from "@/api/api";
 import {mapGetters} from 'vuex';
 import {getAuthToken} from "../utility/utility.js";
-// import OptionMenu from "@/views/OptionMenu";
 
 export default {
   name: "ProfilePage",
@@ -188,7 +182,6 @@ export default {
         logoImage:this.editingRestaurant.logoImage,
         tables: this.editingRestaurant.tables,
         rooms: this.editingRestaurant.rooms,
-        allergens: this.editingRestaurant.allergens,
       };
 
       const userId = await this.fetchUserId();

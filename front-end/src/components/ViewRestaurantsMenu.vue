@@ -95,10 +95,14 @@
                     {{ mealOption.price }} RON</span>
                 </div>
               </div>
+              <div class="meal-footer">Alergeni: {{ mealOption.allergens.join(', ') }}</div>
             </li>
           </ul>
         </div>
       </main>
+    </div>
+    <div>
+      <p> Lista alergenilor alimentari ce pot fi prezenti in produse  -> <router-link to="/allergens"> Click Aici</router-link>!</p>
     </div>
   </div>
 </template>
@@ -156,10 +160,6 @@ export default {
       return activeSubMenuOption.mealOptions.filter(mealOption => {
         return mealOption.optionName.toLowerCase().includes(query) || mealOption.ingredients.toLowerCase().includes(query);
       });
-    },
-    currentMealOptions() {
-      const activeSubMenu = this.restaurantData.subMenuOptions.find(option => option._id === this.activeSubMenu);
-      return activeSubMenu ? activeSubMenu.mealOptions : [];
     },
   },
   methods: {
