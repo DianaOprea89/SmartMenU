@@ -22,9 +22,9 @@
         <div>
           <label for="unit">Unitate:</label>
           <select id="unit" v-model="mealOption.unit" class="form-control">
-            <option value="grams">Grame</option>
-            <option value="liters">Mililitrii</option>
-            <option value="pieces">Bucata</option>
+            <option value="gr">Grame</option>
+            <option value="ml">Mililitrii</option>
+            <option value="p">Bucata</option>
           </select>
         </div>
       </div>
