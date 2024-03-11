@@ -392,7 +392,7 @@ export default {
               if (subMenuOption) {
                 subMenuOption.mealOptions = subMenuOption.mealOptions.filter(meal => meal._id !== mealOptionId);
               }
-              this.fetchRestaurantData(); // Update your local data
+              await this.fetchRestaurantData(); // Update your local data
             }
           } catch (error) {
             console.error("Error deleting meal option:", error);

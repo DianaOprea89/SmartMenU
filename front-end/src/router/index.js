@@ -14,6 +14,7 @@ import SubMenuOption from "@/components/SubMenuOption";
 import AccessRestaurant from "@/components/AccessRestaurant";
 import ViewRestaurantsMenu from "@/components/ViewRestaurantsMenu";
 import Allergens from "@/components/Allergens";
+import CartProductListItem from "@/components/CartProductListItem";
 
 
 const routes = [
@@ -114,6 +115,12 @@ const routes = [
         path: '/restaurant/:restaurantName/accessRestaurant/viewMenu',
         name: "ViewRestaurantsMenu",
         component: ViewRestaurantsMenu,
+        props: true,
+    },
+    {
+        path: '/restaurant/:restaurantName/accessRestaurant/viewMenu/addToCart',
+        name: "CartProductListItem",
+        component: CartProductListItem,
         props: true,
     },
 
