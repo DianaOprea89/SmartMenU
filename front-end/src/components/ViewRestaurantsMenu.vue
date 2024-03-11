@@ -176,8 +176,12 @@ export default {
     },
   },
   methods: {
-    openDialog() {
-      this.showDialog = true;
+    handleMealOptionAdded(newMealOption) {
+      this.updateSubMenuWithMealOption(newMealOption);
+      const currentPath = this.$route.path;
+      this.$router.replace({path: '/empty'}).then(() => {
+        this.$router.replace({path: currentPath});
+      });
     },
     setActiveMenu(menuOptionId) {
       const menuOption = this.restaurant.menuOptions.find(option => option._id === menuOptionId);

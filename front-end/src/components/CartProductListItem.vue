@@ -1,17 +1,29 @@
 <template>
-  <div>
-    <div class="custom-dialog" v-if="isDialogOpen">
-      <label for="roomTableSelect">Choose Room/Table:</label>
-      <select id="roomTableSelect" v-model="selectedRoomTable">
-        <option :v-for="number in numberOfRooms" :value="n">Room/Table {{ number }}</option>
-      </select>
-      <button @click="addToCart">Add to Cart</button>
+  <div class="custom-dialog" >
+    <div class="custom-dialog-content">
+      <h2>Adauga  masa </h2>
+      <div class="form-group">
+        <label for="photoLink">Link poza:</label>
+        <input type="text" id="photoLink" v-model="mealOption.photoLink" class="form-control"/>
+      </div>
+      <div class="form-group">
+        <label for="optionName">Nume categorie masa:</label>
+        <input type="text" id="optionName" v-model="mealOption.optionName" class="form-control"/>
+      </div>
+      <div class="form-group">
+        <label for="quantity">Cantitate</label>
+        <input type="number" id="quantity" v-model="mealOption.quantity" class="form-control"/>
+      </div>
+      <div class="form-group">
+        <label for="price">Pret:</label>
+        <input type="number" id="price" v-model="mealOption.price" class="form-control"/>
+      </div>
+
+      <div class="dialog-buttons">
+        <button class="btn btn-secondary" @click="closeDialog">Renunta</button>
+        <button class="btn btn-primary">Adauga</button>
+      </div>
     </div>
-    <ul>
-      <li v-for="item in cartItems" :key="item.id">
-        {{ item.name }} - Room/Table: {{ item.roomTable }}
-      </li>
-    </ul>
   </div>
 </template>
 
@@ -20,25 +32,31 @@ import api from "@/api/api";
 
 export default {
   name: "CartProductListItem",
+  props: ['restaurantName', 'menuOption', 'subMenuOptions'],
   data() {
     return {
-          restaurant: {
-            name: '',
-            address: '',
-            phoneNumber: '',
-            aboutUs: '',
-            logoImage: '',
-            tables: '',
-            rooms: '',
-            allergens:'',
+      showDialog: false,
+      mealOption: {
+        photoLink: "",
+        optionName: "",
+        quantity: "",
+        ingredients: "",
+        price: "",
+        description: "",
+        unit: "",
+        allergens:"",
+        categoryMenuOption: "",
+        userId: '', // Initialize userId
+        restaurantId: '', // Initialize restaurantId
+        menuOptionId: '', // Initialize menuOptionId
 
-          },
-          selectedRoomTable: null,
-          numberOfRooms: 0, // This should come from the server
-          cartItems: [],
-        };
+      },
+    };
   },
   methods: {
+    closeDialog() {
+      this.$emit('close'); // Emitting an event named 'close'
+    },
     async fetchUserId() {
       try {
         const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
@@ -57,7 +75,37 @@ export default {
         return null; // Handle error or return null if ID couldn't be fetched
       }
     },
-    async fetchRestaurantData() {
+    async addRestaurant() {
+      try {
+        // First, fetch the user ID
+        const userId = await this.fetchUserId(); // Correctly await the result
+
+        if (!userId) {
+          console.error('User ID not fetched successfully');
+          return; // Exit if no user ID is fetched
+        }
+
+        const restaurantData = {
+          ...this.restaurant,
+          userId: userId // Use the fetched userId
+        };
+
+        console.log('Sending request with data:', restaurantData);
+
+        const response = await api.post('/api/addRestaurants', restaurantData);
+
+        if (response.status === 200 || response.status === 201) {
+          this.restaurant = { name: '', address: '', phoneNumber: '', aboutUs: '', logoImage: '', tables: '', rooms: '', allergens: '' };
+          this.$router.push("/menu");
+        } else {
+          const errorData = await response.json();
+          alert(`Failed to add restaurant: ${errorData.message}`);
+        }
+      } catch (error) {
+        console.error('Error adding restaurant:', error);
+      }
+    },
+  async fetchRestaurantData() {
       if (!this.restaurantName) {
         return;
       }
@@ -83,7 +131,9 @@ export default {
     }
   },
   async created() {
+    console.log('Component created! Fetching restaurant data...');
     await this.fetchRestaurantData();
+    this.userId = await this.fetchUserId();
   },
 
 };
