@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import User from './schemas/CombinedSchema.js';
+import Restaurant from './schemas/CheckoutSchema.js'
 import 'express-async-errors';
 dotenv.config();
 const app = express();
@@ -49,6 +50,29 @@ app.get('/api/restaurant/:name', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+app.get('/api/roomAvailable', async (req, res) => {
+    try {
+        const { restaurantId } = req.params; // Make sure to include restaurantId in the request parameters
+        const restaurant = await Restaurant.findById(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        const availableRooms = restaurant.rooms.map(room => {
+            return {
+                roomName: room.name,
+                availableTables: room.tables.filter(table => !table.isOccupied && !table.isReserved),
+            };
+        });
+
+        res.json(availableRooms);
+    } catch (error) {
+        console.error('Error fetching available rooms:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 app.get('/api/userData', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1]; // Authorization: 'Bearer TOKEN'
     if (!token) {

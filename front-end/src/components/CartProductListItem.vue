@@ -75,36 +75,6 @@ export default {
         return null; // Handle error or return null if ID couldn't be fetched
       }
     },
-    async addRestaurant() {
-      try {
-        // First, fetch the user ID
-        const userId = await this.fetchUserId(); // Correctly await the result
-
-        if (!userId) {
-          console.error('User ID not fetched successfully');
-          return; // Exit if no user ID is fetched
-        }
-
-        const restaurantData = {
-          ...this.restaurant,
-          userId: userId // Use the fetched userId
-        };
-
-        console.log('Sending request with data:', restaurantData);
-
-        const response = await api.post('/api/addRestaurants', restaurantData);
-
-        if (response.status === 200 || response.status === 201) {
-          this.restaurant = { name: '', address: '', phoneNumber: '', aboutUs: '', logoImage: '', tables: '', rooms: '', allergens: '' };
-          this.$router.push("/menu");
-        } else {
-          const errorData = await response.json();
-          alert(`Failed to add restaurant: ${errorData.message}`);
-        }
-      } catch (error) {
-        console.error('Error adding restaurant:', error);
-      }
-    },
   async fetchRestaurantData() {
       if (!this.restaurantName) {
         return;
