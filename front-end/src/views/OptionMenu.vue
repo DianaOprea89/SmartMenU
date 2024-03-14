@@ -277,6 +277,7 @@ export default {
         }
       });
     },
+
     async fetchRestaurantData() {
       try {
         const token = localStorage.getItem('jwtToken');
@@ -305,6 +306,7 @@ export default {
   async created() {
        await this.fetchUserId();
       await this.fetchRestaurantData();
+
 
 }
 }
