@@ -116,7 +116,6 @@
 <script>
 import api from "../api/api.js";
 import {getAuthToken} from "@/utility/utility";
-import {mapGetters} from "vuex";
 
 export default {
   name: "OptionMenu",
@@ -143,12 +142,8 @@ export default {
   },
   computed: {
     restaurantData() {
-      console.log("localRestaurantData",this.localRestaurantData);
-      return this.localRestaurantData || {};
+      return this.localRestaurantData;
     },
-    ...mapGetters({
-      getUserId: "getUserId"
-    }),
   },
   methods: {
     async fetchUserId() {
@@ -282,40 +277,38 @@ export default {
         }
       });
     },
-    async fetchRestaurants() {
+    async fetchRestaurantData() {
       try {
+        const token = localStorage.getItem('jwtToken');
         const response = await api.get('/api/userData', {
-          headers: {Authorization: `Bearer ${getAuthToken()}`}
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
-
         if (response && response.status === 200) {
-          this.restaurants = response.data.restaurants; // Update local state
+          // Find the restaurant data by the name provided in props
+          const restaurant = response.data.restaurants.find(r => r.name === this.restaurantName);
+          if (restaurant) {
+            this.localRestaurantData = restaurant;
+          } else {
+            console.error('Restaurant with the given name not found.');
+          }
         } else {
-          console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');
+          console.error('Failed to fetch user data. Status:', response ? response.status : 'Unknown');
         }
       } catch (error) {
-        console.error('An error occurred while fetching restaurants:', error);
+        console.error('Error fetching user data:', error);
       }
     },
+
   },
   async created() {
+       await this.fetchUserId();
+      await this.fetchRestaurantData();
 
-    try {
-      await this.fetchRestaurants();
-      const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
-        headers: { Authorization: `Bearer ${getAuthToken()}` }
-      });
-
-      if (response && response.status === 200) {
-        this.localRestaurantData = response.data;
-      } else {
-        console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
-      }
-    } catch (error) {
-      console.error('Error fetching restaurant details:', error);
-    }
-  }
 }
+}
+
 </script>
 <style scoped>
 .menu-options-container {
