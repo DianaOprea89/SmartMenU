@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="m-2 icon-container ">
+    <div class="m-2 icon-container m-5 ">
       <router-link to="/menu" class="go-back d-flex justify-content-end ">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle m-1" viewBox="0 0 16 16">
           <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z"/>
@@ -13,15 +13,21 @@
         <p>{{ restaurantData.aboutUs }}</p>
         <p>{{ restaurantData.address }}</p>
         <p>{{ restaurantData.phoneNumber }}</p>
+        <div>
+          <p>Tables: {{restaurantData.tables}}</p>
+          <p>Rooms: {{restaurantData.rooms}}</p>
+        </div>
       </div>
+
+
       <div class="col-5">
         <img :src="restaurantData.logoImage" class="fixed-size-img" alt="the restaurant pictures">
       </div>
     </div>
     <div class="row">
-      <div class="col-12">
+      <div class="col-8">
         <!-- Button to open the custom dialog -->
-        <button class="btn btn-primary auto-width-button m-5" @click="openDialog">
+        <button class="btn btn-secondary auto-width-button m-5" @click="openDialog">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg icon"
                viewBox="0 0 16 16">
             <path fill-rule="evenodd"
@@ -29,14 +35,15 @@
           </svg>
           Meniu Nou
         </button>
-        <span class="lighter-text smaller-text">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left"
-               viewBox="0 0 16 16">
-            <path fill-rule="evenodd"
-                  d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-          </svg> creeaza un nou meniu
-        </span>
       </div>
+      <div class="col-4">
+        <button class="btn btn-secondary auto-width-button m-5 align-content-end" @click="preview"> Preview
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-binoculars m-1" viewBox="0 0 16 16">
+            <path d="M3 2.5A1.5 1.5 0 0 1 4.5 1h1A1.5 1.5 0 0 1 7 2.5V5h2V2.5A1.5 1.5 0 0 1 10.5 1h1A1.5 1.5 0 0 1 13 2.5v2.382a.5.5 0 0 0 .276.447l.895.447A1.5 1.5 0 0 1 15 7.118V14.5a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 14.5v-3a.5.5 0 0 1 .146-.354l.854-.853V9.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v.793l.854.853A.5.5 0 0 1 7 11.5v3A1.5 1.5 0 0 1 5.5 16h-3A1.5 1.5 0 0 1 1 14.5V7.118a1.5 1.5 0 0 1 .83-1.342l.894-.447A.5.5 0 0 0 3 4.882zM4.5 2a.5.5 0 0 0-.5.5V3h2v-.5a.5.5 0 0 0-.5-.5zM6 4H4v.882a1.5 1.5 0 0 1-.83 1.342l-.894.447A.5.5 0 0 0 2 7.118V13h4v-1.293l-.854-.853A.5.5 0 0 1 5 10.5v-1A1.5 1.5 0 0 1 6.5 8h3A1.5 1.5 0 0 1 11 9.5v1a.5.5 0 0 1-.146.354l-.854.853V13h4V7.118a.5.5 0 0 0-.276-.447l-.895-.447A1.5 1.5 0 0 1 12 4.882V4h-2v1.5a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5zm4-1h2v-.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm4 11h-4v.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5zm-8 0H2v.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5z"/>
+          </svg>
+        </button>
+      </div>
+
     </div>
 
     <div v-if="restaurantData && restaurantData.menuOptions" class="menu-options-container">
@@ -50,15 +57,15 @@
           </div>
         </div>
 
-        <div class="icon-container">
+        <div class="icon-container m-3">
           <div class="image-edit-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon"
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon border-end d-flex flex-row-reverse"
                  viewBox="0 0 16 16" @click="openEditDialog(menuOption)">
               <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
             </svg>
           </div>
           <div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 delete-icon" viewBox="0 0 16 16" @click="removeMenuItem(menuOption._id)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 delete-icon d-flex flex-row " viewBox="0 0 16 16" @click="removeMenuItem(menuOption._id)">
               <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
             </svg>
           </div>
@@ -144,6 +151,24 @@ export default {
     }),
   },
   methods: {
+    async fetchUserId() {
+      try {
+        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
+        const response = await api.get('/api/userData', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.data && response.data.id) {
+          return response.data.id; // Assuming the response includes the user ID
+        } else {
+          throw new Error('User ID not found in response');
+        }
+      } catch (error) {
+        console.error('Failed to fetch user ID:', error);
+        return null; // Handle error or return null if ID couldn't be fetched
+      }
+    },
     openDialog() {
       this.optionMenu = { photoLink: "", optionName: "" }; // Reset the form
       this.showDialog = true;
@@ -154,6 +179,12 @@ export default {
         this.showDialogOption = true;
       }
     },
+    preview() {
+      this.$router.push({
+        name: 'AccessRestaurant',
+        params: { restaurantName: this.restaurantName }
+      });
+    },
     openEditDialog(menuOption) {
       this.editingMenuOption = JSON.parse(JSON.stringify(menuOption)); // Clone the current menu option
       this.showDialogOption = true; // Open the dialog
@@ -162,7 +193,7 @@ export default {
       const restaurantId = this.restaurantData._id;
       console.log('Removing menu option with ID:', menuOptionId);
       try {
-        const userId = this.$store.getters.getUserId;
+        const userId = await this.fetchUserId();
         console.log('Removing menu option with ID:', menuOptionId);
         const apiUrl = `/api/removeOptionMenuRestaurants/${userId}/${restaurantId}/${menuOptionId}`;
         const authToken = getAuthToken();
@@ -182,15 +213,15 @@ export default {
         // Handle error response if needed
       }
     },
-    addItem() {
+    async addItem() {
       const newItem = {
         photoLink: this.optionMenu.photoLink,
         optionName: this.optionMenu.optionName,
       };
-
+      const userId = await this.fetchUserId();
       api
           .post("/api/addOptionMenuRestaurants", {
-            userId: this.$store.state.user.id,
+            userId: userId,
             name: this.restaurantName,
             newItem,
           })
@@ -211,7 +242,7 @@ export default {
           });
     },
     async editMenu() {
-      const userId = this.getUserId;
+      const userId = await this.fetchUserId();
       const restaurantId = this.localRestaurantData._id;
       const menuOptionId = this.editingMenuOption._id;
 
@@ -314,9 +345,6 @@ export default {
   display: inline-flex; /* Use inline-flex to keep the button inline */
   align-items: center; /* Align the text and icon vertically */
   padding: 5px 10px; /* Padding around the text and icon */
-  border: 1px solid #cccccc; /* Subtle border */
-  border-radius: 5px; /* Rounded corners for the button look */
-  background-color: #f5f5f5; /* Light background for the button */
   color: black;
   text-decoration: none;
   transition: background-color 0.3s, border-color 0.3s; /* Transition for hover effects */
