@@ -178,7 +178,11 @@ export default {
             photoLink: "",
             optionName: "",
           },
-          restaurantData: '',
+          restaurantData: {
+            name: '',
+            menuOptions: [],
+            subMenuOptions: [],
+          },
           userId: null,
           restaurantId: '',
           menuOptionId: '',
@@ -275,6 +279,10 @@ export default {
           await this.fetchUserId(); // This ensures this.userId is updated
           if (!this.userId) {
             console.error("User ID is not set.");
+            return;
+          }
+          if (!this.restaurantData || !Array.isArray(this.restaurantData.subMenuOptions)) {
+            console.error("restaurantData is not initialized correctly.");
             return;
           }
           const newSubMenuItem = {
@@ -441,14 +449,12 @@ export default {
     console.log('Created hook called');
     await this.fetchUserId();
     await this.fetchRestaurantData();
-    if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
-      this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-      if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
-        this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-      }
 
+    if (this.restaurantData && this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+      this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
     }
   }
+
 }
 </script>
 <style scoped>
