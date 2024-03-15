@@ -289,28 +289,30 @@ export default {
             photoLink: this.subMenu.photoLink,
             subMenuOptionName: this.subMenu.optionName,
           };
-          api.post("/api/addSubOptionMenuRestaurants", {
-            userId: this.userId, // Use this.userId directly
-            name: this.restaurantName,
-            menuOptionName: this.menuOption,
-            newSubMenuItem,
-          })
-              .then(response => {
-                if (response.status === 201) {
-                  if (!this.restaurantData.subMenuOptions) {
-                    this.restaurantData.subMenuOptions = [];
-                  }
-                  this.restaurantData.subMenuOptions.push(newSubMenuItem);
-                  this.subMenu.photoLink = "";
-                  this.subMenu.optionName = "";
-                  this.showDialog = false;
-                } else {
-                  console.error("Error adding sub-menu item:", response.data.message);
-                }
-              })
-              .catch(error => {
-                console.error("Error adding sub-menu item:", error);
-              });
+          try {
+            const response = await api.post("/api/addSubOptionMenuRestaurants", {
+              userId: this.userId, // Use this.userId directly
+              name: this.restaurantName,
+              menuOptionName: this.menuOption,
+              newSubMenuItem,
+            });
+            if (response.status === 201) {
+              // Assuming the server responds with the full new sub-menu item, including any IDs or additional data
+              const addedSubMenuItem = response.data; // Use the actual response data if it includes the new sub-menu item
+
+              // If the server does not respond with the item and only a status, use newSubMenuItem instead:
+              // const addedSubMenuItem = newSubMenuItem;
+
+              this.restaurantData.subMenuOptions.push(addedSubMenuItem); // Reactively add the new item to the array
+              this.subMenu.photoLink = "";
+              this.subMenu.optionName = "";
+              this.showDialog = false;
+            } else {
+              console.error("Error adding sub-menu item:", response.data.message);
+            }
+          } catch (error) {
+            console.error("Error adding sub-menu item:", error);
+          }
         },
         async submitEditedMealOption() {
           if (!this.userId) {
