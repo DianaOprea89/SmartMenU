@@ -457,13 +457,15 @@ export default {
       },
   async created() {
     console.log('Created hook called');
-    await this.fetchUserId();
-    await this.fetchRestaurantData();
+    await this.fetchUserId();  // Fetch the user ID, if needed for authorization
+    await this.fetchRestaurantData();  // Fetch the latest restaurant data
 
+    // If subMenuOptions are present, set the first one as active
     if (this.restaurantData && this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
       this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
     }
   }
+
 
 }
 </script>
