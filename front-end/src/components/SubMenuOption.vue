@@ -448,8 +448,6 @@ export default {
                 if (this.restaurantData.subMenuOptions.length > 0) {
                   this.activeSubMenu = this.restaurantData.subMenuOptions[0]._id;
                 }
-                // Here you might want to refresh the component or force update if necessary
-                // this.$forceUpdate(); // Use with caution as it's generally an anti-pattern
               } else {
                 console.error('SubMenu options are missing from the response data');
               }
