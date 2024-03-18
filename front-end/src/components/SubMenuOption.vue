@@ -437,34 +437,45 @@ export default {
 
               // Check if the response actually contains the submenu options for the given menu option
               if (menuOptionData && Array.isArray(menuOptionData.subMenuOptions)) {
-                this.restaurantData = { ...this.restaurantData, ...menuOptionData }; // Merge the data into restaurantData
+                // Merge the data into restaurantData
+                this.restaurantData = {
+                  ...this.restaurantData,
+                  subMenuOptions: [...menuOptionData.subMenuOptions] // use the spread to ensure reactivity
+                };
                 this.restaurantId = response.data._id; // Set restaurantId from the response
 
                 // If the first sub-menu option is available, set it as active by default
                 if (this.restaurantData.subMenuOptions.length > 0) {
                   this.activeSubMenu = this.restaurantData.subMenuOptions[0]._id;
                 }
+                // Here you might want to refresh the component or force update if necessary
+                // this.$forceUpdate(); // Use with caution as it's generally an anti-pattern
               } else {
                 console.error('SubMenu options are missing from the response data');
               }
-            } else {
-              console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
             }
           } catch (error) {
             console.error('Error fetching restaurant details:', error);
           }
         }
       },
-  async created() {
+  created() {
     console.log('Created hook called');
-    await this.fetchUserId();  // Fetch the user ID, if needed for authorization
-    await this.fetchRestaurantData();  // Fetch the latest restaurant data
-
-    // If subMenuOptions are present, set the first one as active
-    if (this.restaurantData && this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
-      this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-    }
+    this.fetchUserId()
+        .then(() => {
+          return this.fetchRestaurantData();
+        })
+        .then(() => {
+          // If subMenuOptions are present, set the first one as active
+          if (this.restaurantData && this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+            this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
+          }
+        })
+        .catch((error) => {
+          console.error('An error occurred during the created hook:', error);
+        });
   }
+
 
 
 
