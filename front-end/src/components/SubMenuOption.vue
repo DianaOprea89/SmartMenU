@@ -430,27 +430,26 @@ export default {
           }
           try {
             const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
-              headers: {Authorization: `Bearer ${getAuthToken()}`}
+              headers: { Authorization: `Bearer ${getAuthToken()}` }
             });
             if (response && response.status === 200 && response.data) {
-              const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
-              console.log("menuOptionData",menuOptionData)
-              this.restaurantId = response.data._id;
+              console.log('API response data:', response.data);
+              const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption);
               if (menuOptionData) {
-                this.restaurantData.menuOptions = [menuOptionData];
+                this.restaurantData.menuOptions = [menuOptionData]; // Assuming menuOptions is always an array
                 this.restaurantData.subMenuOptions = menuOptionData.subMenuOptions || [];
                 this.restaurantId = response.data._id;
                 this.menuOptionId = menuOptionData._id;
               } else {
                 console.error('Menu option data not found for the given restaurant name and menu option');
+                // Handle the absence of menuOptionData here
               }
             }
-
-
-            } catch (error) {
+          } catch (error) {
             console.error('Error fetching restaurant details:', error);
           }
         }
+
       },
   async created() {
     console.log('Created hook called');
