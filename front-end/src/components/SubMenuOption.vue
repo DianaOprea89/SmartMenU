@@ -430,27 +430,17 @@ export default {
           }
           try {
             const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
-              headers: { Authorization: `Bearer ${getAuthToken()}` }
+              headers: {Authorization: `Bearer ${getAuthToken()}`}
             });
             if (response && response.status === 200 && response.data) {
-              const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption);
-
-              // Check if the response actually contains the submenu options for the given menu option
-              if (menuOptionData && Array.isArray(menuOptionData.subMenuOptions)) {
-                // Merge the data into restaurantData
-                this.restaurantData = {
-                  ...this.restaurantData,
-                  subMenuOptions: [...menuOptionData.subMenuOptions] // use the spread to ensure reactivity
-                };
-                this.restaurantId = response.data._id; // Set restaurantId from the response
-
-                // If the first sub-menu option is available, set it as active by default
-                if (this.restaurantData.subMenuOptions.length > 0) {
-                  this.activeSubMenu = this.restaurantData.subMenuOptions[0]._id;
-                }
-              } else {
-                console.error('SubMenu options are missing from the response data');
+              const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
+              this.restaurantData = menuOptionData || null;
+              this.restaurantId = response.data._id; // Set restaurantId from the response
+              if (menuOptionData) {
+                this.menuOptionId = menuOptionData._id; // Set menuOptionId
               }
+            } else {
+              console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
             }
           } catch (error) {
             console.error('Error fetching restaurant details:', error);

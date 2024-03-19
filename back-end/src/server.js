@@ -35,21 +35,29 @@ app.use((req, res, next) => {
     console.log(`Request received: ${req.method} ${req.url}`);
     next();
 });
+
 app.get('/api/restaurant/:name', async (req, res) => {
     try {
         const { name } = req.params;
-        // Assuming the restaurant name is unique. Adjust the query as needed.
-        const restaurant = await User.findOne({ "restaurants.name": name }, { "restaurants.$": 1 });
+        const restaurant = await Restaurant.findOne({ name: name })
+            .populate({
+                path: 'menuOptions',
+                populate: {
+                    path: 'subMenuOptions'
+                }
+            });
+
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
-        // Send the first restaurant in the array, as the query returns an array
-        res.status(200).json(restaurant.restaurants[0]);
+
+        res.status(200).json(restaurant);
     } catch (error) {
         console.error('Error fetching restaurant:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 app.get('/api/roomAvailable', async (req, res) => {
     try {
@@ -90,7 +98,7 @@ app.get('/api/userData', async (req, res) => {
             name: user.username,
             email: user.email,
             id: user.id,
-            restaurants: user.restaurants, // Make sure to include populated restaurants here
+            restaurants:        user.restaurants, // Make sure to include populated restaurants here
         });
     } catch (error) {
         console.error('Error fetching user data:', error);
