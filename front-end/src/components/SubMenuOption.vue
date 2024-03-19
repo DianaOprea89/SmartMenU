@@ -434,31 +434,35 @@ export default {
             });
             if (response && response.status === 200 && response.data) {
               const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
-              this.restaurantData = menuOptionData || null;
-              this.restaurantId = response.data._id; // Set restaurantId from the response
+              console.log("menuOptionData",menuOptionData)
+              this.restaurantId = response.data._id;
               if (menuOptionData) {
-                this.menuOptionId = menuOptionData._id; // Set menuOptionId
+                this.restaurantData.menuOptions = [menuOptionData];
+                this.restaurantData.subMenuOptions = menuOptionData.subMenuOptions || [];
+                this.restaurantId = response.data._id;
+                this.menuOptionId = menuOptionData._id;
+              } else {
+                console.error('Menu option data not found for the given restaurant name and menu option');
               }
-            } else {
-              console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
             }
-          } catch (error) {
+
+
+            } catch (error) {
             console.error('Error fetching restaurant details:', error);
           }
         }
       },
-  async  created() {
+  async created() {
     console.log('Created hook called');
-    await this.fetchRestaurantData();
-    if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+    await this.fetchRestaurantData(); // Wait for restaurant data to be fetched.
+    // Now we check if subMenuOptions are actually available
+    if (this.restaurantData && this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
       this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-      if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
-        this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-      }
-      this.fetchUserId()
+    } else {
+      console.error('No sub menu options available.');
     }
+    await this.fetchUserId();
   }
-
 
 }
 </script>
