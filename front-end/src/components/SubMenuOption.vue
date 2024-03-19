@@ -447,24 +447,17 @@ export default {
           }
         }
       },
-  created() {
+  async  created() {
     console.log('Created hook called');
-    this.fetchUserId()
-        .then(() => {
-          return this.fetchRestaurantData();
-        })
-        .then(() => {
-          // If subMenuOptions are present, set the first one as active
-          if (this.restaurantData && this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
-            this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-          }
-        })
-        .catch((error) => {
-          console.error('An error occurred during the created hook:', error);
-        });
+    await this.fetchRestaurantData();
+    if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+      this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
+      if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+        this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
+      }
+      this.fetchUserId()
+    }
   }
-
-
 
 
 }
