@@ -21,7 +21,7 @@
           @close="newShowDialog = false">
       </meal-option>
     </div>
-    <div class="menu-layout"   v-if="restaurantData && restaurantData.subMenuOptions">
+    <div class="menu-layout"   v-if="restaurantData && restaurantData.subMenuOptions.length > 0">
       <aside class="menu-sidebar">
         <ul class="submenu-list">
           <li v-for="(subMenuOption, index) in restaurantData.subMenuOptions"
@@ -76,6 +76,9 @@
           </ul>
         </div>
       </main>
+    </div>
+    <div v-else>
+      Loading menu options or No menu options available.
     </div>
     <!--Adauga un subMenu-->
     <div class="custom-dialog" v-if="showDialog">
@@ -430,26 +433,27 @@ export default {
           }
           try {
             const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
-              headers: { Authorization: `Bearer ${getAuthToken()}` }
+              headers: {Authorization: `Bearer ${getAuthToken()}`}
             });
             if (response && response.status === 200 && response.data) {
-              console.log('API response data:', response.data);
-              const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption);
+              const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
+              console.log("menuOptionData",menuOptionData)
+              this.restaurantId = response.data._id;
               if (menuOptionData) {
-                this.restaurantData.menuOptions = [menuOptionData]; // Assuming menuOptions is always an array
+                this.restaurantData.menuOptions = [menuOptionData];
                 this.restaurantData.subMenuOptions = menuOptionData.subMenuOptions || [];
                 this.restaurantId = response.data._id;
                 this.menuOptionId = menuOptionData._id;
               } else {
                 console.error('Menu option data not found for the given restaurant name and menu option');
-                // Handle the absence of menuOptionData here
               }
             }
-          } catch (error) {
+
+
+            } catch (error) {
             console.error('Error fetching restaurant details:', error);
           }
         }
-
       },
   async created() {
     console.log('Created hook called');
