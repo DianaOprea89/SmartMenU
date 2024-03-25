@@ -77,9 +77,6 @@
         </div>
       </main>
     </div>
-    <div v-else>
-      Loading menu options or No menu options available.
-    </div>
     <!--Adauga un subMenu-->
     <div class="custom-dialog" v-if="showDialog">
       <div class="custom-dialog-content">
