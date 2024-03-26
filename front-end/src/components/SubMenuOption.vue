@@ -171,11 +171,9 @@ export default {
         photoLink: "",
         optionName: "",
       },
-      restaurantData: '',
       userId: '',
       restaurantId: '',
       menuOptionId: '',
-
       showDialog: false,
       showDialogOption: false,
       activeSubMenu: null,
@@ -188,6 +186,7 @@ export default {
         photoLink: '',
         _id: ''
       },
+       restaurantData: {},
       items: [],
       newMealOption: {
         photoLink: '', optionName: '', description: '', ingredients: '', quantity: "", unit: "", price: "",
@@ -224,24 +223,6 @@ export default {
     },
   },
   methods: {
-    async fetchUserId() {
-      try {
-        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
-        const response = await api.get('/api/userData', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (response.data && response.data.id) {
-          return response.data.id; // Assuming the response includes the user ID
-        } else {
-          throw new Error('User ID not found in response');
-        }
-      } catch (error) {
-        console.error('Failed to fetch user ID:', error);
-        return null; // Handle error or return null if ID couldn't be fetched
-      }
-    },
     openDialog() {
       this.showDialog = true;
     },
@@ -335,6 +316,7 @@ export default {
         console.error("Error removing sub-menu item:", error);
       }
     },
+
     async updateSubMenuItem(subMenuOptionId) {
       if (!this.userId || !this.restaurantId || !this.menuOptionId || !subMenuOptionId) {
         console.error("Missing IDs for update request");
@@ -424,7 +406,25 @@ export default {
       } catch (error) {
         console.error('Error fetching restaurant details:', error);
       }
-    }
+    },
+    async fetchUserId() {
+      try {
+        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
+        const response = await api.get('/api/userData', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.data && response.data.id) {
+          return response.data.id; // Assuming the response includes the user ID
+        } else {
+          throw new Error('User ID not found in response');
+        }
+      } catch (error) {
+        console.error('Failed to fetch user ID:', error);
+        return null; // Handle error or return null if ID couldn't be fetched
+      }
+    },
   },
   async created() {
     console.log('Created hook called');
@@ -434,7 +434,7 @@ export default {
       if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
         this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
       }
-      this.userId = this.getUserId;
+      this.userId =this.fetchUserId();
     }
   }
 }
