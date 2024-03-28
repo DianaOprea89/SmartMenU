@@ -171,7 +171,7 @@ export default {
         photoLink: "",
         optionName: "",
       },
-      restaurantData: '',
+      restaurantData: {},
       userId: '',
       restaurantId: '',
       menuOptionId: '',
@@ -403,31 +403,36 @@ export default {
     },
     async fetchRestaurantData() {
       try {
-        // Replace '/api/getRestaurantData' with the actual endpoint you have.
-        // You might need to pass some parameters like restaurantId or userId depending on your API.
-        const response = await api.get('/api/getRestaurantData', {
+        const token = localStorage.getItem('jwtToken');
+        const response = await api.get('/api/userData', {
           headers: {
-            'Authorization': `Bearer ${getAuthToken()}` // Assuming Bearer token authentication
+            'Authorization': `Bearer ${token}`
           }
         });
 
-        // Assuming the data returned from the API is in the response's data property
-        if (response.data) {
-          this.restaurantData = response.data; // Assign the fetched data to your component's data property
+        if (response.data && response.data.restaurants && response.data.restaurants.length > 0) {
+          // Assuming you're interested in the first restaurant's menu options
+          const firstRestaurant = response.data.restaurants[0];
+          if (firstRestaurant.menuOptions && firstRestaurant.menuOptions.length > 0) {
+            // Assuming you're interested in submenu options of the first menu option
+            const firstMenuOption = firstRestaurant.menuOptions[0];
+            this.restaurantData.subMenuOptions = firstMenuOption.subMenuOptions;
+          }
         } else {
           throw new Error('No data returned from the API');
         }
       } catch (error) {
         console.error('Failed to fetch restaurant data:', error);
-        // Handle the error appropriately. You might want to show a message to the user, for example.
+        // Optionally update the component state to reflect the error
+        this.error = 'Failed to fetch restaurant data. Please try again later.';
+        // You could also use this to show an error message in your template.
       }
-    },
+    }
 
   },
   async mounted() {
     await this.fetchRestaurantData();
   },
-
   async created() {
     console.log('Created hook called');
     await this.fetchRestaurantData();
