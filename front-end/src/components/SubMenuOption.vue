@@ -316,20 +316,18 @@ export default {
       }
     },
     async removeSubMenuItem(subMenuOptionId) {
-      if (!this.userId) {
-        await this.fetchUserId();
-      }
-
-      // Ensure you have correct values for userId, restaurantId, and menuOptionId
-      if (!this.userId || !this.restaurantId || !this.menuOptionId) {
-        console.error("Missing IDs for deletion request");
-        console.error("userId:", this.userId);
-        console.error("restaurantId:", this.restaurantId);
-        console.error("menuOptionId:", this.menuOptionId);
-        return;
-      }
 
       try {
+        if (!this.userId) {
+          await this.fetchUserId();
+        }
+        if (!this.userId || !this.restaurantId || !this.menuOptionId) {
+          console.error("Missing IDs for deletion request");
+          console.error("userId:", this.userId);
+          console.error("restaurantId:", this.restaurantId);
+          console.error("menuOptionId:", this.menuOptionId);
+          return;
+        }
         const response = await api.delete(`/api/removeSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`, {
           headers: {Authorization: `Bearer ${getAuthToken()}`}
         });
@@ -381,7 +379,7 @@ export default {
         console.error("Invalid IDs for deletion");
         return;
       }
-      const url = `/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}/${mealOptionId}`;
+      const url = `/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.subMenuOptionId}/${this.mealOptionId}`;
       try {
         const response = await api.delete(url);
         if (response.status === 200) {
