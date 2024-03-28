@@ -43,14 +43,9 @@ app.get('/api/restaurant/:name', async (req, res) => {
 
         // Assuming the restaurant name is unique. Adjust the query as needed.
         const restaurant = await User.findOne({ "restaurants.name": trimmedName }, { "restaurants.$": 1 });
-
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
-
-        // Log the restaurant data
-        console.log('Restaurant data:', restaurant);
-
         // Send the first restaurant in the array, as the query returns an array
         res.status(200).json(restaurant.restaurants[0]);
     } catch (error) {

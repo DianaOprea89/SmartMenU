@@ -1,12 +1,9 @@
 <template>
   <div class="container">
     <div class="m-2 icon-container">
-      <router-link :to="`/restaurant/${encodeURIComponent(restaurantName)}`"
-                   class="go-back d-flex justify-content-end ">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-             class="bi bi-arrow-left-circle m-1" viewBox="0 0 16 16">
-          <path fill-rule="evenodd"
-                d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z"/>
+      <router-link :to="`/restaurant/${encodeURIComponent(restaurantName)}`" class="go-back d-flex justify-content-end ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle m-1" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z"/>
         </svg>
       </router-link>
     </div>
@@ -33,21 +30,15 @@
               @click="setActiveSubMenu(subMenuOption._id)">
             <img :src="subMenuOption.photoLink" alt="Menu item" class="menu-option-image">
             <p class="sub-menu-title">{{ subMenuOption.subMenuOptionName }}</p>
-            <div class="d-flex flex-row bd-highlight m-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                   class="bi bi-pencil edit-icon m-2 border-end"
-                   viewBox="0 0 16 16" @click="editOption(subMenuOption)">
-                <path
-                    d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"
-                />
-              </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                   class="bi bi-trash3 m-2 " viewBox="0 0 16 16" @click="removeSubMenuItem(subMenuOption._id)">
-                <path
-                    d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-              </svg>
-            </div>
-
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4"
+                 viewBox="0 0 16 16" @click="editOption(subMenuOption)">
+              <path
+                  d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"
+              />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 m-4" viewBox="0 0 16 16" @click="removeSubMenuItem(subMenuOption._id)">
+              <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+            </svg>
           </li>
         </ul>
       </aside>
@@ -55,8 +46,7 @@
       <main class="menu-main-content">
         <div v-if="activeSubMenu && groupedMealOptions[activeSubMenu]">
           <ul class="meal-list">
-            <li v-for="mealOption in groupedMealOptions[activeSubMenu].mealOptions" :key="mealOption._id"
-                class="meal-item">
+            <li v-for="mealOption in groupedMealOptions[activeSubMenu].mealOptions" :key="mealOption._id" class="meal-item">
               <img :src="mealOption.photoLink" alt="Meal image" class="meal-image">
               <div class="meal-content">
                 <h3>{{ mealOption.optionName }}</h3>
@@ -68,17 +58,13 @@
                 </div>
               </div>
               <div @click="openEditMealDialog(mealOption, activeSubMenu)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                     class="bi bi-pencil edit-icon m-4" viewBox="0 0 16 16">
-                  <path
-                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4" viewBox="0 0 16 16">
+                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                 </svg>
               </div>
               <div @click="deleteMealOption(mealOption._id, activeSubMenu)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                     class="bi bi-trash3 m-4" viewBox="0 0 16 16">
-                  <path
-                      d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 m-4" viewBox="0 0 16 16" >
+                  <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"
                   />
                 </svg>
               </div>
@@ -113,14 +99,13 @@
           <label for="newName" class="m-2">Nume: </label>
           <input v-if="newOptionSubMenu" id="newName" v-model="editingSubMenuOption.subMenuOptionName"/>
         </div>
-        <div class="mb-3">
+        <div class="mb-3" >
           <label for="newPhotoLink" class="m-2">Link poza: </label>
           <input v-if="newOptionSubMenu" id="newPhotoLink" v-model="editingSubMenuOption.photoLink"/>
         </div>
         <div class="dialog-buttons">
           <button class="btn btn-secondary m-1" @click="showDialogOption = false">Renunta</button>
-          <button class="btn btn-primary add-button m-1" @click="updateSubMenuItem(editingSubMenuOption._id)">Editeaza
-          </button>
+          <button class="btn btn-primary add-button m-1" @click="updateSubMenuItem(editingSubMenuOption._id)">Editeaza</button>
         </div>
       </div>
     </div>
@@ -171,10 +156,9 @@
 
 <script>
 import api from "@/api/api";
-import {getAuthToken} from "@/utility/utility";
+import { getAuthToken } from "@/utility/utility";
 import {mapGetters} from "vuex";
 import MealOption from "@/components/MealOption";
-
 export default {
   components: {MealOption},
   props: {
@@ -187,7 +171,7 @@ export default {
         photoLink: "",
         optionName: "",
       },
-      localRestaurantData: {}, // Local data to store restaurant info
+      restaurantData: '',
       userId: '',
       restaurantId: '',
       menuOptionId: '',
@@ -218,10 +202,8 @@ export default {
         unit: "",
         categoryMenuOption: "",
       },
-      menuOptions:[],
       subMenuOptions: [],  // Initialize as empty array
-      mealOption: {},
-
+      mealOption: {},      // Initialize as empty object
     };
   },
   computed: {
@@ -239,9 +221,6 @@ export default {
         });
       }
       return groupedOptions;
-    },
-    restaurantData() {
-      return this.localRestaurantData;
     },
   },
   methods: {
@@ -270,7 +249,10 @@ export default {
       this.newShowDialog = true;
     },
     openEditMealDialog(mealOption, subMenuOptionId) {
+      console.log("Meal Option: ", mealOption);
+      console.log("Sub Menu Option ID: ", subMenuOptionId);
       if (!mealOption || !subMenuOptionId) {
+        console.error("Meal option or sub-menu option is undefined");
         return;
       }
       this.editingMealOption = {...mealOption};
@@ -282,7 +264,6 @@ export default {
       this.editingSubMenuOption.photoLink = subMenuOption.photoLink;
       this.editingSubMenuOption._id = subMenuOption._id;
       this.showDialogOption = true;
-
     },
     setActiveSubMenu(subMenuId) {
       this.activeSubMenu = subMenuId;
@@ -354,9 +335,6 @@ export default {
         console.error("Error removing sub-menu item:", error);
       }
     },
-    refreshPage() {
-      window.location.reload();
-    },
     async updateSubMenuItem(subMenuOptionId) {
       if (!this.userId || !this.restaurantId || !this.menuOptionId || !subMenuOptionId) {
         console.error("Missing IDs for update request");
@@ -370,11 +348,11 @@ export default {
             }
         );
         if (response.status === 200) {
+          // Update the local state to reflect the changes
           const index = this.restaurantData.subMenuOptions.findIndex(item => item._id === subMenuOptionId);
           if (index !== -1) {
             this.restaurantData.subMenuOptions[index] = JSON.parse(JSON.stringify(this.editingSubMenuOption));
           }
-          this.refreshPage();
           this.showDialogOption = false; // Close the dialog
         } else {
           console.error("Error updating sub-menu item:", response.data.message);
@@ -424,58 +402,41 @@ export default {
       this.newShowDialog = false;
     },
     async fetchRestaurantData() {
-      console.log('fetchRestaurantData called');
-      if (!this.restaurantName) {
-        console.error('Restaurant name is undefined');
-        return;
-      }
-      console.log('Restaurant name:', this.restaurantName);
-      console.log('Menu option:', this.menuOption);
-
       try {
-        const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
-          headers: {Authorization: `Bearer ${getAuthToken()}`}
-        });
-        console.log('Response data:', response.data);
-
-        if (response && response.status === 200 && response.data) {
-          console.log("response.data.menuOptions",response.data.menuOptions)
-          console.log("this.menuOptions",this.menuOptions)
-          const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOptions);
-          console.log("menuOptionData", menuOptionData)
-          // Update the data property that restaurantData depends on
-          this.menuOptionData = menuOptionData || null;
-          this.restaurantId = response.data._id; // Set restaurantId from the response
-          if (menuOptionData) {
-            this.menuOptionId = menuOptionData._id; // Set menuOptionId
+        // Replace '/api/getRestaurantData' with the actual endpoint you have.
+        // You might need to pass some parameters like restaurantId or userId depending on your API.
+        const response = await api.get('/api/getRestaurantData', {
+          headers: {
+            'Authorization': `Bearer ${getAuthToken()}` // Assuming Bearer token authentication
           }
+        });
+
+        // Assuming the data returned from the API is in the response's data property
+        if (response.data) {
+          this.restaurantData = response.data; // Assign the fetched data to your component's data property
         } else {
-          console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
-        }
-        // Check if menuOptions array exists and log its contents
-        if (response.data && Array.isArray(response.data.menuOptions)) {
-          console.log('Menu options:', response.data.menuOptions);
-        } else {
-          console.error('Menu options not found in response data');
+          throw new Error('No data returned from the API');
         }
       } catch (error) {
-        console.error('Error fetching restaurant details:', error);
+        console.error('Failed to fetch restaurant data:', error);
+        // Handle the error appropriately. You might want to show a message to the user, for example.
       }
-    }
+    },
+
   },
+  async mounted() {
+    await this.fetchRestaurantData();
+  },
+
   async created() {
     console.log('Created hook called');
     await this.fetchRestaurantData();
-    if (this.restaurantData && this.restaurantData.subMenuOptions) {
+    if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+      this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
       if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
         this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-        if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
-          this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-        }
-        this.userId = this.getUserId;
       }
-    } else {
-      console.error('SubMenuOptions not available');
+      this.userId = this.getUserId;
     }
   }
 }
@@ -487,22 +448,18 @@ export default {
   max-width: 1200px;
   margin: auto;
 }
-
 .menu-layout {
   display: grid;
   grid-template-columns: 1fr 3fr;
   gap: 2rem;
 }
-
 .active {
   background-color: #ddd; /* or any color you want for the active state */
 }
-
 .menu-sidebar {
   background: #f9f9f9;
   padding: 1rem;
 }
-
 .custom-dialog {
   position: fixed;
   top: 50%;
@@ -515,40 +472,33 @@ export default {
   padding: 20px;
   border-radius: 10px;
 }
-
 .custom-dialog-content input[type="text"] {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
 }
-
 .menu-option-image {
   width: 100px;
   height: 100px;
   object-fit: cover;
   border-radius: 5px;
 }
-
 .edit-icon {
   cursor: pointer;
 }
-
 .custom-dialog-content input[type="text"] {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
 }
-
 .submenu-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
 .submenu-list li {
   padding: 0.5rem 0;
 }
-
 .go-back {
   display: inline-flex; /* Use inline-flex to keep the button inline */
   align-items: center; /* Align the text and icon vertically */
@@ -567,7 +517,6 @@ export default {
 .go-back svg {
   margin-left: 5px; /* Small space between text and icon */
 }
-
 .menu-option-image {
   width: 50px;
   height: 50px;
@@ -575,23 +524,19 @@ export default {
   object-fit: cover;
   margin-right: 10px;
 }
-
 .sub-menu-title {
   font-size: 1.2rem;
   font-weight: bold;
   margin: 0;
 }
-
 .menu-main-content {
   background: #fff;
   padding: 1rem;
 }
-
 .meal-list {
   list-style: none;
   padding: 0;
 }
-
 .meal-item {
   display: flex;
   align-items: center;
@@ -599,66 +544,54 @@ export default {
   margin-bottom: 1rem;
   padding-bottom: 1rem;
 }
-
 .meal-image {
-  width: 150px;
-  height: 150px;
-  margin-right: 20px;
-  border-radius: 5%;
+  width: 100px;
+  height: 100px;
+  border-radius: 5px;
   object-fit: cover;
+  margin-right: 1rem;
 }
-
 .meal-content {
   flex: 1;
 }
-
 .meal-description {
   font-style: italic;
   margin: 0.5rem 0;
 }
-
 .meal-ingredients {
   margin: 0;
 }
-
 .meal-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 1rem;
 }
-
 .meal-quantity {
   font-size: 0.9rem;
 }
-
 .meal-price {
   font-weight: bold;
   color: #333;
 }
-
 .submenu-list li {
   padding: 0.5rem 0;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
 .active {
   background-color: #ddd;
   cursor: pointer;
   color: #000;
 }
-
 .icon-container svg {
   height: 24px;
   width: 24px;
   fill: currentColor;
 }
-
 .icon-container svg {
   stroke-width: 2;
 }
-
 .icon-container {
   display: flex;
   justify-content: flex-end;
