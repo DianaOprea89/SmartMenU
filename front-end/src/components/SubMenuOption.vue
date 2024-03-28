@@ -226,20 +226,19 @@ export default {
   methods: {
     async fetchUserId() {
       try {
-        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
+        const token = localStorage.getItem('jwtToken');
         const response = await api.get('/api/userData', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
         if (response.data && response.data.id) {
-          return response.data.id; // Assuming the response includes the user ID
+          this.userId = response.data.id;
         } else {
           throw new Error('User ID not found in response');
         }
       } catch (error) {
         console.error('Failed to fetch user ID:', error);
-        return null; // Handle error or return null if ID couldn't be fetched
       }
     },
     openDialog() {
@@ -317,43 +316,53 @@ export default {
       }
     },
     async removeSubMenuItem(subMenuOptionId) {
+      if (!this.userId) {
+        await this.fetchUserId();
+      }
+
+      // Ensure you have correct values for userId, restaurantId, and menuOptionId
       if (!this.userId || !this.restaurantId || !this.menuOptionId) {
         console.error("Missing IDs for deletion request");
+        console.error("userId:", this.userId);
+        console.error("restaurantId:", this.restaurantId);
+        console.error("menuOptionId:", this.menuOptionId);
         return;
       }
+
       try {
         const response = await api.delete(`/api/removeSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`, {
           headers: {Authorization: `Bearer ${getAuthToken()}`}
         });
+
         if (response.status === 200) {
-          // Remove the item from the local state
+          // Filter out the deleted submenu option
           this.restaurantData.subMenuOptions = this.restaurantData.subMenuOptions.filter(item => item._id !== subMenuOptionId);
         } else {
           console.error("Error removing sub-menu item:", response.data.message);
         }
       } catch (error) {
-        console.error("Error removing sub-menu item:", error);
+        console.error("Failed to remove sub-menu item:", error);
       }
     },
+
     async updateSubMenuItem(subMenuOptionId) {
+      // Ensure correct ID values are available
       if (!this.userId || !this.restaurantId || !this.menuOptionId || !subMenuOptionId) {
         console.error("Missing IDs for update request");
         return;
       }
       try {
-        const response = await api.put(
-            `/api/editSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`,
-            this.editingSubMenuOption, {
-              headers: {Authorization: `Bearer ${getAuthToken()}`}
-            }
-        );
+        const response = await api.put(`/api/editSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`, this.editingSubMenuOption, {
+          headers: {Authorization: `Bearer ${getAuthToken()}`}
+        });
         if (response.status === 200) {
-          // Update the local state to reflect the changes
+          // Find the index of the submenu option to update
           const index = this.restaurantData.subMenuOptions.findIndex(item => item._id === subMenuOptionId);
           if (index !== -1) {
-            this.restaurantData.subMenuOptions[index] = JSON.parse(JSON.stringify(this.editingSubMenuOption));
+            // Update the submenu option locally
+            this.restaurantData.subMenuOptions[index] = {...this.editingSubMenuOption, _id: subMenuOptionId};
           }
-          this.showDialogOption = false; // Close the dialog
+          this.showDialogOption = false; // Close the edit dialog
         } else {
           console.error("Error updating sub-menu item:", response.data.message);
         }
@@ -364,7 +373,7 @@ export default {
     async deleteMealOption(mealOptionId, subMenuOptionId) {
       console.log("Deleting meal option with IDs:", mealOptionId, subMenuOptionId);
       // Rest of your code...
-      if (!this.userId || !this.restaurantId || !this.menuOptionId) {
+      if (!this.fetchUserId || !this.restaurantId || !this.menuOptionId) {
         console.error("Required IDs are missing");
         return;
       }
@@ -428,23 +437,22 @@ export default {
         // You could also use this to show an error message in your template.
       }
     }
+  },
+    async mounted() {
+      await this.fetchUserId();
+      await this.fetchRestaurantData();
+    },
+    async created() {
+      console.log('Created hook called');
+      await this.fetchUserId();
+      await this.fetchRestaurantData();
 
-  },
-  async mounted() {
-    await this.fetchRestaurantData();
-  },
-  async created() {
-    console.log('Created hook called');
-    await this.fetchRestaurantData();
-    if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
-      this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-      if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+      // Check if restaurantData is properly initialized
+      if (this.restaurantData && this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
         this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
       }
-      this.userId = this.getUserId;
     }
   }
-}
 </script>
 <style scoped>
 .container {
