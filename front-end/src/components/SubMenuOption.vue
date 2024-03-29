@@ -418,11 +418,12 @@ export default {
         });
 
         if (response.data && response.data.restaurants && response.data.restaurants.length > 0) {
-          // Assuming you're interested in the first restaurant's menu options
           const firstRestaurant = response.data.restaurants[0];
+          this.restaurantId = firstRestaurant._id; // Assuming _id is the field for the restaurant's ID
+
           if (firstRestaurant.menuOptions && firstRestaurant.menuOptions.length > 0) {
-            // Assuming you're interested in submenu options of the first menu option
             const firstMenuOption = firstRestaurant.menuOptions[0];
+            this.menuOptionId = firstMenuOption._id; // Assuming _id is the field for the menu option's ID
             this.restaurantData.subMenuOptions = firstMenuOption.subMenuOptions;
           }
         } else {
