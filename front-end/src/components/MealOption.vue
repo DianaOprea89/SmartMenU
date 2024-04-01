@@ -116,8 +116,9 @@ export default {
       };
     },
     async submitMealOption() {
-      const userId = await this.fetchUserId();
-      console.log('User ID:', userId);
+      if (!this.userId) {
+        await this.fetchUserId();
+      }
       const mealOptionData = {
         ...this.mealOption,
         categoryMenuOption: this.mealOption.categoryMenuOption,
@@ -175,10 +176,14 @@ export default {
     },
 
   },
+  async mounted() {
+    await this.fetchUserId();
+    await this.fetchRestaurantData();
+  },
   async created() {
     console.log('Component created! Fetching restaurant data...');
     await this.fetchRestaurantData();
-    this.userId = await this.fetchUserId();
+    await this.fetchUserId();
   },
 };
 </script>
