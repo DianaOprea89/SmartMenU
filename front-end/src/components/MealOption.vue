@@ -64,6 +64,10 @@ export default {
   data() {
     return {
       showDialog: false,
+      restaurantData: {},
+      userId: '',
+      restaurantId: '',
+      menuOptionId: '',
       mealOption: {
         photoLink: "",
         optionName: "",
@@ -91,13 +95,12 @@ export default {
           }
         });
         if (response.data && response.data.id) {
-          return response.data.id; // Assuming the response includes the user ID
+          this.userId = response.data.id; // Set the userId here
         } else {
           throw new Error('User ID not found in response');
         }
       } catch (error) {
         console.error('Failed to fetch user ID:', error);
-        return null; // Handle error or return null if ID couldn't be fetched
       }
     },
     closeDialog() {
@@ -116,17 +119,15 @@ export default {
       };
     },
     async submitMealOption() {
-      if (!this.userId) {
-        await this.fetchUserId();
-      }
-      const mealOptionData = {
-        ...this.mealOption,
-        categoryMenuOption: this.mealOption.categoryMenuOption,
-      };
+      const mealOptionData = { ...this.mealOption };
        console.log(this.mealOption.categoryMenuOption)
 
       // You must have userId, restaurantId, menuOptionId, and subMenuOptionId available
       if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.mealOption.categoryMenuOption) {
+        console.error("mealOption",this.mealOption.categoryMenuOption);
+        console.error("userId:", this.userId);
+        console.error("restaurantId:", this.restaurantId);
+        console.error("menuOptionId:", this.menuOptionId);
         console.error("Missing IDs for the request");
         return;
       }
@@ -150,23 +151,20 @@ export default {
         return;
       }
       try {
+        // Assuming this endpoint returns the details of the restaurant by name
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
           headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
 
         if (response && response.status === 200 && response.data) {
+          this.restaurantId = response.data._id; // Set the restaurantId here assuming the response includes the restaurant's ID
+
+          // Assuming the menuOption is a name or identifier used to find the specific menu option
           const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
-
-          this.restaurantData = menuOptionData || null;
-          this.restaurantId = response.data._id; // Set restaurantId from the response
+          console.log("menuOptionData",menuOptionData);
           if (menuOptionData) {
-            this.menuOptionId = menuOptionData._id; // Set menuOptionId
+            this.menuOptionId = menuOptionData._id; // Set the menuOptionId here
           }
-          console.log('Fetched restaurant data:', this.restaurantData);
-
-          // Log individual IDs
-          console.log('Restaurant ID:', this.restaurantId);
-          console.log('Menu Option ID:', this.menuOptionId);
         } else {
           console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
         }
