@@ -151,19 +151,20 @@ export default {
         return;
       }
       try {
-        // Assuming this endpoint returns the details of the restaurant by name
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
           headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
 
         if (response && response.status === 200 && response.data) {
-          this.restaurantId = response.data._id; // Set the restaurantId here assuming the response includes the restaurant's ID
+          this.restaurantId = response.data._id;
 
-          // Assuming the menuOption is a name or identifier used to find the specific menu option
-          const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
-          console.log("menuOptionData",menuOptionData);
+          const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption);
+          console.log("menuOptionData", menuOptionData);
           if (menuOptionData) {
-            this.menuOptionId = menuOptionData._id; // Set the menuOptionId here
+            this.menuOptionId = menuOptionData._id;
+            console.log("MenuOptionData ID set to:", this.menuOptionId);
+          } else {
+            console.error('Failed to find menu option data. Status:', response.status);
           }
         } else {
           console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
@@ -177,6 +178,8 @@ export default {
   async mounted() {
     await this.fetchUserId();
     await this.fetchRestaurantData();
+    console.log("Mounted: userId, restaurantId, menuOptionId", this.userId, this.restaurantId, this.menuOptionId); // Debugging line
+
   },
   async created() {
     console.log('Component created! Fetching restaurant data...');
