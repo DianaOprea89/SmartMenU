@@ -146,25 +146,25 @@ export default {
     },
 
     async fetchRestaurantData() {
-      if (!this.restaurantName) {
-        console.error('Restaurant name is undefined');
-        return;
-      }
       try {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
           headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
 
         if (response && response.status === 200 && response.data) {
-          this.restaurantId = response.data._id;
+          this.restaurantId = response.data._id; // Assuming this is correctly setting the restaurant ID
 
-          const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption);
-          console.log("menuOptionData", menuOptionData);
+          // Now, you need to correctly find the menu option within the restaurant's menuOptions array
+          // Ensure this.menuOption is the property you're matching against. It could be an ID or name.
+          const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption || m._id === this.menuOption);
+
           if (menuOptionData) {
-            this.menuOptionId = menuOptionData._id;
+            this.menuOptionId = menuOptionData._id; // Correctly setting the menuOptionId
             console.log("MenuOptionData ID set to:", this.menuOptionId);
+            // Now that we have the menuOptionId, we can proceed to fetch or set subMenuOptions if necessary
+            this.subMenuOptions = menuOptionData.subMenuOptions || []; // Assuming subMenuOptions exists
           } else {
-            console.error('Failed to find menu option data. Status:', response.status);
+            console.error('Menu option data not found.');
           }
         } else {
           console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
@@ -172,7 +172,7 @@ export default {
       } catch (error) {
         console.error('Error fetching restaurant details:', error);
       }
-    },
+    }
 
   },
   async mounted() {
