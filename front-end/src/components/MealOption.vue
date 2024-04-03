@@ -66,6 +66,7 @@ export default {
       showDialog: false,
       restaurantData: {},
       userId: '',
+      localSubMenuOptions: [],
       restaurantId: '',
       menuOptionId: '',
       mealOption: {
@@ -144,7 +145,6 @@ export default {
             console.error("Error adding meal option:", error);
           });
     },
-
     async fetchRestaurantData() {
       try {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
@@ -162,7 +162,7 @@ export default {
             this.menuOptionId = menuOptionData._id; // Correctly setting the menuOptionId
             console.log("MenuOptionData ID set to:", this.menuOptionId);
             // Now that we have the menuOptionId, we can proceed to fetch or set subMenuOptions if necessary
-            this.subMenuOptions = menuOptionData.subMenuOptions || []; // Assuming subMenuOptions exists
+            this.localSubMenuOptions = menuOptionData.subMenuOptions || []; // Assuming subMenuOptions exists
           } else {
             console.error('Menu option data not found.');
           }
@@ -172,14 +172,31 @@ export default {
       } catch (error) {
         console.error('Error fetching restaurant details:', error);
       }
-    }
+    },
+    async initializeComponent() {
+      await this.fetchUserId();
+      await this.fetchRestaurantData();
+      // Any additional initialization
+      console.log("Mounted: userId, restaurantId, menuOptionId", this.userId, this.restaurantId, this.menuOptionId);
+      // Initialize local copy of subMenuOptions
+      this.localSubMenuOptions = [...this.subMenuOptions];
+    },
+    updateLocalSubMenuOptions(newValue) {
+      // Deep clone newValue to ensure no references are kept to the original prop
+      this.localSubMenuOptions = JSON.parse(JSON.stringify(newValue));
+    },
 
   },
+  watch: {
+    subMenuOptions: {
+      immediate: true,
+      handler(newValue) {
+        this.updateLocalSubMenuOptions(newValue);
+      }
+    }
+  },
   async mounted() {
-    await this.fetchUserId();
-    await this.fetchRestaurantData();
-    console.log("Mounted: userId, restaurantId, menuOptionId", this.userId, this.restaurantId, this.menuOptionId); // Debugging line
-
+    await this.initializeComponent();
   },
   async created() {
     console.log('Component created! Fetching restaurant data...');
