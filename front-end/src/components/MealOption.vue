@@ -67,8 +67,6 @@ export default {
       restaurantData: {},
       userId: '',
       localSubMenuOptions: [],
-      restaurantId: '',
-      menuOptionId: '',
       mealOption: {
         photoLink: "",
         optionName: "",
@@ -79,9 +77,9 @@ export default {
         unit: "",
         allergens:"",
         categoryMenuOption: "",
-        userId: '', // Initialize userId
-        restaurantId: '', // Initialize restaurantId
-        menuOptionId: '', // Initialize menuOptionId
+        userId: '',
+        restaurantId: '',
+        menuOptionId: '',
 
       },
     };
@@ -151,18 +149,20 @@ export default {
           headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
 
-        if (response && response.status === 200 && response.data) {
-          this.restaurantId = response.data._id; // Assuming this is correctly setting the restaurant ID
+        console.log("Response data:", response.data); // Check the entire response data structure
 
-          // Now, you need to correctly find the menu option within the restaurant's menuOptions array
-          // Ensure this.menuOption is the property you're matching against. It could be an ID or name.
+        if (response && response.status === 200 && response.data) {
+          this.restaurantId = response.data._id;
+          console.log("Restaurant ID:", this.restaurantId);
+          console.log("this.menuOption value:", this.menuOption);
+          console.log("All menu options:", response.data.menuOptions);
           const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption || m._id === this.menuOption);
 
+          console.log("Found menuOptionData:", menuOptionData); // Check what's found
           if (menuOptionData) {
-            this.menuOptionId = menuOptionData._id; // Correctly setting the menuOptionId
+            this.menuOptionId = menuOptionData._id;
             console.log("MenuOptionData ID set to:", this.menuOptionId);
-            // Now that we have the menuOptionId, we can proceed to fetch or set subMenuOptions if necessary
-            this.localSubMenuOptions = menuOptionData.subMenuOptions || []; // Assuming subMenuOptions exists
+            this.localSubMenuOptions = menuOptionData.subMenuOptions || [];
           } else {
             console.error('Menu option data not found.');
           }
