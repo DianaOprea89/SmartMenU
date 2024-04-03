@@ -437,21 +437,21 @@ export default {
       }
     }
   },
-    async mounted() {
-      await this.fetchUserId();
-      await this.fetchRestaurantData();
-    },
-    async created() {
-      console.log('Created hook called');
-      await this.fetchUserId();
-      await this.fetchRestaurantData();
+  async mounted() {
+    await this.fetchUserId();
+    await this.fetchRestaurantData();
+  },
+  async created() {
+    console.log('Created hook called');
+    await this.fetchUserId();
+    await this.fetchRestaurantData();
 
-      // Check if restaurantData is properly initialized
-      if (this.restaurantData && this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
-        this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
-      }
+    // Check if restaurantData is properly initialized
+    if (this.restaurantData && this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+      this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
     }
   }
+}
 </script>
 <style scoped>
 .container {

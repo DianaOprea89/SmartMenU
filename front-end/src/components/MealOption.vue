@@ -119,7 +119,7 @@ export default {
     },
     async submitMealOption() {
       const mealOptionData = { ...this.mealOption };
-       console.log(this.mealOption.categoryMenuOption)
+      console.log(this.mealOption.categoryMenuOption)
 
       // You must have userId, restaurantId, menuOptionId, and subMenuOptionId available
       if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.mealOption.categoryMenuOption) {
