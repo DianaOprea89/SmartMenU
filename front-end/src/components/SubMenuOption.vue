@@ -18,6 +18,7 @@
           :menu-option="menuOption"
           :sub-menu-options="restaurantData.subMenuOptions"
           @meal-option-added="handleMealOptionAdded"
+          @update-sub-menu-options="updateSubMenuOptions"
           @close="newShowDialog = false">
       </meal-option>
     </div>
@@ -354,12 +355,10 @@ export default {
           headers: {Authorization: `Bearer ${getAuthToken()}`}
         });
         if (response.status === 200) {
-          // Find the index of the submenu option to update
-          const index = this.restaurantData.subMenuOptions.findIndex(item => item._id === subMenuOptionId);
-          if (index !== -1) {
+
             // Update the submenu option locally
-            this.restaurantData.subMenuOptions[index] = {...this.editingSubMenuOption, _id: subMenuOptionId};
-          }
+            this.restaurantData.subMenuOptions.push(mealOptionData);
+
           this.showDialogOption = false; // Close the edit dialog
         } else {
           console.error("Error updating sub-menu item:", response.data.message);
@@ -395,7 +394,9 @@ export default {
       }
     },
     handleMealOptionAdded(newMealOption) {
-      this.updateSubMenuWithMealOption(newMealOption);
+      let subMenuToUpdate = this.subMenuOptions.find(subMenu => subMenu._id === updatedOption._id);
+      // assign the updated values to this item
+      Object.assign(subMenuToUpdate, updatedOption);
       const currentPath = this.$route.path;
       this.$router.replace({path: '/empty'}).then(() => {
         this.$router.replace({path: currentPath});

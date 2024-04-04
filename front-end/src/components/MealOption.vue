@@ -5,7 +5,7 @@
       <div class="form-group">
         <label for="subMenu">Categorie subMeniu:</label>
         <select id="subMenu" v-model="mealOption.categoryMenuOption" class="form-control">
-          <option v-for="(option, index) in subMenuOptions" :key="index" :value="option._id">{{ option.subMenuOptionName }}</option>
+          <option v-for="(option, index) in localSubMenuOptions" :key="index" :value="option._id">{{ option.subMenuOptionName }}</option>
         </select>
       </div>
       <div class="form-group">
@@ -66,8 +66,6 @@ export default {
       showDialog: false,
       restaurantData: {},
       userId: '',
-      restaurantId: '',
-      menuOptionId: '',
       mealOption: {
         photoLink: "",
         optionName: "",
@@ -84,6 +82,11 @@ export default {
 
       },
     };
+  },
+  computed: {
+    localSubMenuOptions() {
+      return this.subMenuOptions ? [...this.subMenuOptions] : [];
+    },
   },
   methods: {
     async fetchUserId() {
@@ -120,29 +123,22 @@ export default {
     },
     async submitMealOption() {
       const mealOptionData = { ...this.mealOption };
-      console.log(this.mealOption.categoryMenuOption)
 
-      // You must have userId, restaurantId, menuOptionId, and subMenuOptionId available
       if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.mealOption.categoryMenuOption) {
-        console.error("mealOption",this.mealOption.categoryMenuOption);
-        console.error("userId:", this.userId);
-        console.error("restaurantId:", this.restaurantId);
-        console.error("menuOptionId:", this.menuOptionId);
-        console.error("Missing IDs for the request");
+        console.error("Required IDs or categoryMenuOption is missing.");
         return;
       }
 
-      api.post(`/api/addMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.mealOption.categoryMenuOption}`, mealOptionData, {
-        headers: { Authorization: `Bearer ${getAuthToken()}` },
-      })
-          .then(response => {
-            this.$emit('meal-option-added', response.data);
-            this.clearForm();
-            this.closeDialog();
-          })
-          .catch(error => {
-            console.error("Error adding meal option:", error);
-          });
+      try {
+        const response = await api.post(`/api/addMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.mealOption.categoryMenuOption}`, mealOptionData, {
+          headers: {Authorization: `Bearer ${getAuthToken()}`},
+        });
+        this.$emit('update-sub-menu-options', mealOptionData);
+        this.clearForm();
+        this.closeDialog();
+      } catch (error) {
+        console.error("Error adding meal option:", error);
+      }
     },
 
     async fetchRestaurantData() {
