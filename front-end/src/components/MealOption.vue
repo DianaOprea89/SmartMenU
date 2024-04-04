@@ -66,7 +66,8 @@ export default {
       showDialog: false,
       restaurantData: {},
       userId: '',
-      localSubMenuOptions: [],
+      restaurantId: '',
+      menuOptionId: '',
       mealOption: {
         photoLink: "",
         optionName: "",
@@ -77,9 +78,9 @@ export default {
         unit: "",
         allergens:"",
         categoryMenuOption: "",
-        userId: '',
-        restaurantId: '',
-        menuOptionId: '',
+        userId: '', // Initialize userId
+        restaurantId: '', // Initialize restaurantId
+        menuOptionId: '', // Initialize menuOptionId
 
       },
     };
@@ -143,26 +144,25 @@ export default {
             console.error("Error adding meal option:", error);
           });
     },
+
     async fetchRestaurantData() {
       try {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
           headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
 
-        console.log("Response data:", response.data); // Check the entire response data structure
-
         if (response && response.status === 200 && response.data) {
-          this.restaurantId = response.data._id;
-          console.log("Restaurant ID:", this.restaurantId);
-          console.log("this.menuOption value:", this.menuOption);
-          console.log("All menu options:", response.data.menuOptions);
+          this.restaurantId = response.data._id; // Assuming this is correctly setting the restaurant ID
+
+          // Now, you need to correctly find the menu option within the restaurant's menuOptions array
+          // Ensure this.menuOption is the property you're matching against. It could be an ID or name.
           const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption || m._id === this.menuOption);
 
-          console.log("Found menuOptionData:", menuOptionData); // Check what's found
           if (menuOptionData) {
-            this.menuOptionId = menuOptionData._id;
+            this.menuOptionId = menuOptionData._id; // Correctly setting the menuOptionId
             console.log("MenuOptionData ID set to:", this.menuOptionId);
-            this.localSubMenuOptions = menuOptionData.subMenuOptions || [];
+            // Now that we have the menuOptionId, we can proceed to fetch or set subMenuOptions if necessary
+            this.subMenuOptions = menuOptionData.subMenuOptions || []; // Assuming subMenuOptions exists
           } else {
             console.error('Menu option data not found.');
           }
@@ -172,31 +172,14 @@ export default {
       } catch (error) {
         console.error('Error fetching restaurant details:', error);
       }
-    },
-    async initializeComponent() {
-      await this.fetchUserId();
-      await this.fetchRestaurantData();
-      // Any additional initialization
-      console.log("Mounted: userId, restaurantId, menuOptionId", this.userId, this.restaurantId, this.menuOptionId);
-      // Initialize local copy of subMenuOptions
-      this.localSubMenuOptions = [...this.subMenuOptions];
-    },
-    updateLocalSubMenuOptions(newValue) {
-      // Deep clone newValue to ensure no references are kept to the original prop
-      this.localSubMenuOptions = JSON.parse(JSON.stringify(newValue));
-    },
+    }
 
   },
-  watch: {
-    subMenuOptions: {
-      immediate: true,
-      handler(newValue) {
-        this.updateLocalSubMenuOptions(newValue);
-      }
-    }
-  },
   async mounted() {
-    await this.initializeComponent();
+    await this.fetchUserId();
+    await this.fetchRestaurantData();
+    console.log("Mounted: userId, restaurantId, menuOptionId", this.userId, this.restaurantId, this.menuOptionId); // Debugging line
+
   },
   async created() {
     console.log('Component created! Fetching restaurant data...');
