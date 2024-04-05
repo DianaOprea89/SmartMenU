@@ -130,10 +130,10 @@ export default {
       }
 
       try {
-        const response = await api.post(`/api/addMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.mealOption.categoryMenuOption}`, mealOptionData, {
+        const updatedValue = await api.post(`/api/addMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.mealOption.categoryMenuOption}`, mealOptionData, {
           headers: {Authorization: `Bearer ${getAuthToken()}`},
         });
-        this.$emit('update-sub-menu-options', mealOptionData);
+        this.$emit('updateSubMenuOptions', updatedValue);
         this.clearForm();
         this.closeDialog();
       } catch (error) {
