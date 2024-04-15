@@ -121,25 +121,7 @@ export default {
         categoryMenuOption: ""
       };
     },
-    async submitMealOption() {
-      const mealOptionData = { ...this.mealOption };
 
-      if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.mealOption.categoryMenuOption) {
-        console.error("Required IDs or categoryMenuOption is missing.");
-        return;
-      }
-
-      try {
-        const updatedValue = await api.post(`/api/addMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.mealOption.categoryMenuOption}`, mealOptionData, {
-          headers: {Authorization: `Bearer ${getAuthToken()}`},
-        });
-        this.$emit('updateSubMenuOptions', updatedValue);
-        this.clearForm();
-        this.closeDialog();
-      } catch (error) {
-        console.error("Error adding meal option:", error);
-      }
-    },
 
     async fetchRestaurantData() {
       try {
