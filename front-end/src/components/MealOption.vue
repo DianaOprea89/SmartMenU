@@ -89,9 +89,9 @@ export default {
     },
   },
   methods: {
-    updateSubMenuOption(updatedOption) {
-      // Emit an event instead of modifying the prop
-      this.$emit('update-options', updatedOption);
+    submitNewSubMenuOption(option) {
+      // Instead of this.subMenuOptions.push(option);
+      this.$emit('update-submenu-option', option);
     },
     async fetchUserId() {
       try {
@@ -144,7 +144,9 @@ export default {
         console.error("Error adding meal option:", error);
       }
     },
-
+    addSubMenuOption(option) {
+      this.$emit('add-submenu-option', option);
+    },
     async fetchRestaurantData() {
       try {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
