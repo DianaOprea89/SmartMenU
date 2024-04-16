@@ -60,13 +60,12 @@ import { getAuthToken } from "@/utility/utility";
 
 export default {
   name: "MealOption",
-  props: ['restaurantName', 'menuOption'],
+  props: ['restaurantName', 'menuOption','subMenuOptions'],
   data() {
     return {
       showDialog: false,
       restaurantData: {},
       userId: '',
-      subMenuOptions:'',
       mealOption: {
         photoLink: "",
         optionName: "",
@@ -90,8 +89,9 @@ export default {
     },
   },
   methods: {
-    updateSubMenuOption(newOptions) {
-      this.$emit('update-options', newOptions);
+    updateSubMenuOption(updatedOption) {
+      // Emit an event instead of modifying the prop
+      this.$emit('update-options', updatedOption);
     },
     async fetchUserId() {
       try {

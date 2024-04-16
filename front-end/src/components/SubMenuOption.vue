@@ -16,9 +16,8 @@
           v-if="newShowDialog"
           :restaurant-name="restaurantName"
           :menu-option="menuOption"
-          @meal-option-added="handleMealOptionAdded"
           :sub-menu-options="subMenuOptions"
-          @update-options="handleUpdateOptions"
+          @add-submenu-option="handleAddSubMenuOption"
           @close="newShowDialog = false">
       </meal-option>
     </div>
@@ -225,6 +224,9 @@ export default {
     },
   },
   methods: {
+    handleAddSubMenuOption(newOption) {
+      this.subMenuOptions.push(newOption);
+    },
     async fetchUserId() {
       try {
         const token = localStorage.getItem('jwtToken');
@@ -296,24 +298,24 @@ export default {
             console.error("Error adding sub-menu item:", error);
           });
     },
-    async submitEditedMealOption() {
-      if (!this.editingSubMenuOption._id) {
-        console.error("subMenuOptionId is not defined");
+    async submitMealOption() {
+      const mealOptionData = { ...this.mealOption };
+
+      if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.mealOption.categoryMenuOption) {
+        console.error("Required IDs or categoryMenuOption is missing.");
         return;
       }
-      if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.editingMealOption._id) {
-        console.error("Missing IDs for update request");
-        return;
-      }
-      const url = `/api/updateMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.editingSubMenuOption._id}/${this.editingMealOption._id}`;
+
       try {
-        const response = await api.put(url, this.editingMealOption);
-        if (response.status === 200) {
-          this.fetchRestaurantData();
-          this.newMealCustomDialog = false;
-        }
+        const updatedValue = await api.post(`/api/addMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.mealOption.categoryMenuOption}`, mealOptionData, {
+          headers: {Authorization: `Bearer ${getAuthToken()}`},
+        });
+        // Emit event to parent to update the subMenuOptions
+        this.$emit('update-submenu-options', updatedValue.data);
+        this.clearForm();
+        this.closeDialog();
       } catch (error) {
-        console.error("Error updating meal option:", error);
+        console.error("Error adding meal option:", error);
       }
     },
     async removeSubMenuItem(subMenuOptionId) {
@@ -404,6 +406,7 @@ export default {
         this.$router.replace({path: currentPath});
       });
     },
+
     updateSubMenuWithMealOption(mealOption) {
       const submenu = this.restaurantData.subMenuOptions.find(subMenu => subMenu._id === mealOption.subMenuId);
       if (submenu) {
@@ -439,9 +442,6 @@ export default {
         // You could also use this to show an error message in your template.
       }
     },
-    handleUpdateOptions(newOptions) {
-      this.subMenuOptions = newOptions;
-    }
   },
   async mounted() {
     await this.fetchUserId();
