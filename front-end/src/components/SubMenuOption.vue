@@ -16,9 +16,9 @@
           v-if="newShowDialog"
           :restaurant-name="restaurantName"
           :menu-option="menuOption"
-          :sub-menu-options="restaurantData.subMenuOptions"
           @meal-option-added="handleMealOptionAdded"
-          @update-sub-menu-options="updateSubMenuOptions"
+          :sub-menu-options="subMenuOptions"
+          @update-options="handleUpdateOptions"
           @close="newShowDialog = false">
       </meal-option>
     </div>
@@ -354,11 +354,13 @@ export default {
         const response = await api.put(`/api/editSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`, this.editingSubMenuOption, {
           headers: {Authorization: `Bearer ${getAuthToken()}`}
         });
-        if (response.status === 200) {
-
-            // Update the submenu option locally
-            this.restaurantData.subMenuOptions.push(mealOptionData);
-
+        if (response.status === 200 && response.data) {
+          // Find the index of the submenu option to update
+          const index = this.restaurantData.subMenuOptions.findIndex(option => option._id === subMenuOptionId);
+          if (index !== -1) {
+            // Update the submenu option locally with the new data from the server
+            this.$set(this.restaurantData.subMenuOptions, index, response.data.updatedSubMenuOption);
+          }
           this.showDialogOption = false; // Close the edit dialog
         } else {
           console.error("Error updating sub-menu item:", response.data.message);
@@ -366,7 +368,8 @@ export default {
       } catch (error) {
         console.error("Error updating sub-menu item:", error);
       }
-    },
+      },
+
     async deleteMealOption(mealOptionId, subMenuOptionId) {
       console.log("Deleting meal option with IDs:", mealOptionId, subMenuOptionId);
       // Rest of your code...
@@ -393,9 +396,8 @@ export default {
         console.error("Error deleting meal option:", error);
       }
     },
-    handleMealOptionAdded(newMealOption) {
+    handleMealOptionAdded(updatedOption) {
       let subMenuToUpdate = this.subMenuOptions.find(subMenu => subMenu._id === updatedOption._id);
-      // assign the updated values to this item
       Object.assign(subMenuToUpdate, updatedOption);
       const currentPath = this.$route.path;
       this.$router.replace({path: '/empty'}).then(() => {
@@ -436,6 +438,9 @@ export default {
         this.error = 'Failed to fetch restaurant data. Please try again later.';
         // You could also use this to show an error message in your template.
       }
+    },
+    handleUpdateOptions(newOptions) {
+      this.subMenuOptions = newOptions;
     }
   },
   async mounted() {

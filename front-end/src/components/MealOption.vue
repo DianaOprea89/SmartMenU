@@ -60,12 +60,13 @@ import { getAuthToken } from "@/utility/utility";
 
 export default {
   name: "MealOption",
-  props: ['restaurantName', 'menuOption', 'subMenuOptions'],
+  props: ['restaurantName', 'menuOption'],
   data() {
     return {
       showDialog: false,
       restaurantData: {},
       userId: '',
+      subMenuOptions:'',
       mealOption: {
         photoLink: "",
         optionName: "",
@@ -89,6 +90,9 @@ export default {
     },
   },
   methods: {
+    updateSubMenuOption(newOptions) {
+      this.$emit('update-options', newOptions);
+    },
     async fetchUserId() {
       try {
         const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
