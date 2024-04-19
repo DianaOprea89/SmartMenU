@@ -47,7 +47,7 @@
       </div>
       <div class="dialog-buttons">
         <button class="btn btn-secondary" @click="closeDialog">Renunta</button>
-        <button class="btn btn-primary" @click="submitMealOption">Adauga</button>
+        <button class="btn btn-primary" @click="submitNewSubMenuOption">Adauga</button>
       </div>
     </div>
   </div>
