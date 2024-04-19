@@ -154,17 +154,17 @@ export default {
         });
 
         if (response && response.status === 200 && response.data) {
-          this.restaurantId = response.data._id; // Assuming this is correctly setting the restaurant ID
+          this.restaurantId = response.data._id; // Setting the restaurant ID
 
-          // Now, you need to correctly find the menu option within the restaurant's menuOptions array
-          // Ensure this.menuOption is the property you're matching against. It could be an ID or name.
+          // Find the correct menu option
           const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption || m._id === this.menuOption);
 
           if (menuOptionData) {
-            this.menuOptionId = menuOptionData._id; // Correctly setting the menuOptionId
+            this.menuOptionId = menuOptionData._id; // Setting the menuOptionId
             console.log("MenuOptionData ID set to:", this.menuOptionId);
-            // Now that we have the menuOptionId, we can proceed to fetch or set subMenuOptions if necessary
-            this.subMenuOptions = menuOptionData.subMenuOptions || []; // Assuming subMenuOptions exists
+
+            // Emit event with new subMenuOptions data
+            this.$emit('update-submenu-options', menuOptionData.subMenuOptions || []);
           } else {
             console.error('Menu option data not found.');
           }
@@ -175,6 +175,7 @@ export default {
         console.error('Error fetching restaurant details:', error);
       }
     }
+
 
   },
   async mounted() {

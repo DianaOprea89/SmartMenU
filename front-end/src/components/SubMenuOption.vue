@@ -17,7 +17,7 @@
           :restaurant-name="restaurantName"
           :menu-option="menuOption"
           :sub-menu-options="subMenuOptions"
-          @add-submenu-option="handleUpdateSubMenuOption"
+          @update-submenu-options="handleSubMenuOptions"
           @close="newShowDialog = false">
       </meal-option>
     </div>
@@ -224,8 +224,8 @@ export default {
     },
   },
   methods: {
-    handleUpdateSubMenuOption(option) {
-      this.subMenuOptions.push(option);
+    handleSubMenuOptions(options) {
+      this.subMenuOptions = options;
     },
     async fetchUserId() {
       try {
