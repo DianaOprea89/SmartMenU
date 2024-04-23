@@ -5,7 +5,7 @@
       <div class="form-group">
         <label for="subMenu">Categorie subMeniu:</label>
         <select id="subMenu" v-model="mealOption.categoryMenuOption" class="form-control">
-          <option v-for="(option, index) in localSubMenuOptions" :key="index" :value="option._id">{{ option.subMenuOptionName }}</option>
+          <option v-for="(option, index) in subMenuOptions" :key="index" :value="option._id">{{ option.subMenuOptionName }}</option>
         </select>
       </div>
       <div class="form-group">
@@ -22,9 +22,9 @@
         <div>
           <label for="unit">Unitate:</label>
           <select id="unit" v-model="mealOption.unit" class="form-control">
-            <option value="gr">Grame</option>
-            <option value="ml">Mililitrii</option>
-            <option value="p">Bucata</option>
+            <option value="grams">Grame</option>
+            <option value="liters">Litri</option>
+            <option value="pieces">Bucata</option>
           </select>
         </div>
       </div>
@@ -41,13 +41,9 @@
         <label for="price">Pret:</label>
         <input type="number" id="price" v-model="mealOption.price" class="form-control"/>
       </div>
-      <div class="form-group">
-        <label for="allergens">Alergeni:</label>
-        <input type="text" id="allergens" v-model="mealOption.allergens" class="form-control"/>
-      </div>
       <div class="dialog-buttons">
         <button class="btn btn-secondary" @click="closeDialog">Renunta</button>
-        <button class="btn btn-primary" @click="submitNewSubMenuOption">Adauga</button>
+        <button class="btn btn-primary" @click="submitMealOption">Adauga</button>
       </div>
     </div>
   </div>
@@ -56,16 +52,14 @@
 <script>
 import api from "@/api/api";
 import { getAuthToken } from "@/utility/utility";
-
+import {mapGetters} from "vuex";
 
 export default {
   name: "MealOption",
-  props: ['restaurantName', 'menuOption','subMenuOptions'],
+  props: ['restaurantName', 'menuOption', 'subMenuOptions'],
   data() {
     return {
       showDialog: false,
-      restaurantData: {},
-      userId: '',
       mealOption: {
         photoLink: "",
         optionName: "",
@@ -74,7 +68,6 @@ export default {
         price: "",
         description: "",
         unit: "",
-        allergens:"",
         categoryMenuOption: "",
         userId: '', // Initialize userId
         restaurantId: '', // Initialize restaurantId
@@ -83,33 +76,12 @@ export default {
       },
     };
   },
-  computed: {
-    localSubMenuOptions() {
-      return this.subMenuOptions ? [...this.subMenuOptions] : [];
-    },
+  computed:{
+    ...mapGetters({
+      getUserId: "getUserId"
+    }),
   },
   methods: {
-    submitNewSubMenuOption(option) {
-      // Instead of this.subMenuOptions.push(option);
-      this.$emit('update-submenu-option', option);
-    },
-    async fetchUserId() {
-      try {
-        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
-        const response = await api.get('/api/userData', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (response.data && response.data.id) {
-          this.userId = response.data.id; // Set the userId here
-        } else {
-          throw new Error('User ID not found in response');
-        }
-      } catch (error) {
-        console.error('Failed to fetch user ID:', error);
-      }
-    },
     closeDialog() {
       this.$emit('close'); // Emitting an event named 'close'
     },
@@ -125,69 +97,76 @@ export default {
         categoryMenuOption: ""
       };
     },
-    async submitMealOption() {
-      const mealOptionData = { ...this.mealOption };
+    submitMealOption() {
+      console.log('Submitting meal option with IDs:', {
+        userId: this.userId,
+        restaurantId: this.restaurantId,
+        menuOptionId: this.menuOptionId,
+        subMenuOptionId: this.mealOption.categoryMenuOption,
+      });
 
+      const mealOptionData = {
+        ...this.mealOption,
+        categoryMenuOption: this.mealOption.categoryMenuOption,
+      };
+      console.log(this.mealOption.categoryMenuOption)
+
+      // You must have userId, restaurantId, menuOptionId, and subMenuOptionId available
       if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.mealOption.categoryMenuOption) {
-        console.error("Required IDs or categoryMenuOption is missing.");
+        console.error("Missing IDs for the request");
         return;
       }
 
-      try {
-        const updatedValue = await api.post(`/api/addMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.mealOption.categoryMenuOption}`, mealOptionData, {
-          headers: {Authorization: `Bearer ${getAuthToken()}`},
-        });
-        this.$emit('updateSubMenuOptions', updatedValue);
-        this.clearForm();
-        this.closeDialog();
-      } catch (error) {
-        console.error("Error adding meal option:", error);
-      }
+      api.post(`/api/addMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.mealOption.categoryMenuOption}`, mealOptionData, {
+        headers: { Authorization: `Bearer ${getAuthToken()}` },
+      })
+          .then(response => {
+            this.$emit('meal-option-added', response.data);
+            this.clearForm();
+            this.closeDialog();
+          })
+          .catch(error => {
+            console.error("Error adding meal option:", error);
+          });
     },
-    addSubMenuOption(option) {
-      this.$emit('add-submenu-option', option);
-    },
+
+
     async fetchRestaurantData() {
+      if (!this.restaurantName) {
+        console.error('Restaurant name is undefined');
+        return;
+      }
       try {
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
           headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
 
         if (response && response.status === 200 && response.data) {
-          this.restaurantId = response.data._id; // Setting the restaurant ID
+          const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
 
-          // Find the correct menu option
-          const menuOptionData = response.data.menuOptions.find(m => m.optionName === this.menuOption || m._id === this.menuOption);
-
+          this.restaurantData = menuOptionData || null;
+          this.restaurantId = response.data._id; // Set restaurantId from the response
           if (menuOptionData) {
-            this.menuOptionId = menuOptionData._id; // Setting the menuOptionId
-            console.log("MenuOptionData ID set to:", this.menuOptionId);
-
-            // Emit event with new subMenuOptions data
-            this.$emit('update-submenu-options', menuOptionData.subMenuOptions || []);
-          } else {
-            console.error('Menu option data not found.');
+            this.menuOptionId = menuOptionData._id; // Set menuOptionId
           }
+          console.log('Fetched restaurant data:', this.restaurantData);
+
+          // Log individual IDs
+          console.log('Restaurant ID:', this.restaurantId);
+          console.log('Menu Option ID:', this.menuOptionId);
         } else {
           console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
         }
       } catch (error) {
         console.error('Error fetching restaurant details:', error);
       }
-    }
-
-
-  },
-  async mounted() {
-    await this.fetchUserId();
-    await this.fetchRestaurantData();
-    console.log("Mounted: userId, restaurantId, menuOptionId", this.userId, this.restaurantId, this.menuOptionId); // Debugging line
+    },
 
   },
-  async created() {
+  created() {
     console.log('Component created! Fetching restaurant data...');
-    await this.fetchRestaurantData();
-    await this.fetchUserId();
+    this.fetchRestaurantData();
+    this.userId = this.getUserId;
   },
 };
 </script>

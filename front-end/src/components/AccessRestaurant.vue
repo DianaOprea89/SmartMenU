@@ -1,23 +1,23 @@
 <template>
   <div class="container">
     <div v-if="restaurant">
-        <div>
-          <h1 class="restaurant-title"><em> Welcome to </em><strong class="text-body-danger">{{ restaurantName }}</strong></h1>
-        </div>
+      <div>
+        <h1 class="restaurant-title"><em> Welcome to </em><strong class="text-body-danger">{{ restaurantName }}</strong></h1>
+      </div>
       <div v-if="qrCodeData" class="d-flex justify-content-end row " @click="viewRestaurant">
         <img :src="qrCodeData" alt="QR Code" class="col-2 m-3" />
       </div>
-        <div class="row">
-          <div class="col-7">
-            <p><strong>About Us: </strong>{{ restaurant.aboutUs }}</p>
-            <p><strong>Location:</strong>  {{ restaurant.address }}</p>
-            <p><strong>Phone number:</strong> {{ restaurant.phoneNumber }}</p>
-          </div>
-          <div class="col-5">
-            <img :src="restaurant.logoImage" class="card-img-top fixed-size-img" alt="Restaurant">
-          </div>
+      <div class="row">
+        <div class="col-7">
+          <p><strong>About Us: </strong>{{ restaurant.aboutUs }}</p>
+          <p><strong>Location:</strong>  {{ restaurant.address }}</p>
+          <p><strong>Phone number:</strong> {{ restaurant.phoneNumber }}</p>
+        </div>
+        <div class="col-5">
+          <img :src="restaurant.logoImage" class="card-img-top fixed-size-img" alt="Restaurant">
         </div>
       </div>
+    </div>
     <div class="menu-tab row menu-access"  @click="goToViewRestaurantsMenu">
       <div class="col-10">
         <p class="menu-title">MENU</p>

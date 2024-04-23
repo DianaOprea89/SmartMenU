@@ -13,13 +13,7 @@
         <p>{{ restaurantData.aboutUs }}</p>
         <p>{{ restaurantData.address }}</p>
         <p>{{ restaurantData.phoneNumber }}</p>
-        <div>
-          <p>Tables: {{restaurantData.tables}}</p>
-          <p>Rooms: {{restaurantData.rooms}}</p>
-        </div>
       </div>
-
-
       <div class="col-5">
         <img :src="restaurantData.logoImage" class="fixed-size-img" alt="the restaurant pictures">
       </div>
@@ -116,6 +110,7 @@
 <script>
 import api from "../api/api.js";
 import {getAuthToken} from "@/utility/utility";
+import {mapGetters} from "vuex";
 
 export default {
   name: "OptionMenu",
@@ -142,28 +137,14 @@ export default {
   },
   computed: {
     restaurantData() {
-      return this.localRestaurantData;
+      console.log("localRestaurantData",this.localRestaurantData);
+      return this.localRestaurantData || {};
     },
+    ...mapGetters({
+      getUserId: "getUserId"
+    }),
   },
   methods: {
-    async fetchUserId() {
-      try {
-        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
-        const response = await api.get('/api/userData', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (response.data && response.data.id) {
-          return response.data.id; // Assuming the response includes the user ID
-        } else {
-          throw new Error('User ID not found in response');
-        }
-      } catch (error) {
-        console.error('Failed to fetch user ID:', error);
-        return null; // Handle error or return null if ID couldn't be fetched
-      }
-    },
     openDialog() {
       this.optionMenu = { photoLink: "", optionName: "" }; // Reset the form
       this.showDialog = true;
@@ -188,7 +169,7 @@ export default {
       const restaurantId = this.restaurantData._id;
       console.log('Removing menu option with ID:', menuOptionId);
       try {
-        const userId = await this.fetchUserId();
+        const userId = this.$store.getters.getUserId;
         console.log('Removing menu option with ID:', menuOptionId);
         const apiUrl = `/api/removeOptionMenuRestaurants/${userId}/${restaurantId}/${menuOptionId}`;
         const authToken = getAuthToken();
@@ -208,15 +189,15 @@ export default {
         // Handle error response if needed
       }
     },
-    async addItem() {
+    addItem() {
       const newItem = {
         photoLink: this.optionMenu.photoLink,
         optionName: this.optionMenu.optionName,
       };
-      const userId = await this.fetchUserId();
+
       api
           .post("/api/addOptionMenuRestaurants", {
-            userId: userId,
+            userId: this.$store.state.user.id,
             name: this.restaurantName,
             newItem,
           })
@@ -237,7 +218,7 @@ export default {
           });
     },
     async editMenu() {
-      const userId = await this.fetchUserId();
+      const userId = this.getUserId;
       const restaurantId = this.localRestaurantData._id;
       const menuOptionId = this.editingMenuOption._id;
 
@@ -277,40 +258,40 @@ export default {
         }
       });
     },
-
-    async fetchRestaurantData() {
+    async fetchRestaurants() {
       try {
-        const token = localStorage.getItem('jwtToken');
         const response = await api.get('/api/userData', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: {Authorization: `Bearer ${getAuthToken()}`}
         });
+
         if (response && response.status === 200) {
-          // Find the restaurant data by the name provided in props
-          const restaurant = response.data.restaurants.find(r => r.name === this.restaurantName);
-          if (restaurant) {
-            this.localRestaurantData = restaurant;
-          } else {
-            console.error('Restaurant with the given name not found.');
-          }
+          this.restaurants = response.data.restaurants; // Update local state
         } else {
-          console.error('Failed to fetch user data. Status:', response ? response.status : 'Unknown');
+          console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('An error occurred while fetching restaurants:', error);
       }
     },
-
   },
   async created() {
-       await this.fetchUserId();
-      await this.fetchRestaurantData();
 
+    try {
+      await this.fetchRestaurants();
+      const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
+        headers: { Authorization: `Bearer ${getAuthToken()}` }
+      });
 
+      if (response && response.status === 200) {
+        this.localRestaurantData = response.data;
+      } else {
+        console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
+      }
+    } catch (error) {
+      console.error('Error fetching restaurant details:', error);
+    }
+  }
 }
-}
-
 </script>
 <style scoped>
 .menu-options-container {

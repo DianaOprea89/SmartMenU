@@ -16,12 +16,12 @@
           v-if="newShowDialog"
           :restaurant-name="restaurantName"
           :menu-option="menuOption"
-          :sub-menu-options="subMenuOptions"
-          @update-submenu-options="handleSubMenuOptions"
+          :sub-menu-options="restaurantData.subMenuOptions"
+          @meal-option-added="handleMealOptionAdded"
           @close="newShowDialog = false">
       </meal-option>
     </div>
-    <div class="menu-layout" v-if="restaurantData && restaurantData.subMenuOptions">
+    <div class="menu-layout"   v-if="restaurantData && restaurantData.subMenuOptions">
       <aside class="menu-sidebar">
         <ul class="submenu-list">
           <li v-for="(subMenuOption, index) in restaurantData.subMenuOptions"
@@ -30,15 +30,18 @@
               @click="setActiveSubMenu(subMenuOption._id)">
             <img :src="subMenuOption.photoLink" alt="Menu item" class="menu-option-image">
             <p class="sub-menu-title">{{ subMenuOption.subMenuOptionName }}</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-4"
-                 viewBox="0 0 16 16" @click="editOption(subMenuOption)">
-              <path
-                  d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"
-              />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 m-4" viewBox="0 0 16 16" @click="removeSubMenuItem(subMenuOption._id)">
-              <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-            </svg>
+            <div class="d-flex flex-row bd-highlight m-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon m-2 border-end"
+                   viewBox="0 0 16 16" @click="editOption(subMenuOption)">
+                <path
+                    d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"
+                />
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 m-2 " viewBox="0 0 16 16" @click="removeSubMenuItem(subMenuOption._id)">
+                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+              </svg>
+            </div>
+
           </li>
         </ul>
       </aside>
@@ -171,7 +174,7 @@ export default {
         photoLink: "",
         optionName: "",
       },
-      restaurantData: {},
+      restaurantData: '',
       userId: '',
       restaurantId: '',
       menuOptionId: '',
@@ -224,26 +227,7 @@ export default {
     },
   },
   methods: {
-    handleSubMenuOptions(options) {
-      this.subMenuOptions = options;
-    },
-    async fetchUserId() {
-      try {
-        const token = localStorage.getItem('jwtToken');
-        const response = await api.get('/api/userData', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (response.data && response.data.id) {
-          this.userId = response.data.id;
-        } else {
-          throw new Error('User ID not found in response');
-        }
-      } catch (error) {
-        console.error('Failed to fetch user ID:', error);
-      }
-    },
+
     openDialog() {
       this.showDialog = true;
     },
@@ -251,10 +235,7 @@ export default {
       this.newShowDialog = true;
     },
     openEditMealDialog(mealOption, subMenuOptionId) {
-      console.log("Meal Option: ", mealOption);
-      console.log("Sub Menu Option ID: ", subMenuOptionId);
       if (!mealOption || !subMenuOptionId) {
-        console.error("Meal option or sub-menu option is undefined");
         return;
       }
       this.editingMealOption = {...mealOption};
@@ -266,6 +247,7 @@ export default {
       this.editingSubMenuOption.photoLink = subMenuOption.photoLink;
       this.editingSubMenuOption._id = subMenuOption._id;
       this.showDialogOption = true;
+
     },
     setActiveSubMenu(subMenuId) {
       this.activeSubMenu = subMenuId;
@@ -298,84 +280,78 @@ export default {
             console.error("Error adding sub-menu item:", error);
           });
     },
-    async submitMealOption() {
-      const mealOptionData = { ...this.mealOption };
-
-      if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.mealOption.categoryMenuOption) {
-        console.error("Required IDs or categoryMenuOption is missing.");
+    async submitEditedMealOption() {
+      if (!this.editingSubMenuOption._id) {
+        console.error("subMenuOptionId is not defined");
         return;
       }
-
+      if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.editingMealOption._id) {
+        console.error("Missing IDs for update request");
+        return;
+      }
+      const url = `/api/updateMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.editingSubMenuOption._id}/${this.editingMealOption._id}`;
       try {
-        const updatedValue = await api.post(`/api/addMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.mealOption.categoryMenuOption}`, mealOptionData, {
-          headers: {Authorization: `Bearer ${getAuthToken()}`},
-        });
-        // Emit event to parent to update the subMenuOptions
-        this.$emit('update-submenu-options', updatedValue.data);
-        this.clearForm();
-        this.closeDialog();
+        const response = await api.put(url, this.editingMealOption);
+        if (response.status === 200) {
+          this.fetchRestaurantData();
+          this.newMealCustomDialog = false;
+        }
       } catch (error) {
-        console.error("Error adding meal option:", error);
+        console.error("Error updating meal option:", error);
       }
     },
     async removeSubMenuItem(subMenuOptionId) {
-
+      if (!this.userId || !this.restaurantId || !this.menuOptionId) {
+        console.error("Missing IDs for deletion request");
+        return;
+      }
       try {
-        if (!this.userId) {
-          await this.fetchUserId();
-        }
-        if (!this.userId || !this.restaurantId || !this.menuOptionId) {
-          console.error("Missing IDs for deletion request");
-          console.error("userId:", this.userId);
-          console.error("restaurantId:", this.restaurantId);
-          console.error("menuOptionId:", this.menuOptionId);
-          return;
-        }
         const response = await api.delete(`/api/removeSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`, {
           headers: {Authorization: `Bearer ${getAuthToken()}`}
         });
-
         if (response.status === 200) {
-          // Filter out the deleted submenu option
+          // Remove the item from the local state
           this.restaurantData.subMenuOptions = this.restaurantData.subMenuOptions.filter(item => item._id !== subMenuOptionId);
         } else {
           console.error("Error removing sub-menu item:", response.data.message);
         }
       } catch (error) {
-        console.error("Failed to remove sub-menu item:", error);
+        console.error("Error removing sub-menu item:", error);
       }
     },
-
+    refreshPage() {
+      window.location.reload();
+    },
     async updateSubMenuItem(subMenuOptionId) {
-      // Ensure correct ID values are available
       if (!this.userId || !this.restaurantId || !this.menuOptionId || !subMenuOptionId) {
         console.error("Missing IDs for update request");
         return;
       }
       try {
-        const response = await api.put(`/api/editSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`, this.editingSubMenuOption, {
-          headers: {Authorization: `Bearer ${getAuthToken()}`}
-        });
-        if (response.status === 200 && response.data) {
-          // Find the index of the submenu option to update
-          const index = this.restaurantData.subMenuOptions.findIndex(option => option._id === subMenuOptionId);
+        const response = await api.put(
+            `/api/editSubMenuOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}`,
+            this.editingSubMenuOption, {
+              headers: {Authorization: `Bearer ${getAuthToken()}`}
+            }
+        );
+        if (response.status === 200) {
+          const index = this.restaurantData.subMenuOptions.findIndex(item => item._id === subMenuOptionId);
           if (index !== -1) {
-            // Update the submenu option locally with the new data from the server
-            this.$set(this.restaurantData.subMenuOptions, index, response.data.updatedSubMenuOption);
+            this.restaurantData.subMenuOptions[index] = JSON.parse(JSON.stringify(this.editingSubMenuOption));
           }
-          this.showDialogOption = false; // Close the edit dialog
+          this.refreshPage();
+          this.showDialogOption = false; // Close the dialog
         } else {
           console.error("Error updating sub-menu item:", response.data.message);
         }
       } catch (error) {
         console.error("Error updating sub-menu item:", error);
       }
-      },
-
+    },
     async deleteMealOption(mealOptionId, subMenuOptionId) {
       console.log("Deleting meal option with IDs:", mealOptionId, subMenuOptionId);
       // Rest of your code...
-      if (!this.fetchUserId || !this.restaurantId || !this.menuOptionId) {
+      if (!this.userId || !this.restaurantId || !this.menuOptionId) {
         console.error("Required IDs are missing");
         return;
       }
@@ -383,7 +359,7 @@ export default {
         console.error("Invalid IDs for deletion");
         return;
       }
-      const url = `/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${this.subMenuOptionId}/${this.mealOptionId}`;
+      const url = `/api/removeMealOption/${this.userId}/${this.restaurantId}/${this.menuOptionId}/${subMenuOptionId}/${mealOptionId}`;
       try {
         const response = await api.delete(url);
         if (response.status === 200) {
@@ -398,15 +374,13 @@ export default {
         console.error("Error deleting meal option:", error);
       }
     },
-    handleMealOptionAdded(updatedOption) {
-      let subMenuToUpdate = this.subMenuOptions.find(subMenu => subMenu._id === updatedOption._id);
-      Object.assign(subMenuToUpdate, updatedOption);
+    handleMealOptionAdded(newMealOption) {
+      this.updateSubMenuWithMealOption(newMealOption);
       const currentPath = this.$route.path;
       this.$router.replace({path: '/empty'}).then(() => {
         this.$router.replace({path: currentPath});
       });
     },
-
     updateSubMenuWithMealOption(mealOption) {
       const submenu = this.restaurantData.subMenuOptions.find(subMenu => subMenu._id === mealOption.subMenuId);
       if (submenu) {
@@ -415,46 +389,39 @@ export default {
       this.newShowDialog = false;
     },
     async fetchRestaurantData() {
+      console.log('fetchRestaurantData called');
+      if (!this.restaurantName) {
+        console.error('Restaurant name is undefined');
+        return;
+      }
       try {
-        const token = localStorage.getItem('jwtToken');
-        const response = await api.get('/api/userData', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
+          headers: {Authorization: `Bearer ${getAuthToken()}`}
         });
-
-        if (response.data && response.data.restaurants && response.data.restaurants.length > 0) {
-          const firstRestaurant = response.data.restaurants[0];
-          this.restaurantId = firstRestaurant._id; // Assuming _id is the field for the restaurant's ID
-
-          if (firstRestaurant.menuOptions && firstRestaurant.menuOptions.length > 0) {
-            const firstMenuOption = firstRestaurant.menuOptions[0];
-            this.menuOptionId = firstMenuOption._id; // Assuming _id is the field for the menu option's ID
-            this.restaurantData.subMenuOptions = firstMenuOption.subMenuOptions;
+        if (response && response.status === 200 && response.data) {
+          const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
+          this.restaurantData = menuOptionData || null;
+          this.restaurantId = response.data._id; // Set restaurantId from the response
+          if (menuOptionData) {
+            this.menuOptionId = menuOptionData._id; // Set menuOptionId
           }
         } else {
-          throw new Error('No data returned from the API');
+          console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
         }
       } catch (error) {
-        console.error('Failed to fetch restaurant data:', error);
-        // Optionally update the component state to reflect the error
-        this.error = 'Failed to fetch restaurant data. Please try again later.';
-        // You could also use this to show an error message in your template.
+        console.error('Error fetching restaurant details:', error);
       }
-    },
-  },
-  async mounted() {
-    await this.fetchUserId();
-    await this.fetchRestaurantData();
+    }
   },
   async created() {
     console.log('Created hook called');
-    await this.fetchUserId();
     await this.fetchRestaurantData();
-
-    // Check if restaurantData is properly initialized
-    if (this.restaurantData && this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+    if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
       this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
+      if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
+        this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
+      }
+      this.userId = this.getUserId;
     }
   }
 }
@@ -563,11 +530,11 @@ export default {
   padding-bottom: 1rem;
 }
 .meal-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 5px;
+  width: 150px;
+  height: 150px;
+  margin-right: 20px;
+  border-radius: 5%;
   object-fit: cover;
-  margin-right: 1rem;
 }
 .meal-content {
   flex: 1;
