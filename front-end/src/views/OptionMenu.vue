@@ -17,6 +17,9 @@
       <div>
         <p>{{restaurantData.tables}}</p>
       </div>
+      <div>
+        <p>{{restaurantData.rooms}}</p>
+      </div>
       <div class="col-5">
         <img :src="restaurantData.logoImage" class="fixed-size-img" alt="the restaurant pictures">
       </div>
@@ -148,6 +151,24 @@ export default {
     }),
   },
   methods: {
+    async fetchUserId() {
+      try {
+        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
+        const response = await api.get('/api/userData', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.data && response.data.id) {
+          return response.data.id; // Assuming the response includes the user ID
+        } else {
+          throw new Error('User ID not found in response');
+        }
+      } catch (error) {
+        console.error('Failed to fetch user ID:', error);
+        return null; // Handle error or return null if ID couldn't be fetched
+      }
+    },
     openDialog() {
       this.optionMenu = { photoLink: "", optionName: "" }; // Reset the form
       this.showDialog = true;
@@ -172,7 +193,7 @@ export default {
       const restaurantId = this.restaurantData._id;
       console.log('Removing menu option with ID:', menuOptionId);
       try {
-        const userId = this.$store.getters.getUserId;
+        const userId = await this.fetchUserId();
         console.log('Removing menu option with ID:', menuOptionId);
         const apiUrl = `/api/removeOptionMenuRestaurants/${userId}/${restaurantId}/${menuOptionId}`;
         const authToken = getAuthToken();
@@ -192,15 +213,15 @@ export default {
         // Handle error response if needed
       }
     },
-    addItem() {
+    async addItem() {
       const newItem = {
         photoLink: this.optionMenu.photoLink,
         optionName: this.optionMenu.optionName,
       };
-
+      const userId = await this.fetchUserId();
       api
           .post("/api/addOptionMenuRestaurants", {
-            userId: this.$store.state.user.id,
+            userId: userId,
             name: this.restaurantName,
             newItem,
           })
@@ -221,7 +242,7 @@ export default {
           });
     },
     async editMenu() {
-      const userId = this.getUserId;
+      const userId = await this.fetchUserId();
       const restaurantId = this.localRestaurantData._id;
       const menuOptionId = this.editingMenuOption._id;
 
