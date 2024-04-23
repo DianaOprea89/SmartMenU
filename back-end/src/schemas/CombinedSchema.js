@@ -33,11 +33,7 @@ const userSchema = new mongoose.Schema({
                                     price: String,
                                     description: String,
                                     unit: String,
-                                    categoryMenuOption: String,
-                                    allergens: [{
-                                        type: mongoose.Schema.Types.String,
-                                        ref: 'Allergen',
-                                    }],
+                                    categoryMenuOption: String
                                 }
                             ]
                         },
@@ -50,5 +46,4 @@ const userSchema = new mongoose.Schema({
 });
 
 export default mongoose.model('User', userSchema);
-
 

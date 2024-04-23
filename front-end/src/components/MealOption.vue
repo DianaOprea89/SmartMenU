@@ -82,6 +82,24 @@ export default {
     }),
   },
   methods: {
+    async fetchUserId() {
+      try {
+        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
+        const response = await api.get('/api/userData', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.data && response.data.id) {
+          return response.data.id; // Assuming the response includes the user ID
+        } else {
+          throw new Error('User ID not found in response');
+        }
+      } catch (error) {
+        console.error('Failed to fetch user ID:', error);
+        return null; // Handle error or return null if ID couldn't be fetched
+      }
+    },
     closeDialog() {
       this.$emit('close'); // Emitting an event named 'close'
     },
@@ -97,13 +115,12 @@ export default {
         categoryMenuOption: ""
       };
     },
-    submitMealOption() {
-      console.log('Submitting meal option with IDs:', {
-        userId: this.userId,
-        restaurantId: this.restaurantId,
-        menuOptionId: this.menuOptionId,
-        subMenuOptionId: this.mealOption.categoryMenuOption,
-      });
+    async submitMealOption() {
+      const userId = await this.fetchUserId();
+      console.log('User ID:', userId);
+      console.log('Restaurant ID:', this.restaurantId);
+      console.log('Menu Option ID:', this.menuOptionId);
+      console.log('Sub Menu Option ID:', this.mealOption.categoryMenuOption);
 
       const mealOptionData = {
         ...this.mealOption,
@@ -129,7 +146,6 @@ export default {
             console.error("Error adding meal option:", error);
           });
     },
-
 
     async fetchRestaurantData() {
       if (!this.restaurantName) {
@@ -163,10 +179,10 @@ export default {
     },
 
   },
-  created() {
+  async created() {
     console.log('Component created! Fetching restaurant data...');
-    this.fetchRestaurantData();
-    this.userId = this.getUserId;
+    await this.fetchRestaurantData();
+    this.userId = await this.fetchUserId();
   },
 };
 </script>

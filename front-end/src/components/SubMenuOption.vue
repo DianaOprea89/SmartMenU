@@ -252,13 +252,32 @@ export default {
     setActiveSubMenu(subMenuId) {
       this.activeSubMenu = subMenuId;
     },
-    addSubMenuItem() {
+    async fetchUserId() {
+      try {
+        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
+        const response = await api.get('/api/userData', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.data && response.data.id) {
+          return response.data.id; // Assuming the response includes the user ID
+        } else {
+          throw new Error('User ID not found in response');
+        }
+      } catch (error) {
+        console.error('Failed to fetch user ID:', error);
+        return null; // Handle error or return null if ID couldn't be fetched
+      }
+    },
+    async addSubMenuItem() {
       const newSubMenuItem = {
         photoLink: this.subMenu.photoLink,
         subMenuOptionName: this.subMenu.optionName,
       };
+      const userId = await this.fetchUserId();
       api.post("/api/addSubOptionMenuRestaurants", {
-        userId: this.$store.state.user.id,
+        userId: userId,
         name: this.restaurantName,
         menuOptionName: this.menuOption,
         newSubMenuItem,
@@ -285,6 +304,7 @@ export default {
         console.error("subMenuOptionId is not defined");
         return;
       }
+
       if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.editingMealOption._id) {
         console.error("Missing IDs for update request");
         return;
