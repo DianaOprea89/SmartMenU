@@ -147,9 +147,10 @@ export default {
       return this.localRestaurantData || {};
     },
     ...mapGetters({
-      getUserId: "getUserId"
+      userId: "getUserId" // Renamed from getUserId
     }),
   },
+
   methods: {
     async fetchUserId() {
       try {
@@ -175,7 +176,7 @@ export default {
     },
     editOption(menuOption) {
       if (menuOption) {
-        this.editingMenuOption = JSON.parse(JSON.stringify(menuOption));
+        this.editingMenuOption = {...menuOption};
         this.showDialogOption = true;
       }
     },
@@ -289,6 +290,7 @@ export default {
         });
 
         if (response && response.status === 200) {
+          console.log("response:", response)
           this.restaurants = response.data.restaurants; // Update local state
         } else {
           console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');

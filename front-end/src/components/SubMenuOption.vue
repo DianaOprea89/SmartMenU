@@ -419,6 +419,7 @@ export default {
           headers: {Authorization: `Bearer ${getAuthToken()}`}
         });
         if (response && response.status === 200 && response.data) {
+          console.log("response:", response)
           const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
           this.restaurantData = menuOptionData || null;
           this.restaurantId = response.data._id; // Set restaurantId from the response
