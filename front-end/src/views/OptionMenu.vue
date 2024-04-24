@@ -46,7 +46,7 @@
 
     </div>
 
-    <div v-if="restaurantData && restaurantData.menuOptions" class="menu-options-container">
+    <div v-if="restaurantData && restaurantData.menuOptions && restaurantData.menuOptions.length > 0" class="menu-options-container">
       <div v-for="(menuOption, index) in restaurantData.menuOptions" :key="index" class="menu-option">
         <div v-if="menuOption" class="menu-option-row m-1">
           <div class="addedRestaurants">
