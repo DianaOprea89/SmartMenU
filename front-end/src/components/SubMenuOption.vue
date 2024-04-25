@@ -422,6 +422,7 @@ export default {
           console.log("response:", response)
           const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);
           this.restaurantData = menuOptionData || null;
+          console.log("this.restaurantData",this.restaurantData)
           this.restaurantId = response.data._id; // Set restaurantId from the response
           if (menuOptionData) {
             this.menuOptionId = menuOptionData._id; // Set menuOptionId
@@ -437,6 +438,7 @@ export default {
   async created() {
     console.log('Created hook called');
     await this.fetchRestaurantData();
+
     if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
       this.setActiveSubMenu(this.restaurantData.subMenuOptions[0]._id);
       if (this.restaurantData.subMenuOptions && this.restaurantData.subMenuOptions.length > 0) {
