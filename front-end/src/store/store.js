@@ -50,15 +50,8 @@ export default createStore({
                 // Vue.set(restaurant, 'menuOptions', newMenuOptions); // Use Vue.set if you need to ensure reactivity
             }
         },
-        updateToken(state, newToken) {
-            state.user.token = newToken;
-            localStorage.setItem('jwtToken', newToken);
-        },
     },
     getters: {
-        getToken: (state) => {
-            return state.user.token || localStorage.getItem('jwtToken');
-        },
         isAuthenticated: (state) => {
             return !!state.user.email;
         },
@@ -76,19 +69,6 @@ export default createStore({
         restaurants: (state) => state.user.restaurants,
     },
     actions: {
-        async refreshToken({ commit, state }) {
-            // Assume you have an endpoint to refresh tokens
-            try {
-                const response = await api.post('/api/refreshToken', { token: state.user.token });
-                const newToken = response.data.token;
-                localStorage.setItem('jwtToken', newToken);
-                commit('setUser', {...state.user, token: newToken});
-            } catch (error) {
-                console.error('Token refresh failed:', error);
-                commit('clearUserData');
-                // redirect to login page or handle session expiration
-            }
-        },
         async loadUserData({commit}) {
             commit('setLoadingState', true);
             try {
@@ -156,21 +136,6 @@ export default createStore({
                 }
             } catch (error) {
                 console.error('Error during login:', error);
-            }
-        },
-        async loginUser({ commit }, credentials) {
-            commit('setLoadingState', true);
-            try {
-                const response = await api.post('/api/login', credentials);
-                if (response.data && response.data.token) {
-                    commit('setUser', { ...response.data.user, token: response.data.token });
-                } else {
-                    throw new Error('Authentication failed');
-                }
-            } catch (error) {
-                console.error('Login failed:', error);
-            } finally {
-                commit('setLoadingState', false);
             }
         },
         async fetchRestaurants({commit}) {
