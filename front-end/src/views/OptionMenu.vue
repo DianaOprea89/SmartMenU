@@ -219,29 +219,28 @@ export default {
         photoLink: this.optionMenu.photoLink,
         optionName: this.optionMenu.optionName,
       };
-      const userId = await this.fetchUserId();
-      api
-          .post("/api/addOptionMenuRestaurants", {
-            userId: userId,
-            name: this.restaurantName,
-            newItem,
-          })
-          .then((response) => {
-            if (response.status === 201) {
-              this.items.push(newItem);
-              this.optionMenu.photoLink = "";
-              this.optionMenu.optionName = "";
-              this.showDialog = false;
-              this.$router.push(`/restaurant/${encodeURIComponent(this.restaurantName.trim())}`);
+      try {
+        const userId = await this.fetchUserId();
+        const response = await api.post("/api/addOptionMenuRestaurants", {
+          userId,
+          name: this.restaurantName,
+          newItem,
+        });
 
-            } else {
-              console.error("Error adding menu option:", response.data.message);
-            }
-          })
-          .catch((error) => {
-            console.error("Error adding menu option:", error);
-          });
-    },
+        if (response.status === 201) {
+          this.items.push(newItem);
+          this.optionMenu = { photoLink: "", optionName: "" }; // Reset form
+          this.showDialog = false;
+          this.$router.push(`/restaurant/${encodeURIComponent(this.restaurantName.trim())}`);
+        } else {
+          throw new Error('Failed to add new menu item');
+        }
+      } catch (error) {
+        console.error("Error adding menu option:", error.message);
+        alert('Failed to add new menu item. Please try again.');
+      }
+    }
+    ,
     async editMenu() {
       const userId = await this.fetchUserId();
       const restaurantId = this.localRestaurantData._id;
@@ -284,24 +283,31 @@ export default {
       });
     },
     async fetchRestaurants() {
+      const authToken = getAuthToken();
+      if (!authToken) {
+        console.error('Authentication token not found');
+        alert('Please log in again.');
+        return;
+      }
+
       try {
         const response = await api.get('/api/userData', {
-          headers: {Authorization: `Bearer ${getAuthToken()}`}
+          headers: { Authorization: `Bearer ${authToken}` }
         });
 
-        if (response && response.status === 200) {
-          console.log("response:", response)
-          this.restaurants = response.data.restaurants; // Update local state
+        if (response.status === 200 && response.data.restaurants) {
+          this.restaurants = response.data.restaurants;
         } else {
-          console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');
+          throw new Error(`Failed to fetch data: Status ${response.status}`);
         }
       } catch (error) {
-        console.error('An error occurred while fetching restaurants:', error);
+        console.error('Fetching restaurants failed:', error);
+        alert('Failed to load data. Please check your network and try again.');
       }
     },
+
   },
   async created() {
-
     try {
       await this.fetchRestaurants();
       const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
@@ -311,10 +317,11 @@ export default {
       if (response && response.status === 200) {
         this.localRestaurantData = response.data;
       } else {
-        console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
+        throw new Error(`Failed to fetch restaurant details. Status: ${response.status}`);
       }
     } catch (error) {
       console.error('Error fetching restaurant details:', error);
+      alert('Failed to load restaurant details. Please try again.');
     }
   }
 }
