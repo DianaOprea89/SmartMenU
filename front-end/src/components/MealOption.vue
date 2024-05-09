@@ -22,9 +22,9 @@
         <div>
           <label for="unit">Unitate:</label>
           <select id="unit" v-model="mealOption.unit" class="form-control">
-            <option value="grams">Grame</option>
-            <option value="liters">Litri</option>
-            <option value="pieces">Bucata</option>
+            <option value="gr">Grame</option>
+            <option value="ml">Mililitrii</option>
+            <option value="p">Bucata</option>
           </select>
         </div>
       </div>
@@ -41,6 +41,10 @@
         <label for="price">Pret:</label>
         <input type="number" id="price" v-model="mealOption.price" class="form-control"/>
       </div>
+      <div class="form-group">
+        <label for="allergens">Alergeni:</label>
+        <input type="text" id="allergens" v-model="mealOption.allergens" class="form-control"/>
+      </div>
       <div class="dialog-buttons">
         <button class="btn btn-secondary" @click="closeDialog">Renunta</button>
         <button class="btn btn-primary" @click="submitMealOption">Adauga</button>
@@ -52,7 +56,7 @@
 <script>
 import api from "@/api/api";
 import { getAuthToken } from "@/utility/utility";
-import {mapGetters} from "vuex";
+
 
 export default {
   name: "MealOption",
@@ -68,6 +72,7 @@ export default {
         price: "",
         description: "",
         unit: "",
+        allergens:"",
         categoryMenuOption: "",
         userId: '', // Initialize userId
         restaurantId: '', // Initialize restaurantId
@@ -75,11 +80,6 @@ export default {
 
       },
     };
-  },
-  computed:{
-    ...mapGetters({
-      getUserId: "getUserId"
-    }),
   },
   methods: {
     async fetchUserId() {
@@ -118,10 +118,6 @@ export default {
     async submitMealOption() {
       const userId = await this.fetchUserId();
       console.log('User ID:', userId);
-      console.log('Restaurant ID:', this.restaurantId);
-      console.log('Menu Option ID:', this.menuOptionId);
-      console.log('Sub Menu Option ID:', this.mealOption.categoryMenuOption);
-
       const mealOptionData = {
         ...this.mealOption,
         categoryMenuOption: this.mealOption.categoryMenuOption,
