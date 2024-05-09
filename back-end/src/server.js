@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import User from './schemas/CombinedSchema.js';
+import Restaurant from './schemas/CheckoutSchema.js'
 import 'express-async-errors';
 dotenv.config();
 const app = express();
@@ -14,8 +15,6 @@ const corsOptions = {
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
     optionsSuccessStatus: 204,
 };
 app.use(cors(corsOptions));
@@ -51,6 +50,29 @@ app.get('/api/restaurant/:name', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+app.get('/api/roomAvailable', async (req, res) => {
+    try {
+        const { restaurantId } = req.params; // Make sure to include restaurantId in the request parameters
+        const restaurant = await Restaurant.findById(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        const availableRooms = restaurant.rooms.map(room => {
+            return {
+                roomName: room.name,
+                availableTables: room.tables.filter(table => !table.isOccupied && !table.isReserved),
+            };
+        });
+
+        res.json(availableRooms);
+    } catch (error) {
+        console.error('Error fetching available rooms:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 app.get('/api/userData', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1]; // Authorization: 'Bearer TOKEN'
     if (!token) {
@@ -257,7 +279,6 @@ app.post('/api/addRestaurants', async (req, res) => {
         if (existingRestaurant) {
             return res.status(400).json({ message: 'Restaurant with this name already exists' });
         }
-
         const newRestaurant = {
             name,
             address,
@@ -311,11 +332,16 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
 app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
     try {
         const { userId, name, menuOptionName, newSubMenuItem } = req.body;
+        console.log("UserId:",userId);
+        console.log("name:",name);
+
         const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        console.log("User's restaurants:", user.restaurants);
         const restaurant = user.restaurants.find(r => r.name === name);
+
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
@@ -335,7 +361,7 @@ app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
 app.put('/api/editMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
-        const { photoLink,optionName,quantity,ingredients,price,description,unit } = req.body;
+        const { photoLink,optionName,quantity,ingredients,price,description,unit,allergens } = req.body;
         const user = await User.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -364,6 +390,7 @@ app.put('/api/editMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
         mealOption.price = price || mealOption.price;
         mealOption.description = description || mealOption.description;
         mealOption.unit = unit || mealOption.unit;
+        mealOption.allergens =allergens || allergens.allergens;
         await user.save();
         res.status(200).json({
             message: 'Meal option updated successfully',
@@ -415,11 +442,13 @@ app.delete('/api/removeMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOp
 app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
-        const { photoLink, optionName, quantity, ingredients, price, description, unit } = req.body;
-        // Log the IDs received in the request
-        console.log('IDs received:', { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId });
-        // Find the user and check if exists
+        if (!userId || !restaurantId || !menuOptionId || !subMenuOptionId || !mealOptionId) {
+            return res.status(400).json({ message: 'Missing required parameters' });
+        }
+
+        const { photoLink, optionName, quantity, ingredients, price, description, unit,allergens } = req.body;
         const user = await User.findOne({ id: userId });
+        console.log("The user is",user);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -431,16 +460,11 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
-        // Log for debugging menuOption and subMenuOption
-        console.log('Querying for menuOption:', menuOptionId);
         const menuOption = restaurant.menuOptions.id(menuOptionId);
-        console.log('menuOption found:', menuOption);
         if (!menuOption) {
             return res.status(404).json({ message: 'Menu option not found' });
         }
-        console.log('Querying for subMenuOption:', subMenuOptionId);
         const subMenuOption = menuOption.subMenuOptions.id(subMenuOptionId);
-        console.log('subMenuOption found:', subMenuOption);
         if (!subMenuOption) {
             return res.status(404).json({ message: 'Sub-menu option not found' });
         }
@@ -448,6 +472,8 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
         if (!mealOption) {
             return res.status(404).json({ message: 'Meal option not found' });
         }
+
+
         // Correctly access properties from req.body
         mealOption.photoLink = photoLink || mealOption.photoLink;
         mealOption.optionName = optionName || mealOption.optionName;
@@ -456,6 +482,7 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
         mealOption.price = price || mealOption.price;
         mealOption.description = description || mealOption.description;
         mealOption.unit = unit || mealOption.unit;
+        mealOption.allergens = allergens || allergens.allergens;
         await user.save();
         res.status(200).json({
             message: 'Meal option updated successfully',
@@ -566,7 +593,7 @@ app.post('/api/addMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
         const { userId, restaurantId } = req.params;
-        const { name, aboutUs, address, phoneNumber } = req.body;
+        const { name, aboutUs, address, phoneNumber, rooms, tables } = req.body;
         // Find the user by userId
         const user = await User.findOne({ id: userId });
         if (!user) {
@@ -585,6 +612,8 @@ app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
         restaurant.aboutUs = aboutUs || restaurant.aboutUs;
         restaurant.address = address || restaurant.address;
         restaurant.phoneNumber = phoneNumber || restaurant.phoneNumber;
+        restaurant.rooms = rooms || restaurant.rooms;
+        restaurant.tables = tables || restaurant.tables;
         await user.save();
         res.status(200).json({
             message: 'Restaurant updated successfully',

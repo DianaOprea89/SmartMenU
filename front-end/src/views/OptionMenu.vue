@@ -13,13 +13,13 @@
         <p>{{ restaurantData.aboutUs }}</p>
         <p>{{ restaurantData.address }}</p>
         <p>{{ restaurantData.phoneNumber }}</p>
+        <div>
+          <p>Tables: {{restaurantData.tables}}</p>
+          <p>Rooms: {{restaurantData.rooms}}</p>
+        </div>
       </div>
-      <div>
-        <p>{{restaurantData.tables}}</p>
-      </div>
-      <div>
-        <p>{{restaurantData.rooms}}</p>
-      </div>
+
+
       <div class="col-5">
         <img :src="restaurantData.logoImage" class="fixed-size-img" alt="the restaurant pictures">
       </div>
@@ -46,7 +46,7 @@
 
     </div>
 
-    <div v-if="restaurantData && restaurantData.menuOptions && restaurantData.menuOptions.length > 0" class="menu-options-container">
+    <div v-if="restaurantData && restaurantData.menuOptions" class="menu-options-container">
       <div v-for="(menuOption, index) in restaurantData.menuOptions" :key="index" class="menu-option">
         <div v-if="menuOption" class="menu-option-row m-1">
           <div class="addedRestaurants">
@@ -116,7 +116,6 @@
 <script>
 import api from "../api/api.js";
 import {getAuthToken} from "@/utility/utility";
-import {mapGetters} from "vuex";
 
 export default {
   name: "OptionMenu",
@@ -143,14 +142,9 @@ export default {
   },
   computed: {
     restaurantData() {
-      console.log("localRestaurantData",this.localRestaurantData);
-      return this.localRestaurantData || {};
+      return this.localRestaurantData;
     },
-    ...mapGetters({
-      userId: "getUserId" // Renamed from getUserId
-    }),
   },
-
   methods: {
     async fetchUserId() {
       try {
@@ -176,7 +170,7 @@ export default {
     },
     editOption(menuOption) {
       if (menuOption) {
-        this.editingMenuOption = {...menuOption};
+        this.editingMenuOption = JSON.parse(JSON.stringify(menuOption));
         this.showDialogOption = true;
       }
     },
@@ -219,28 +213,29 @@ export default {
         photoLink: this.optionMenu.photoLink,
         optionName: this.optionMenu.optionName,
       };
-      try {
-        const userId = await this.fetchUserId();
-        const response = await api.post("/api/addOptionMenuRestaurants", {
-          userId,
-          name: this.restaurantName,
-          newItem,
-        });
+      const userId = await this.fetchUserId();
+      api
+          .post("/api/addOptionMenuRestaurants", {
+            userId: userId,
+            name: this.restaurantName,
+            newItem,
+          })
+          .then((response) => {
+            if (response.status === 201) {
+              this.items.push(newItem);
+              this.optionMenu.photoLink = "";
+              this.optionMenu.optionName = "";
+              this.showDialog = false;
+              this.$router.push(`/restaurant/${encodeURIComponent(this.restaurantName.trim())}`);
 
-        if (response.status === 201) {
-          this.items.push(newItem);
-          this.optionMenu = { photoLink: "", optionName: "" }; // Reset form
-          this.showDialog = false;
-          this.$router.push(`/restaurant/${encodeURIComponent(this.restaurantName.trim())}`);
-        } else {
-          throw new Error('Failed to add new menu item');
-        }
-      } catch (error) {
-        console.error("Error adding menu option:", error.message);
-        alert('Failed to add new menu item. Please try again.');
-      }
-    }
-    ,
+            } else {
+              console.error("Error adding menu option:", response.data.message);
+            }
+          })
+          .catch((error) => {
+            console.error("Error adding menu option:", error);
+          });
+    },
     async editMenu() {
       const userId = await this.fetchUserId();
       const restaurantId = this.localRestaurantData._id;
@@ -282,49 +277,38 @@ export default {
         }
       });
     },
-    async fetchRestaurants() {
-      const authToken = getAuthToken();
-      if (!authToken) {
-        console.error('Authentication token not found');
-        alert('Please log in again.');
-        return;
-      }
-
+    async fetchRestaurantData() {
       try {
+        const token = localStorage.getItem('jwtToken');
         const response = await api.get('/api/userData', {
-          headers: { Authorization: `Bearer ${authToken}` }
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
-
-        if (response.status === 200 && response.data.restaurants) {
-          this.restaurants = response.data.restaurants;
+        if (response && response.status === 200) {
+          // Find the restaurant data by the name provided in props
+          const restaurant = response.data.restaurants.find(r => r.name === this.restaurantName);
+          if (restaurant) {
+            this.localRestaurantData = restaurant;
+          } else {
+            console.error('Restaurant with the given name not found.');
+          }
         } else {
-          throw new Error(`Failed to fetch data: Status ${response.status}`);
+          console.error('Failed to fetch user data. Status:', response ? response.status : 'Unknown');
         }
       } catch (error) {
-        console.error('Fetching restaurants failed:', error);
-        alert('Failed to load data. Please check your network and try again.');
+        console.error('Error fetching user data:', error);
       }
     },
 
   },
   async created() {
-    try {
-      await this.fetchRestaurants();
-      const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
-        headers: { Authorization: `Bearer ${getAuthToken()}` }
-      });
+    await this.fetchUserId();
+    await this.fetchRestaurantData();
 
-      if (response && response.status === 200) {
-        this.localRestaurantData = response.data;
-      } else {
-        throw new Error(`Failed to fetch restaurant details. Status: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Error fetching restaurant details:', error);
-      alert('Failed to load restaurant details. Please try again.');
-    }
   }
 }
+
 </script>
 <style scoped>
 .menu-options-container {
