@@ -6,7 +6,6 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import User from './schemas/CombinedSchema.js';
-import Restaurant from './schemas/CheckoutSchema.js'
 import 'express-async-errors';
 dotenv.config();
 const app = express();
@@ -50,29 +49,6 @@ app.get('/api/restaurant/:name', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-
-app.get('/api/roomAvailable', async (req, res) => {
-    try {
-        const { restaurantId } = req.params; // Make sure to include restaurantId in the request parameters
-        const restaurant = await Restaurant.findById(restaurantId);
-        if (!restaurant) {
-            return res.status(404).json({ message: 'Restaurant not found' });
-        }
-
-        const availableRooms = restaurant.rooms.map(room => {
-            return {
-                roomName: room.name,
-                availableTables: room.tables.filter(table => !table.isOccupied && !table.isReserved),
-            };
-        });
-
-        res.json(availableRooms);
-    } catch (error) {
-        console.error('Error fetching available rooms:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
-
 app.get('/api/userData', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1]; // Authorization: 'Bearer TOKEN'
     if (!token) {
@@ -89,7 +65,7 @@ app.get('/api/userData', async (req, res) => {
         res.status(200).json({
             name: user.username,
             email: user.email,
-            id: user.id,
+            id: user._id,
             restaurants: user.restaurants, // Make sure to include populated restaurants here
         });
     } catch (error) {
@@ -106,8 +82,9 @@ app.get('/api/userData', async (req, res) => {
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
         const { userId, restaurantId } = req.params;
-        const updatedData = req.body;
-        const user = await User.findOne({ id: userId });
+        const updatedData = req.body; // Updated restaurant data from the request body
+        // Find the user by userId
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -150,7 +127,7 @@ app.delete('/api/removeRestaurant/:userId/:restaurantId', async (req, res) => {
 });
 app.post('/api/register', async (req, res) => {
     try {
-        const { name, email, password, passwordConfirm, id } = req.body;
+        const { name, email, password, passwordConfirm } = req.body;
 
         if (!name || !email || !password || !passwordConfirm) {
             return res.status(400).json({ message: 'Please fill all fields' });
@@ -176,8 +153,7 @@ app.post('/api/register', async (req, res) => {
         const user = new User({
             username: name, // Ensure this matches your schema
             email,
-            passwordHash: hashedPassword,
-            id
+            passwordHash: hashedPassword
         });
 
         await user.save();
@@ -263,30 +239,25 @@ app.post('/api/addRestaurants', async (req, res) => {
     console.log('Received request with data:', req.body);
 
     try {
-        const { userId, name, address, phoneNumber, aboutUs, logoImage, tables,rooms, newItem } = req.body;
+        const { userId, name, address, phoneNumber, aboutUs, logoImage, newItem } = req.body;
 
         // Find the user by userId
-        const user = await User.findOne({ id: userId });
+        const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        if (!userId || userId.trim() === '') {
-            return res.status(400).json({ message: 'User ID is required' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
         const existingRestaurant = user.restaurants.find((restaurant) => restaurant.name === name);
         if (existingRestaurant) {
             return res.status(400).json({ message: 'Restaurant with this name already exists' });
         }
+
         const newRestaurant = {
             name,
             address,
             phoneNumber,
             logoImage,
             aboutUs,
-            tables,
-            rooms,
             menuOptions: newItem ? [newItem] : [], // Adjust based on whether newItem is provided
         };
 
@@ -308,7 +279,7 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
     try {
         const { userId, name, newItem } = req.body;
         // Find the user by userId
-        const user = await User.findOne({ id: userId });
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -332,16 +303,11 @@ app.post('/api/addOptionMenuRestaurants', async (req, res) => {
 app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
     try {
         const { userId, name, menuOptionName, newSubMenuItem } = req.body;
-        console.log("UserId:",userId);
-        console.log("name:",name);
-
-        const user = await User.findOne({ id: userId });
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        console.log("User's restaurants:", user.restaurants);
         const restaurant = user.restaurants.find(r => r.name === name);
-
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
@@ -361,8 +327,8 @@ app.post('/api/addSubOptionMenuRestaurants', async (req, res) => {
 app.put('/api/editMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
-        const { photoLink,optionName,quantity,ingredients,price,description,unit,allergens } = req.body;
-        const user = await User.findOne({ id: userId });
+        const { photoLink,optionName,quantity,ingredients,price,description,unit } = req.body;
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -390,7 +356,6 @@ app.put('/api/editMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
         mealOption.price = price || mealOption.price;
         mealOption.description = description || mealOption.description;
         mealOption.unit = unit || mealOption.unit;
-        mealOption.allergens =allergens || allergens.allergens;
         await user.save();
         res.status(200).json({
             message: 'Meal option updated successfully',
@@ -407,7 +372,7 @@ app.delete('/api/removeMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOp
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
         console.log("Received parameters for deletion:", req.params);
-        const user = await User.findOne({ id: userId });
+        const user = await User.findById(userId);
         if (!user) {
             console.error('User not found:', userId);
             return res.status(404).json({ message: 'User not found' });
@@ -442,13 +407,11 @@ app.delete('/api/removeMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOp
 app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId/:mealOptionId', async (req, res) => {
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId } = req.params;
-        if (!userId || !restaurantId || !menuOptionId || !subMenuOptionId || !mealOptionId) {
-            return res.status(400).json({ message: 'Missing required parameters' });
-        }
-
-        const { photoLink, optionName, quantity, ingredients, price, description, unit,allergens } = req.body;
-        const user = await User.findOne({ id: userId });
-        console.log("The user is",user);
+        const { photoLink, optionName, quantity, ingredients, price, description, unit } = req.body;
+        // Log the IDs received in the request
+        console.log('IDs received:', { userId, restaurantId, menuOptionId, subMenuOptionId, mealOptionId });
+        // Find the user and check if exists
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -460,11 +423,16 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
+        // Log for debugging menuOption and subMenuOption
+        console.log('Querying for menuOption:', menuOptionId);
         const menuOption = restaurant.menuOptions.id(menuOptionId);
+        console.log('menuOption found:', menuOption);
         if (!menuOption) {
             return res.status(404).json({ message: 'Menu option not found' });
         }
+        console.log('Querying for subMenuOption:', subMenuOptionId);
         const subMenuOption = menuOption.subMenuOptions.id(subMenuOptionId);
+        console.log('subMenuOption found:', subMenuOption);
         if (!subMenuOption) {
             return res.status(404).json({ message: 'Sub-menu option not found' });
         }
@@ -472,8 +440,6 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
         if (!mealOption) {
             return res.status(404).json({ message: 'Meal option not found' });
         }
-
-
         // Correctly access properties from req.body
         mealOption.photoLink = photoLink || mealOption.photoLink;
         mealOption.optionName = optionName || mealOption.optionName;
@@ -482,7 +448,6 @@ app.put('/api/updateMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptio
         mealOption.price = price || mealOption.price;
         mealOption.description = description || mealOption.description;
         mealOption.unit = unit || mealOption.unit;
-        mealOption.allergens = allergens || allergens.allergens;
         await user.save();
         res.status(200).json({
             message: 'Meal option updated successfully',
@@ -500,7 +465,7 @@ app.put('/api/editSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOpti
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId } = req.params;
         const { photoLink, subMenuOptionName } = req.body;
-        const user = await User.findOne({ id: userId });
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -535,7 +500,7 @@ app.put('/api/editSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOpti
 app.delete('/api/removeSubMenuOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionId', async (req, res) => {
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId } = req.params;
-        const user = await User.findOne({ id: userId });
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -561,7 +526,9 @@ app.post('/api/addMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
     try {
         const { userId, restaurantId, menuOptionId, subMenuOptionId } = req.params;
         const newMealOption = req.body; // The new meal option data
-        const user = await User.findOne({ id: userId });
+        // Validate the meal option data as necessary
+        // ...
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -593,9 +560,9 @@ app.post('/api/addMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
         const { userId, restaurantId } = req.params;
-        const { name, aboutUs, address, phoneNumber, rooms, tables } = req.body;
+        const { name, aboutUs, address, phoneNumber } = req.body;
         // Find the user by userId
-        const user = await User.findOne({ id: userId });
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -612,8 +579,6 @@ app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
         restaurant.aboutUs = aboutUs || restaurant.aboutUs;
         restaurant.address = address || restaurant.address;
         restaurant.phoneNumber = phoneNumber || restaurant.phoneNumber;
-        restaurant.rooms = rooms || restaurant.rooms;
-        restaurant.tables = tables || restaurant.tables;
         await user.save();
         res.status(200).json({
             message: 'Restaurant updated successfully',
@@ -628,7 +593,7 @@ app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
 app.delete('/api/removeOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId', async (req, res) => {
     const { userId, restaurantId, menuOptionId } = req.params;
     try {
-        const user = await User.findOne({ id: userId });
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -653,7 +618,7 @@ app.put('/api/editOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId', as
         const { userId, restaurantId, menuOptionId } = req.params;
         const { photoLink, optionName } = req.body; // Assuming these are the fields you want to update
         // Find the user by userId
-        const user = await User.findOne({ id: userId });
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -684,7 +649,7 @@ app.use(function (err, req, res, next) {
     console.error(err);
     res.status(500).send('Something broke!');
 });
-const PORT = process.env.PORT || 8010;
+const PORT = process.env.PORT || 8009;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
