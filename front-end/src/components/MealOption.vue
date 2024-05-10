@@ -22,9 +22,9 @@
         <div>
           <label for="unit">Unitate:</label>
           <select id="unit" v-model="mealOption.unit" class="form-control">
-            <option value="gr">Grame</option>
-            <option value="ml">Mililitrii</option>
-            <option value="p">Bucata</option>
+            <option value="grams">Grame</option>
+            <option value="liters">Litri</option>
+            <option value="pieces">Bucata</option>
           </select>
         </div>
       </div>
@@ -41,10 +41,6 @@
         <label for="price">Pret:</label>
         <input type="number" id="price" v-model="mealOption.price" class="form-control"/>
       </div>
-      <div class="form-group">
-        <label for="allergens">Alergeni:</label>
-        <input type="text" id="allergens" v-model="mealOption.allergens" class="form-control"/>
-      </div>
       <div class="dialog-buttons">
         <button class="btn btn-secondary" @click="closeDialog">Renunta</button>
         <button class="btn btn-primary" @click="submitMealOption">Adauga</button>
@@ -56,7 +52,7 @@
 <script>
 import api from "@/api/api";
 import { getAuthToken } from "@/utility/utility";
-
+import {mapGetters} from "vuex";
 
 export default {
   name: "MealOption",
@@ -72,7 +68,6 @@ export default {
         price: "",
         description: "",
         unit: "",
-        allergens:"",
         categoryMenuOption: "",
         userId: '', // Initialize userId
         restaurantId: '', // Initialize restaurantId
@@ -81,25 +76,12 @@ export default {
       },
     };
   },
+  computed:{
+    ...mapGetters({
+      getUserId: "getUserId"
+    }),
+  },
   methods: {
-    async fetchUserId() {
-      try {
-        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
-        const response = await api.get('/api/userData', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (response.data && response.data.id) {
-          return response.data.id; // Assuming the response includes the user ID
-        } else {
-          throw new Error('User ID not found in response');
-        }
-      } catch (error) {
-        console.error('Failed to fetch user ID:', error);
-        return null; // Handle error or return null if ID couldn't be fetched
-      }
-    },
     closeDialog() {
       this.$emit('close'); // Emitting an event named 'close'
     },
@@ -115,12 +97,13 @@ export default {
         categoryMenuOption: ""
       };
     },
-    async submitMealOption() {
-      const userId = await this.fetchUserId();
-      console.log('User ID:', userId);
-      console.log('Restaurant ID:', this.restaurantId);
-      console.log('Menu Option ID:', this.menuOptionId);
-      console.log('Sub Menu Option ID:', this.mealOption.categoryMenuOption);
+    submitMealOption() {
+      console.log('Submitting meal option with IDs:', {
+        userId: this.userId,
+        restaurantId: this.restaurantId,
+        menuOptionId: this.menuOptionId,
+        subMenuOptionId: this.mealOption.categoryMenuOption,
+      });
 
       const mealOptionData = {
         ...this.mealOption,
@@ -146,6 +129,7 @@ export default {
             console.error("Error adding meal option:", error);
           });
     },
+
 
     async fetchRestaurantData() {
       if (!this.restaurantName) {
@@ -179,10 +163,10 @@ export default {
     },
 
   },
-  async created() {
+  created() {
     console.log('Component created! Fetching restaurant data...');
-    await this.fetchRestaurantData();
-    this.userId = await this.fetchUserId();
+    this.fetchRestaurantData();
+    this.userId = this.getUserId;
   },
 };
 </script>
