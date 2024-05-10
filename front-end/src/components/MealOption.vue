@@ -118,6 +118,10 @@ export default {
     async submitMealOption() {
       const userId = await this.fetchUserId();
       console.log('User ID:', userId);
+      console.log('Restaurant ID:', this.restaurantId);
+      console.log('Menu Option ID:', this.menuOptionId);
+      console.log('Sub Menu Option ID:', this.mealOption.categoryMenuOption);
+
       const mealOptionData = {
         ...this.mealOption,
         categoryMenuOption: this.mealOption.categoryMenuOption,

@@ -1,4 +1,3 @@
-
 <template>
   <div class="container">
     <div class="m-2 icon-container">
@@ -393,7 +392,7 @@ export default {
           if (subMenuOption) {
             subMenuOption.mealOptions = subMenuOption.mealOptions.filter(meal => meal._id !== mealOptionId);
           }
-          await this.fetchRestaurantData(); // Update your local data
+          this.fetchRestaurantData(); // Update your local data
         }
       } catch (error) {
         console.error("Error deleting meal option:", error);
