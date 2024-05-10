@@ -1,3 +1,4 @@
+
 import {createStore} from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import api from "@/api/api";
@@ -5,7 +6,6 @@ import api from "@/api/api";
 export default createStore({
     plugins: [createPersistedState()],
     state: {
-        loadingUserData: false,
         user: {
             email: localStorage.getItem('userEmail') || '',
             name: localStorage.getItem('userName') || '',
@@ -15,9 +15,6 @@ export default createStore({
         },
     },
     mutations: {
-        setLoadingState(state, isLoading) {
-            state.loadingUserData = isLoading;
-        },
         setUser(state, payload) {
             console.log('Committing user data', payload);
             state.user.email = payload.email;
@@ -70,7 +67,6 @@ export default createStore({
     },
     actions: {
         async loadUserData({commit}) {
-            commit('setLoadingState', true);
             try {
                 const token = localStorage.getItem('jwtToken'); // Use 'jwtToken' to match what's used in your code
                 if (!token) {
@@ -97,22 +93,21 @@ export default createStore({
 
                     throw new Error('Failed to fetch user data');
                 }
-                const userData = await response.json();
+                const fullUserData = await response.json();
 
-                console.log('User data from response', userData);
+                console.log('User data from response', fullUserData);
 
                 commit('setUser', { // Update to pass 'token' if needed
-                    email: userData.email,
-                    name: userData.name,
-                    id: userData.id,
-                    restaurants: userData.restaurants,
+                    email: fullUserData.email,
+                    name: fullUserData.name,
+                    id: fullUserData.id,
+                    restaurants: fullUserData.restaurants,
                     token: token, // Update to use 'token' from local storage
                 });
                 console.log('State after commit:', this.state.user);
             } catch (error) {
                 console.error('Error during loadUserData:', error);
                 console.error('Failed to load user data:', error);
-                commit('setLoadingState', false);
                 // Handle the error here, such as showing an error message to the user
             }
         },
@@ -123,13 +118,12 @@ export default createStore({
 
                 if (response.data.token) {
                     localStorage.setItem('jwtToken', response.data.token);
-                    commit('setUser', response.data.user);
-                    // commit('setUser', {
-                    //     email: response.data.user.email,
-                    //     name: response.data.user.name,
-                    //     id: response.data.user.id,
-                    //     token: response.data.token, // Update to use 'token'
-                    // });
+                    commit('setUser', {
+                        email: response.data.user.email,
+                        name: response.data.user.name,
+                        id: response.data.user.id,
+                        token: response.data.token, // Update to use 'token'
+                    });
                     console.log('User logged in:', this.state.user);
                 } else {
                     throw new Error('Login failed');
