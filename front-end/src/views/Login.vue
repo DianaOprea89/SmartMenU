@@ -69,7 +69,7 @@ export default {
             email: this.email,
             password: this.password,
             id: this.id,
-            token: this.token
+
           }),
         });
 
@@ -88,7 +88,7 @@ export default {
             email: user.email,
             name: user.name,
             id: user.id,
-            token: user.token
+
           });
 
           this.$router.push('/menu');
