@@ -395,8 +395,12 @@ export default {
         return;
       }
       try {
+        const token = getAuthToken();
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
-          headers: {Authorization: `Bearer ${getAuthToken()}`}
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          }
         });
         if (response && response.status === 200 && response.data) {
           const menuOptionData = response.data.menuOptions.find((m) => m.optionName === this.menuOption);

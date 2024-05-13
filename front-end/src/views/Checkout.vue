@@ -2,12 +2,7 @@
   <div id="page-wrap">
     <h1>Shopping Cart</h1>
     <div v-if="cartItems.length > 0">
-      <CartProductList
-          :products="cartItems"
-          :product-quantities="productQuantities"
-          @remove-from-cart="removeFromCart"
-          @add-to-cart="addtoCart"
-      ></CartProductList>
+
     </div>
     <p v-else>You haven't added anything to your cart yet</p>
 
@@ -19,10 +14,9 @@
 </template>
 
 <script>
-import CartProductList from "@/components/CartProductList";
+
 export default {
   name: "CheckOut",
-  components:{CartProductList},
   data() {
     return {
       isLoading: false,

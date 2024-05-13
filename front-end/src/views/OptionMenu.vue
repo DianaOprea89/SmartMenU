@@ -197,7 +197,7 @@ export default {
 
       api
           .post("/api/addOptionMenuRestaurants", {
-            userId: this.$store.state.user.id,
+            userId: this.getUserId,
             name: this.restaurantName,
             newItem,
           })
@@ -260,8 +260,12 @@ export default {
     },
     async fetchRestaurants() {
       try {
+        const token = getAuthToken();
         const response = await api.get('/api/userData', {
-          headers: {Authorization: `Bearer ${getAuthToken()}`}
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          }
         });
 
         if (response && response.status === 200) {

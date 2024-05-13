@@ -137,8 +137,13 @@ export default {
         return;
       }
       try {
+        const token = getAuthToken(); // Assuming getAuthToken() returns the token
+
         const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
-          headers: { Authorization: `Bearer ${getAuthToken()}` }
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          }
         });
 
         if (response && response.status === 200 && response.data) {

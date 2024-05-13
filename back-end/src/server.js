@@ -34,6 +34,17 @@ app.use((req, res, next) => {
     console.log(`Request received: ${req.method} ${req.url}`);
     next();
 });
+app.use((req, res, next) => {
+    console.log(`Received ${req.method} request for ${req.url} from ${req.ip}`);
+    next();
+});
+
+// Error handling middleware to catch any errors
+app.use((err, req, res, next) => {
+    console.error(`Error processing request ${req.method} ${req.url} - `, err);
+    res.status(500).send('Internal Server Error');
+});
+
 app.get('/api/restaurant/:name', async (req, res) => {
     try {
         const { name } = req.params;
@@ -50,10 +61,11 @@ app.get('/api/restaurant/:name', async (req, res) => {
     }
 });
 app.get('/api/userData', async (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1]; // Authorization: 'Bearer TOKEN'
-    if (!token) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'No token provided' });
     }
+    const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log('Decoded token:', decoded);
@@ -190,6 +202,7 @@ app.post('/api/login', async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
+        console.log('Received token:', token); // Log the received token
 
         res.status(200).json({
             message: 'Logged in successfully',
@@ -649,7 +662,7 @@ app.use(function (err, req, res, next) {
     console.error(err);
     res.status(500).send('Something broke!');
 });
-const PORT = process.env.PORT || 8009;
+const PORT = process.env.PORT || 8013;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
