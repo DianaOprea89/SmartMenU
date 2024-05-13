@@ -46,6 +46,11 @@ app.use((err, req, res, next) => {
 });
 
 app.get('/api/restaurant/:name', async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
+    const token = authHeader.split(' ')[1];
     try {
         const { name } = req.params;
         // Assuming the restaurant name is unique. Adjust the query as needed.
@@ -60,17 +65,27 @@ app.get('/api/restaurant/:name', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-app.get('/api/userData', async (req, res) => {
+// Middleware to handle authentication
+function authenticateToken(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'No token provided' });
     }
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1]; // Extract token from header
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log('Decoded token:', decoded);
-        const user = await User.findById(decoded.userId).populate('restaurants');
-        console.log('User data from database:', user);
+        req.user = decoded; // Attach user information to request object
+        next(); // Call next middleware
+    } catch (error) {
+        console.error('Error verifying token:', error);
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+}
+
+// Route to retrieve user data
+app.get('/api/userData', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).populate('restaurants');
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -78,19 +93,14 @@ app.get('/api/userData', async (req, res) => {
             name: user.username,
             email: user.email,
             id: user._id,
-            restaurants: user.restaurants, // Make sure to include populated restaurants here
+            restaurants: user.restaurants,
         });
     } catch (error) {
         console.error('Error fetching user data:', error);
-        if (error.name === 'TokenExpiredError') {
-            res.status(401).json({ message: 'Token expired' });
-        } else if (error.name === 'JsonWebTokenError') {
-            res.status(401).json({ message: 'Invalid token' });
-        } else {
-            res.status(500).json({ message: 'Internal server error' });
-        }
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
         const { userId, restaurantId } = req.params;

@@ -1,4 +1,6 @@
 // utility.js
 export function getAuthToken() {
-    return localStorage.getItem('jwtToken'); // Adjust to your storage method
+    const token = localStorage.getItem('jwtToken');
+    console.log('jwtToken:', token); // Log the token value
+    return token; // Return the token
 }
