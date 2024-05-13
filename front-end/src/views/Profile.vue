@@ -24,7 +24,7 @@
                 <p class="card-text">{{ restaurant.phoneNumber }}</p>
               </div>
             </div>
-            <!--         <option-menu  :restaurantName="restaurant.name"/>-->
+<!--         <option-menu  :restaurantName="restaurant.name"/>-->
             <div class="card-actions-container">
 
               <router-link :to="`/restaurant/${encodeURIComponent(restaurant.name)}`" class="nolink card-action-button" :restaurantName="restaurant.name">

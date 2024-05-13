@@ -1,4 +1,3 @@
-
 import {createStore} from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import api from "@/api/api";

@@ -2,7 +2,7 @@
   <div class="add-restaurant-form container text-center" v-if="isAuthenticated">
     <h2 class="text-center mb-4">Add Your Restaurant</h2>
     <form @submit.prevent="addRestaurant">
-      <div class="row mb-3">
+    <div class="row mb-3">
         <div class="col-sm-8">
           <input type="text" class="form-control form-control-sm" id="restaurant-name" placeholder="Name" v-model="restaurant.name" required>
         </div>
@@ -28,16 +28,6 @@
           <input type="text" class="form-control form-control-sm" id="restaurant-logo" placeholder="Logo Image URL" v-model="restaurant.logoImage">
         </div>
       </div>
-      <div class="row mb-3">
-        <div class="col-sm-8">
-          <input type="number" class="form-control form-control-sm" id="restaurant-tables" placeholder="Numbers of tables" v-model="restaurant.tables">
-        </div>
-      </div>
-      <div class="row mb-3">
-        <div class="col-sm-8">
-          <input type="number" class="form-control form-control-sm" id="restaurant-rooms" placeholder="Numbers of rooms" v-model="restaurant.rooms">
-        </div>
-      </div>
       <div class="text-center">
         <button type="submit" class="btn btn-primary btn-sm" @submit="addRestaurant">Add Restaurant</button>
       </div>
@@ -57,10 +47,7 @@ export default {
         address: '',
         phoneNumber: '',
         aboutUs: '',
-        logoImage: '',
-        tables: '',
-        rooms: '',
-
+        logoImage: ''
       }
     };
   },
@@ -70,49 +57,24 @@ export default {
       return this.$store.getters.isAuthenticated;
     },
     userId() {
-      return this.$store.getters.getUserId
+
+      return this.$store.getters.yourUserIdGetter;
     }
   },
   methods: {
-    async fetchUserId() {
-      try {
-        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
-        const response = await api.get('/api/userData', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (response.data && response.data.id) {
-          return response.data.id; // Assuming the response includes the user ID
-        } else {
-          throw new Error('User ID not found in response');
-        }
-      } catch (error) {
-        console.error('Failed to fetch user ID:', error);
-        return null; // Handle error or return null if ID couldn't be fetched
-      }
-    },
     async addRestaurant() {
       try {
-        // First, fetch the user ID
-        const userId = await this.fetchUserId(); // Correctly await the result
-
-        if (!userId) {
-          console.error('User ID not fetched successfully');
-          return; // Exit if no user ID is fetched
-        }
-
         const restaurantData = {
           ...this.restaurant,
-          userId: userId // Use the fetched userId
+          userId: this.userId
         };
-
         console.log('Sending request with data:', restaurantData);
 
         const response = await api.post('/api/addRestaurants', restaurantData);
 
         if (response.status === 200 || response.status === 201) {
-          this.restaurant = { name: '', address: '', phoneNumber: '', aboutUs: '', logoImage: '', tables: '', rooms: '' };
+          this.restaurant = { name: '', address: '', phoneNumber: '', aboutUs: '', logoImage: '' };
+
           this.$router.push("/menu");
         } else {
           const errorData = await response.json();
@@ -120,11 +82,12 @@ export default {
         }
       } catch (error) {
         console.error('Error adding restaurant:', error);
+
       }
     }
-  },
 
 
+  }
 }
 </script>
 

@@ -13,13 +13,7 @@
         <p>{{ restaurantData.aboutUs }}</p>
         <p>{{ restaurantData.address }}</p>
         <p>{{ restaurantData.phoneNumber }}</p>
-        <div>
-          <p>Tables: {{restaurantData.tables}}</p>
-          <p>Rooms: {{restaurantData.rooms}}</p>
-        </div>
       </div>
-
-
       <div class="col-5">
         <img :src="restaurantData.logoImage" class="fixed-size-img" alt="the restaurant pictures">
       </div>
@@ -57,21 +51,21 @@
           </div>
         </div>
 
-        <div class="icon-container m-3">
-          <div class="image-edit-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon border-end d-flex flex-row-reverse"
-                 viewBox="0 0 16 16" @click="openEditDialog(menuOption)">
-              <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-            </svg>
-          </div>
-          <div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 delete-icon d-flex flex-row " viewBox="0 0 16 16" @click="removeMenuItem(menuOption._id)">
-              <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-            </svg>
-          </div>
-        </div>
+              <div class="icon-container m-3">
+                <div class="image-edit-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil edit-icon border-end d-flex flex-row-reverse"
+                       viewBox="0 0 16 16" @click="openEditDialog(menuOption)">
+                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                  </svg>
+                </div>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 delete-icon d-flex flex-row " viewBox="0 0 16 16" @click="removeMenuItem(menuOption._id)">
+                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                  </svg>
+                </div>
+              </div>
       </div>
-    </div>
+      </div>
     <!-- Custom Dialog -->
     <div class="custom-dialog" v-if="showDialog">
       <div class="custom-dialog-content">
@@ -116,6 +110,7 @@
 <script>
 import api from "../api/api.js";
 import {getAuthToken} from "@/utility/utility";
+import {mapGetters} from "vuex";
 
 export default {
   name: "OptionMenu",
@@ -142,28 +137,14 @@ export default {
   },
   computed: {
     restaurantData() {
-      return this.localRestaurantData;
+      console.log("localRestaurantData",this.localRestaurantData);
+      return this.localRestaurantData || {};
     },
+    ...mapGetters({
+      getUserId: "getUserId"
+    }),
   },
   methods: {
-    async fetchUserId() {
-      try {
-        const token = localStorage.getItem('jwtToken'); // Or however you store/access the token
-        const response = await api.get('/api/userData', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (response.data && response.data.id) {
-          return response.data.id; // Assuming the response includes the user ID
-        } else {
-          throw new Error('User ID not found in response');
-        }
-      } catch (error) {
-        console.error('Failed to fetch user ID:', error);
-        return null; // Handle error or return null if ID couldn't be fetched
-      }
-    },
     openDialog() {
       this.optionMenu = { photoLink: "", optionName: "" }; // Reset the form
       this.showDialog = true;
@@ -188,7 +169,7 @@ export default {
       const restaurantId = this.restaurantData._id;
       console.log('Removing menu option with ID:', menuOptionId);
       try {
-        const userId = await this.fetchUserId();
+        const userId = this.$store.getters.getUserId;
         console.log('Removing menu option with ID:', menuOptionId);
         const apiUrl = `/api/removeOptionMenuRestaurants/${userId}/${restaurantId}/${menuOptionId}`;
         const authToken = getAuthToken();
@@ -208,15 +189,15 @@ export default {
         // Handle error response if needed
       }
     },
-    async addItem() {
+    addItem() {
       const newItem = {
         photoLink: this.optionMenu.photoLink,
         optionName: this.optionMenu.optionName,
       };
-      const userId = await this.fetchUserId();
+
       api
           .post("/api/addOptionMenuRestaurants", {
-            userId: userId,
+            userId: this.$store.state.user.id,
             name: this.restaurantName,
             newItem,
           })
@@ -237,7 +218,7 @@ export default {
           });
     },
     async editMenu() {
-      const userId = await this.fetchUserId();
+      const userId = this.getUserId;
       const restaurantId = this.localRestaurantData._id;
       const menuOptionId = this.editingMenuOption._id;
 
@@ -277,38 +258,40 @@ export default {
         }
       });
     },
-    async fetchRestaurantData() {
+    async fetchRestaurants() {
       try {
-        const token = localStorage.getItem('jwtToken');
         const response = await api.get('/api/userData', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: {Authorization: `Bearer ${getAuthToken()}`}
         });
+
         if (response && response.status === 200) {
-          // Find the restaurant data by the name provided in props
-          const restaurant = response.data.restaurants.find(r => r.name === this.restaurantName);
-          if (restaurant) {
-            this.localRestaurantData = restaurant;
-          } else {
-            console.error('Restaurant with the given name not found.');
-          }
+          this.restaurants = response.data.restaurants; // Update local state
         } else {
-          console.error('Failed to fetch user data. Status:', response ? response.status : 'Unknown');
+          console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('An error occurred while fetching restaurants:', error);
       }
     },
-
   },
   async created() {
-    await this.fetchUserId();
-    await this.fetchRestaurantData();
 
+    try {
+      await this.fetchRestaurants();
+      const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
+        headers: { Authorization: `Bearer ${getAuthToken()}` }
+      });
+
+      if (response && response.status === 200) {
+        this.localRestaurantData = response.data;
+      } else {
+        console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
+      }
+    } catch (error) {
+      console.error('Error fetching restaurant details:', error);
+    }
   }
 }
-
 </script>
 <style scoped>
 .menu-options-container {

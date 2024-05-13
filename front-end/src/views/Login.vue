@@ -60,7 +60,7 @@ export default {
 
         console.log("Trying to login with", { email: this.email, password: this.password });
 
-        const response = await fetch("http://localhost:8010/api/login", {
+        const response = await fetch("http://localhost:8009/api/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

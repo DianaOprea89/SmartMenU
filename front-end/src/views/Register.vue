@@ -4,39 +4,40 @@
       <div class="col-md-6">
         <div class="card">
           <div class="card-body">
-            <h3 class="card-title text-center pb-3">Conectare</h3>
-            <h4 class="card-subtitle mb-2 text-muted text-center pb-3">Bine ai venit la OrderAI</h4>
-            <form>
-              <div class="mb-3">
-                <label for="email" class="form-label text-start">Adresă e-mail</label>
-                <input type="email" class="form-control" id="email" placeholder="E-mail" required autocomplete="email" v-model="email">
+            <h3 class="card-title text-center pb-3">Creeaza un cont</h3>
+            <form @submit.prevent="register">
+              <div class="mb-3 ">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label for="name" class="form-label text-start">Nume :</label>
+                </div>
+                <input type="name" class="form-control" id="name" placeholder="name" required v-model="name">
               </div>
               <div class="mb-3">
                 <div class="d-flex justify-content-between align-items-center">
-                  <label for="password" class="form-label">Parola</label>
-                  <p><router-link to="/recover" id="nav-link">Ai uitat parola?</router-link></p>
+                <label for="email" class="form-label text-start">Adresă e-mail:</label>
                 </div>
-                <input type="password" class="form-control" id="password" placeholder="Parola" required autocomplete="current-password" v-model="password" >
-                <div class="form-text small">
-                  "Parola trebuie să aibă între 8 și 20 de caractere, să conțină litere și cifre, și să nu conțină spații, caractere speciale sau emoji."
+                <input type="email" class="form-control" id="email" placeholder="E-mail" required v-model="email">
+              </div>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label for="password" class="form-label">Parola:</label>
                 </div>
+                <input type="password" class="form-control" id="password" placeholder="parola" required v-model="password" autocomplete="new-password">
+
               </div>
-              <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary" @click="login">Intra in cont</button>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label for="password" class="form-label">Confirma parola:</label>
+                </div>
+                <input type="password" class="form-control" id="confirmPassword" placeholder="confirma parola" required v-model="passwordConfirm" autocomplete="new-password">
+
               </div>
+
               <div class="text-center mt-3">
-                <p>Nu ai cont? <a href="#" class="pe-auto" @click="goToRegister">Registreaza-te</a></p>
+                <button type="submit" class="btn btn-primary">Registreaza-te</button>
               </div>
             </form>
             <hr>
-            <div class="text-center">
-              <button type="button" class="btn btn-outline-primary col-12"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-microsoft" viewBox="0 0 16 16">
-                <path d="M7.462 0H0v7.19h7.462V0zM16 0H8.538v7.19H16V0zM7.462 8.211H0V16h7.462V8.211zm8.538 0H8.538V16H16V8.211z"/>
-              </svg>    Sign in with Microsoft</button>
-              <button type="button" class="btn btn-outline-primary col-12"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-google" viewBox="0 0 16 16">
-                <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/>
-              </svg>    Sign in with  Google</button>
-            </div>
           </div>
         </div>
       </div>
@@ -45,84 +46,86 @@
 </template>
 
 <script>
-
+import { v4 as uuidv4 } from 'uuid';
 export default {
-  name: "LoginPage",
+  name: "RegisterPage",
   data() {
     return {
+      id:"",
+      name: "",
       email: "",
       password: "",
+      passwordConfirm: ""
     };
   },
   methods: {
-    async login() {
+    async register() {
+      if (!this.name || !this.email || !this.password || !this.passwordConfirm) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      if (this.password !== this.passwordConfirm) {
+        alert('Passwords do not match');
+        return;
+      }
+
+
+
       try {
+        const generatedId = uuidv4();
+        console.log("Data being sent to the server:", JSON.stringify({
+          id: generatedId,
+          name: this.name,
+          email: this.email,
+          password: this.password
+        }));
 
-        console.log("Trying to login with", { email: this.email, password: this.password });
 
-        const response = await fetch("http://localhost:8009/api/login", {
+        const response = await fetch("http://localhost:8009/api/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            id: generatedId,
+            name: this.name,
             email: this.email,
             password: this.password,
-            id: this.id
+            passwordConfirm: this.passwordConfirm
           }),
         });
 
-
-
-
-        console.log("Got response", response);
-        if (response.ok) {
-          const { user, token } = await response.json();
-
-
-          localStorage.setItem('jwtToken', token);
-
-
-          this.$store.commit('setUser', {
-            email: user.email,
-            name: user.name,
-            id: user.id,
-          });
-
-          this.$router.push('/menu');
-          this.$router.push('/menu');
-        } else {
-          console.error("Failed to login");
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to register");
         }
 
-
+        localStorage.setItem("user", JSON.stringify(data.user));
+        this.$router.push('/login');
+        alert("The user has been created. Please login in with the user mail and password in order to continue.")
       } catch (error) {
-        console.error("Error logging in:", error);
-      }
-    },
+        console.error('Error:', error);
 
-    goToRegister() {
-      this.$router.push('/register');
+        alert("Error registering: " + error.message);
+      }
+
     }
-  },
+
+  }
 };
 </script>
 
-
-<style>
-#login-panel {
-  justify-content: center;
+<style scoped>
+.small{
+  font-size: 12px;
+  color: grey;
+}
+.checkbox-container {
+  display: flex;
   align-items: center;
-  min-height: 100vh;
+  gap: 10px;
 }
 
-.card {
-  max-width: 900px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  border: 1px solid #ccc;
-  padding: 20px;
-}
-.small {
-  font-size: 50%; /* You can adjust the percentage to control the text size */
-}
+
 </style>

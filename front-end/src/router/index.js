@@ -37,7 +37,7 @@ const routes = [
     },
 
     {
-        path: '/restaurant/:restaurantName/accessRestaurant/viewMenu/checkout',
+        path: '/checkout',
         name: 'CheckOut',
         component: Checkout,
         props: true,

@@ -98,18 +98,18 @@ export default {
       };
     },
     submitMealOption() {
-      console.log('Submitting meal option with IDs:', {
-        userId: this.userId,
-        restaurantId: this.restaurantId,
-        menuOptionId: this.menuOptionId,
-        subMenuOptionId: this.mealOption.categoryMenuOption,
-      });
+        console.log('Submitting meal option with IDs:', {
+          userId: this.userId,
+          restaurantId: this.restaurantId,
+          menuOptionId: this.menuOptionId,
+          subMenuOptionId: this.mealOption.categoryMenuOption,
+        });
 
       const mealOptionData = {
         ...this.mealOption,
         categoryMenuOption: this.mealOption.categoryMenuOption,
       };
-      console.log(this.mealOption.categoryMenuOption)
+       console.log(this.mealOption.categoryMenuOption)
 
       // You must have userId, restaurantId, menuOptionId, and subMenuOptionId available
       if (!this.userId || !this.restaurantId || !this.menuOptionId || !this.mealOption.categoryMenuOption) {
