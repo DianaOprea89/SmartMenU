@@ -73,9 +73,6 @@ export default {
           }),
         });
 
-
-
-
         console.log("Got response", response);
         if (response.ok) {
           const { user, token } = await response.json();
