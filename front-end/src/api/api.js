@@ -1,7 +1,6 @@
-// api.js
-
+// src/api.js
 import axios from 'axios';
-import {getAuthToken} from "@/utility/utility";
+import { getAuthToken } from '@/utility/utility';
 
 const api = axios.create({
     baseURL: 'http://localhost:8013', // or your API base URL
@@ -17,7 +16,8 @@ api.interceptors.request.use((config) => {
         config.headers.Authorization = `Bearer ${authToken}`;
     }
     return config;
+}, (error) => {
+    return Promise.reject(error);
 });
 
 export default api;
-
