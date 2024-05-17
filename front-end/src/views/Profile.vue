@@ -220,8 +220,15 @@ export default {
       }
     },
   },
-  created() {
+  async created() {
     this.fetchRestaurants(); // Fetch restaurants when the component is created
+    try {
+      const response = await api.get('/api/getRestaurants');
+      this.restaurants = response.data;
+    } catch (error) {
+      console.error('An error occurred while fetching restaurants:', error);
+      this.errorMessage = 'Failed to load restaurants. Please try again later.';
+    }
   },
 };
 </script>
