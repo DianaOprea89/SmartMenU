@@ -605,7 +605,38 @@ app.delete('/api/removeOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId
     }
 });
 //Put endpoint to edit an option added to a restaurant //
-
+app.put('/api/editOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId', async (req, res) => {
+    try {
+        const { userId, restaurantId, menuOptionId } = req.params;
+        const { photoLink, optionName } = req.body; // Assuming these are the fields you want to update
+        // Find the user by userId
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        // Find the restaurant by restaurantId
+        const restaurant = user.restaurants.id(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+        // Find the menu option by menuOptionId
+        const menuOption = restaurant.menuOptions.id(menuOptionId);
+        if (!menuOption) {
+            return res.status(404).json({ message: 'Menu option not found' });
+        }
+        // Update the menu option
+        if (photoLink) menuOption.photoLink = photoLink;
+        if (optionName) menuOption.optionName = optionName;
+        await user.save();
+        res.status(200).json({
+            message: 'Menu option updated successfully',
+            updatedOption: menuOption
+        });
+    } catch (error) {
+        console.error('Error updating menu option:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 app.use(function (err, req, res, next) {
     console.error(err);
     res.status(500).send('Something broke!');
