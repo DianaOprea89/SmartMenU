@@ -549,7 +549,38 @@ app.post('/api/addMealOption/:userId/:restaurantId/:menuOptionId/:subMenuOptionI
     }
 });
 //Put Endpoint to the edit a  restaurant//
-
+app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
+    try {
+        const { userId, restaurantId } = req.params;
+        const { name, aboutUs, address, phoneNumber } = req.body;
+        // Find the user by userId
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        // Find the restaurant by restaurantId within the user's restaurants array
+        const restaurantIndex = user.restaurants.findIndex(
+            (restaurant) => restaurant._id.toString() === restaurantId
+        );
+        if (restaurantIndex === -1) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+        // Update the restaurant details
+        const restaurant = user.restaurants[restaurantIndex];
+        restaurant.name = name || restaurant.name;
+        restaurant.aboutUs = aboutUs || restaurant.aboutUs;
+        restaurant.address = address || restaurant.address;
+        restaurant.phoneNumber = phoneNumber || restaurant.phoneNumber;
+        await user.save();
+        res.status(200).json({
+            message: 'Restaurant updated successfully',
+            updatedRestaurant: restaurant,
+        });
+    } catch (error) {
+        console.error('Error updating restaurant:', error);
+        res.status(500).json({ message: 'Error updating restaurant' });
+    }
+});
 //Delete endpoint to the OptionMenu //
 app.delete('/api/removeOptionMenuRestaurants/:userId/:restaurantId/:menuOptionId', async (req, res) => {
     const { userId, restaurantId, menuOptionId } = req.params;
