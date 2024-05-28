@@ -85,23 +85,7 @@ function authenticateToken(req, res, next) {
 }
 
 // Route to retrieve user data
-app.get('/api/userData', authenticateToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.userId).populate('restaurants');
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json({
-            name: user.username,
-            email: user.email,
-            id: user._id,
-            restaurants: user.restaurants,
-        });
-    } catch (error) {
-        console.error('Error fetching user data:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
+
 
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
