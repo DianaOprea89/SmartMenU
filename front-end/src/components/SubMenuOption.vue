@@ -205,8 +205,8 @@ export default {
         unit: "",
         categoryMenuOption: "",
       },
-      subMenuOptions: {},  // Initialize as empty array
-      mealOption: {},      // Initialize as empty object
+      subMenuOptions: [],  // Initialize as empty array
+      mealOptions: {},      // Initialize as empty object
     };
   },
   computed: {
