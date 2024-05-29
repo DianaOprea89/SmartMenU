@@ -215,10 +215,10 @@ export default {
     }),
     groupedMealOptions() {
       const groupedOptions = {};
-      if (this.restaurantData && this.restaurantData.subMenuOptions) {
+      if (this.restaurantData && Array.isArray(this.restaurantData.subMenuOptions)) {
         this.restaurantData.subMenuOptions.forEach(subMenuOption => {
           groupedOptions[subMenuOption._id] = {
-            mealOptions: subMenuOption.mealOptions,
+            mealOptions: subMenuOption.mealOptions || [],
             subMenuOptionId: subMenuOption._id
           };
         });
