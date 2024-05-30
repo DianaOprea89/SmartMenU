@@ -86,6 +86,7 @@ function authenticateToken(req, res, next) {
     }
 }
 
+
 // Route to retrieve user data
 app.get('/api/userData', authenticateToken, async (req, res) => {
     try {
@@ -108,6 +109,7 @@ app.get('/api/userData', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
