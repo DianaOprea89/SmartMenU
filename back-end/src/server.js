@@ -67,6 +67,7 @@ app.get('/api/restaurant/:name', async (req, res) => {
     }
 });
 
+
 // Middleware to handle authentication
 function authenticateToken(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -76,6 +77,7 @@ function authenticateToken(req, res, next) {
     const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Decoded token:', decoded); // Log the decoded token
         req.user = decoded;
         next();
     } catch (error) {
@@ -87,22 +89,26 @@ function authenticateToken(req, res, next) {
 // Route to retrieve user data
 app.get('/api/userData', authenticateToken, async (req, res) => {
     try {
+        console.log('User ID from token:', req.user.userId); // Log the user ID from the token
+
         const user = await User.findById(req.user.userId).populate('restaurants');
         if (!user) {
+            console.log('User not found in database:', req.user.userId); // Log if user not found
             return res.status(404).json({ message: 'User not found' });
         }
+
         res.status(200).json({
             name: user.username,
             email: user.email,
             id: user._id,
             restaurants: user.restaurants,
         });
-        console.log("the user", user)
     } catch (error) {
         console.error('Error fetching user data:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 app.put('/api/editRestaurant/:userId/:restaurantId', async (req, res) => {
     try {
