@@ -14,16 +14,22 @@ export default createStore({
         },
     },
     mutations: {
-        setUser(state, user) {
-            state.user = user;
-            localStorage.setItem('jwtToken', user.token);
-        },
-        logout(state) {
-            state.user = {};
-            localStorage.removeItem('jwtToken');
+        setUser(state, payload) {
+            console.log('Committing user data', payload);
+            state.user.email = payload.email;
+            state.user.name = payload.name;
+            state.user.id = payload.id;
+            state.user.restaurants = payload.restaurants || [];
+            if (payload.token) {
+                state.user.token = payload.token;
+                localStorage.setItem('jwtToken', payload.token); // Update local storage
+            }
         },
         clearUserData(state) {
-            Object.assign(state.user, { email: '', name: '', id: '', token: '', restaurants: [] });
+            state.user.email = '';
+            state.user.name = '';
+            state.user.id = '';
+            state.user.token = ''; // Clear the token
             localStorage.removeItem('jwtToken');
         },
         SET_RESTAURANTS(state, restaurants) {
@@ -110,14 +116,13 @@ export default createStore({
                 const response = await api.post('/api/login', credentials);
 
                 if (response.data.token) {
-
+                    localStorage.setItem('jwtToken', response.data.token);
                     commit('setUser', {
                         email: response.data.user.email,
                         name: response.data.user.name,
                         id: response.data.user.id,
                         token: response.data.token, // Update to use 'token'
                     });
-                    localStorage.setItem('jwtToken', response.data.token);
                     console.log('User logged in:', this.state.user);
                 } else {
                     throw new Error('Login failed');
