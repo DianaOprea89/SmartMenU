@@ -167,48 +167,41 @@ export default {
     },
     async removeMenuItem(menuOptionId) {
       const restaurantId = this.restaurantData._id;
-      console.log('Removing menu option with ID:', menuOptionId);
       try {
         const userId = this.$store.getters.getUserId;
-        console.log('Removing menu option with ID:', menuOptionId);
         const apiUrl = `/api/removeOptionMenuRestaurants/${userId}/${restaurantId}/${menuOptionId}`;
         const authToken = getAuthToken();
         const response = await api.delete(apiUrl, {
           headers: {Authorization: `Bearer ${authToken}`}
         });
         if (response && response.status === 200) {
-          // The server has successfully removed the menu item, now update the local state
-          const updatedMenuOptions = this.restaurantData.menuOptions.filter(option => option._id !== menuOptionId);
-          this.restaurantData.menuOptions = updatedMenuOptions;
-          console.log('Menu option removed successfully');
+          // Filter out the removed item from the local state to update UI
+          this.restaurantData.menuOptions = this.restaurantData.menuOptions.filter(option => option._id !== menuOptionId);
         } else {
           console.error('Error removing menu option. Status:', response ? response.status : 'Unknown');
         }
       } catch (error) {
         console.error('An error occurred while removing menu option:', error);
-        // Handle error response if needed
       }
     },
+
     addItem() {
       const newItem = {
         photoLink: this.optionMenu.photoLink,
         optionName: this.optionMenu.optionName,
       };
-
-      api
-          .post("/api/addOptionMenuRestaurants", {
-            userId: this.getUserId,
-            name: this.restaurantName,
-            newItem,
-          })
+      api.post("/api/addOptionMenuRestaurants", {
+        userId: this.getUserId,
+        name: this.restaurantName,
+        newItem,
+      })
           .then((response) => {
             if (response.status === 201) {
-              this.items.push(newItem);
-              this.optionMenu.photoLink = "";
-              this.optionMenu.optionName = "";
+              // Directly push to restaurantData.menuOptions for reactivity
+              this.restaurantData.menuOptions.push(response.data.addedItem); // Assuming API returns the added item
+              this.optionMenu = { photoLink: "", optionName: "" }; // Reset the form
               this.showDialog = false;
               this.$router.push(`/restaurant/${encodeURIComponent(this.restaurantName.trim())}`);
-
             } else {
               console.error("Error adding menu option:", response.data.message);
             }
@@ -217,6 +210,7 @@ export default {
             console.error("Error adding menu option:", error);
           });
     },
+
     async editMenu() {
       const userId = this.getUserId;
       const restaurantId = this.localRestaurantData._id;
@@ -258,10 +252,10 @@ export default {
         }
       });
     },
-    async fetchRestaurants() {
+    async fetchRestaurantDetails() {
       try {
         const token = getAuthToken();
-        const response = await api.get('/api/userData', {
+        const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -269,19 +263,21 @@ export default {
         });
 
         if (response && response.status === 200) {
-          this.restaurants = response.data.restaurants; // Update local state
+          this.localRestaurantData = response.data;
         } else {
-          console.error('Failed to fetch restaurants. Status:', response ? response.status : 'Unknown');
+          console.error('Failed to fetch restaurant details. Status:', response ? response.status : 'Unknown');
         }
       } catch (error) {
-        console.error('An error occurred while fetching restaurants:', error);
+        console.error('An error occurred while fetching restaurant details:', error);
       }
-    },
+    }
+
+
   },
   async created() {
 
     try {
-      await this.fetchRestaurants();
+      await this.fetchRestaurantDetails();
       const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
         headers: { Authorization: `Bearer ${getAuthToken()}` }
       });
