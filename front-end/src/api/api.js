@@ -13,8 +13,8 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         const authToken = getAuthToken();
-        if (authToken) {
-            config.headers.Authorization = `Bearer ${authToken}`;
+        if (authToken.Authorization) {
+            config.headers.Authorization = authToken.Authorization;
         }
         return config;
     },
@@ -23,12 +23,22 @@ api.interceptors.request.use(
     }
 );
 
+
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 401) {
-            console.error('Unauthorized error:', error.response);
-            // Handle unauthorized error (e.g., redirect to login)
+        if (error.response) {
+            switch (error.response.status) {
+                case 401:
+                    // Handle unauthorized error (e.g., redirect to login, log out user)
+                    console.error('Unauthorized error:', error.response);
+                    break;
+                case 404:
+                    console.error('Resource not found:', error.response);
+                    break;
+                default:
+                    console.error('Error response:', error.response);
+            }
         }
         return Promise.reject(error);
     }

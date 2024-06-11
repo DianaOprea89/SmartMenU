@@ -277,7 +277,7 @@ export default {
   async created() {
 
     try {
-      await this.fetchRestaurantDetails();
+      await this.fetchRestaurantDetails(this.restaurantName);
       const response = await api.get(`/api/restaurant/${encodeURIComponent(this.restaurantName)}`, {
         headers: { Authorization: `Bearer ${getAuthToken()}` }
       });

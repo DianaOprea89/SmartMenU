@@ -14,11 +14,13 @@ export default createStore({
         },
     },
     mutations: {
-        setUser(state, payload) {
-            state.user = { ...state.user, ...payload };
-            if (payload.token) {
-                localStorage.setItem('jwtToken', payload.token);
-            }
+        setUser(state, user) {
+            state.user = user;
+            localStorage.setItem('jwtToken', user.token);
+        },
+        logout(state) {
+            state.user = {};
+            localStorage.removeItem('jwtToken');
         },
         clearUserData(state) {
             Object.assign(state.user, { email: '', name: '', id: '', token: '', restaurants: [] });
