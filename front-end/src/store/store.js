@@ -15,21 +15,13 @@ export default createStore({
     },
     mutations: {
         setUser(state, payload) {
-            console.log('Committing user data', payload);
-            state.user.email = payload.email;
-            state.user.name = payload.name;
-            state.user.id = payload.id;
-            state.user.restaurants = payload.restaurants || [];
+            state.user = { ...state.user, ...payload };
             if (payload.token) {
-                state.user.token = payload.token;
-                localStorage.setItem('jwtToken', payload.token); // Update local storage
+                localStorage.setItem('jwtToken', payload.token);
             }
         },
         clearUserData(state) {
-            state.user.email = '';
-            state.user.name = '';
-            state.user.id = '';
-            state.user.token = ''; // Clear the token
+            Object.assign(state.user, { email: '', name: '', id: '', token: '', restaurants: [] });
             localStorage.removeItem('jwtToken');
         },
         SET_RESTAURANTS(state, restaurants) {
